@@ -5211,8 +5211,8 @@ function renderCfgScreens(panel){
       {id:'table',    name:'Tabular',           params:4, draw:thumbTable},
       {id:'split',    name:'Split',             params:4, draw:thumbSplit},
       {id:'physio',   name:'Fisiologia',        params:4, draw:thumbPhysio},
-      {id:'rel',      name:'Relação Fisio.',    params:4, draw:thumbRelation},
-      {id:'cockpit',  name:'Cockpit',           params:4, draw:thumbCockpit4},
+      {id:'rel',      name:'Relação Fisio.',    params:4, draw:thumbClassicRelation},
+      {id:'cockpit',  name:'Cockpit',           params:4, draw:thumbClassicCockpit},
       {id:'goal',     name:'Goal Positioning',  params:4, draw:thumbGoal},
     ],
   };
@@ -5390,6 +5390,46 @@ function thumbGraph2(){return `<svg viewBox="0 0 150 100"><rect width="150" heig
 function thumbGraph1(){return `<svg viewBox="0 0 150 100"><rect width="150" height="100" fill="#0a0c10"/><rect x="6" y="14" width="138" height="72" fill="#0a0c10" stroke="#2a3140"/><polyline points="${Array.from({length:30},(_,k)=>(8+k*4.5)+','+(50+Math.sin(k*0.4)*18)).join(' ')}" fill="none" stroke="#1bc964" stroke-width="1.4"/></svg>`}
 function thumbTable(){return `<svg viewBox="0 0 150 100"><rect width="150" height="100" fill="#0a0c10"/><rect x="6" y="6" width="138" height="88" fill="#0d1119" stroke="#2a3140"/>${Array.from({length:5},(_,i)=>`<line x1="6" y1="${20+i*14}" x2="144" y2="${20+i*14}" stroke="#2a3140" stroke-width="0.4"/>`).join('')}${Array.from({length:5},(_,i)=>`<line x1="${30+i*22}" y1="6" x2="${30+i*22}" y2="94" stroke="#2a3140" stroke-width="0.4"/>`).join('')}<text x="14" y="16" fill="#9aa6b8" font-size="6">DC</text><text x="14" y="30" fill="#fff" font-size="6">5.5</text><text x="14" y="44" fill="#fff" font-size="6">5.4</text></svg>`}
 function thumbCockpit4(){return `<svg viewBox="0 0 150 100"><rect width="150" height="100" fill="#0a0c10"/>${[0,1,2,3].map(i=>{const cx=24+(i%2)*78,cy=22+Math.floor(i/2)*42;return `<circle cx="${cx}" cy="${cy}" r="14" fill="none" stroke="#1bc964" stroke-width="3"/><text x="${cx}" y="${cy+3}" fill="#fff" font-size="9" text-anchor="middle" font-weight="600">${['5.5','78','82','9'][i]}</text>`}).join('')}</svg>`}
+function thumbClassicRelation(){
+  // Replica a tela "Relacao Fisiologica" — arvore hierarquica DO2/VO2
+  const NODES = [
+    {x:60,y:5,  w:30,h:9,  l:'ScvO2', s:'green'},
+    {x:36,y:21, w:26,h:9,  l:'IDO2',  s:'yellow'},
+    {x:88,y:21, w:26,h:9,  l:'VO2Ie', s:'green'},
+    {x:9, y:37, w:24,h:9,  l:'IC',    s:'green'},
+    {x:60,y:37, w:30,h:9,  l:'Hb',    s:''},
+    {x:117,y:37,w:26,h:9,  l:'SaO2',  s:''},
+    {x:9, y:53, w:24,h:9,  l:'IVS',   s:'green'},
+    {x:60,y:53, w:30,h:9,  l:'FCmed', s:'green'},
+    {x:0, y:69, w:24,h:9,  l:'IVDF',  s:'green'},
+    {x:60,y:69, w:30,h:9,  l:'IRVS',  s:'green'},
+    {x:117,y:69,w:26,h:9,  l:'FEVD',  s:'green'},
+    {x:0, y:84, w:24,h:9,  l:'PVC',   s:'green'},
+    {x:60,y:84, w:30,h:9,  l:'PAM',   s:'green'},
+  ];
+  const LINKS = [
+    [0,1],[0,2], [1,3],[1,4],[2,5],
+    [3,6],[3,7], [6,8],[6,9],[6,10], [8,11],[9,12]
+  ];
+  const sCol = s => s==='green'?'#27a601': s==='yellow'?'#cbb10a': s==='red'?'#b82d30':'#404040';
+  const linesHtml = LINKS.map(([fi,ti])=>{
+    const f = NODES[fi], t = NODES[ti];
+    const x1 = f.x + f.w/2, y1 = f.y + f.h;
+    const x2 = t.x + t.w/2, y2 = t.y;
+    const my = (y1+y2)/2;
+    return `<polyline points="${x1},${y1} ${x1},${my} ${x2},${my} ${x2},${y2}" fill="none" stroke="#fff" stroke-width="0.4"/>`;
+  }).join('');
+  const nodesHtml = NODES.map(n=>{
+    return `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="1" fill="#222" stroke="${sCol(n.s)}" stroke-width="0.5"/>`+
+           `<text x="${n.x + n.w/2}" y="${n.y + n.h/2 + 1.8}" font-size="3.6" fill="#fff" text-anchor="middle" font-weight="600">${n.l}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 150 100"><rect width="150" height="100" fill="#000"/>`+
+         linesHtml + nodesHtml +
+         `<text x="13" y="99" font-size="3" fill="#dde4ee" text-anchor="middle">Pre-carga</text>`+
+         `<text x="75" y="99" font-size="3" fill="#dde4ee" text-anchor="middle">Pos Carga</text>`+
+         `<text x="130" y="99" font-size="3" fill="#dde4ee" text-anchor="middle">Contratilidade</text>`+
+         `</svg>`;
+}
 function thumbClassicCockpit(){
   // Réplica fiel do screenCockpit: 4 gauges em 2×2 com anel ~270°,
   // zonas coloridas, apontador, valor + delta + label + unidade
