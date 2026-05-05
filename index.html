@@ -698,6 +698,48 @@ body.locked-classic #screenInner{padding-bottom:14px}
 .ct-row span{color:#fff;font-size:18px;font-weight:300;font-variant-numeric:tabular-nums}
 .ct-row i{color:var(--text-mute);font-size:10px;font-style:normal}
 
+/* ===== PASSWORD GATE — bloqueia uso ate liberar com senha ===== */
+#pwGate{
+  position:fixed;inset:0;z-index:9999;
+  background:#000;
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Segoe UI",sans-serif;
+}
+#pwGate .pw-card{
+  background:#11151c;border:1px solid #2a3140;border-radius:8px;
+  padding:30px 36px;min-width:340px;max-width:90vw;
+  box-shadow:0 12px 48px rgba(0,0,0,0.6);
+  text-align:center;
+}
+#pwGate .pw-brand{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-bottom:18px;
+}
+#pwGate .pw-brand .e{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:32px;height:32px;border-radius:50%;
+  background:#0c8acc;color:white;font-weight:700;font-size:16px;
+}
+#pwGate .pw-brand h1{margin:0;font-size:16px;font-weight:600;color:#fff;letter-spacing:.5px}
+#pwGate .pw-sub{font-size:12px;color:#9aa6b8;margin-bottom:22px}
+#pwGate .pw-input{
+  width:100%;background:#0a0c10;border:1px solid #2a3140;
+  color:#e8edf3;padding:10px 12px;border-radius:4px;
+  font-size:14px;font-family:inherit;
+  margin-bottom:8px;box-sizing:border-box;
+}
+#pwGate .pw-input:focus{outline:none;border-color:#3aa6ff;background:#0d1119}
+#pwGate .pw-error{
+  font-size:12px;color:#ff5a5a;height:18px;margin-bottom:8px;
+}
+#pwGate .pw-btn{
+  width:100%;background:#0c8acc;border:0;color:#fff;
+  padding:10px;border-radius:4px;font-size:13px;font-weight:600;
+  letter-spacing:.5px;cursor:pointer;font-family:inherit;
+}
+#pwGate .pw-btn:hover{background:#3aa6ff}
+#pwGate .pw-foot{font-size:10px;color:#6b7689;margin-top:18px}
+
 /* ===== PARAM PICKER MODAL ===== */
 .gauge.empty-slot{display:flex;align-items:center;justify-content:center;color:var(--text-mute);font-size:13px;cursor:pointer;background:#0e1218;border:1px dashed var(--line2);transition:background .15s,border-color .15s}
 .gauge.empty-slot:hover{background:#13202c;border-color:var(--accent);color:var(--accent)}
@@ -738,6 +780,56 @@ canvas.spark{display:block;width:100%;height:30px}
 </style>
 </head>
 <body>
+
+<!-- ===== PASSWORD GATE ===== -->
+<div id="pwGate">
+  <form class="pw-card" id="pwForm" autocomplete="off">
+    <div class="pw-brand">
+      <span class="e">E</span>
+      <h1>Simulador HemoSphere</h1>
+    </div>
+    <div class="pw-sub">Acesso restrito - digite a senha para continuar</div>
+    <input type="password" id="pwInput" class="pw-input" placeholder="Senha" autofocus required>
+    <div class="pw-error" id="pwError"></div>
+    <button type="submit" class="pw-btn">Entrar</button>
+    <div class="pw-foot">Conteudo educacional - nao usar clinicamente</div>
+  </form>
+</div>
+<script>
+(function(){
+  // Senha codificada em base64 — nao e seguranca real (qualquer um pode achar
+  // no source com 30 segundos de devtools), so impede acesso casual.
+  const PW_HASH = 'RXBpbmVmcmluYURleA==';
+  const expected = atob(PW_HASH);
+  const gate = document.getElementById('pwGate');
+  const form = document.getElementById('pwForm');
+  const input = document.getElementById('pwInput');
+  const errEl = document.getElementById('pwError');
+
+  // Se ja desbloqueou nesta sessao, libera direto
+  try {
+    if(sessionStorage.getItem('hemosim_unlocked') === '1'){
+      gate.style.display = 'none';
+      return;
+    }
+  } catch(e){ /* sessionStorage pode estar desabilitado */ }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(input.value === expected){
+      try { sessionStorage.setItem('hemosim_unlocked','1'); } catch(e){}
+      gate.style.display = 'none';
+    } else {
+      errEl.textContent = 'Senha incorreta';
+      input.value = '';
+      input.focus();
+      // limpa erro depois de alguns segundos
+      setTimeout(()=>{ errEl.textContent = ''; }, 2500);
+    }
+  });
+})();
+</script>
+
 <div id="app" class="app-classic">
 
   <!-- ============== TOP BAR ============== -->
