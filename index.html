@@ -315,9 +315,27 @@ table.htbl td.white{color:#fff}
 .hpi-mini canvas{width:100%;height:38px}
 
 /* ----- GOAL POSITIONING ----- */
-.goal-wrap{background:var(--tile-bg);border:1px solid var(--line);border-radius:6px;padding:14px;height:100%;display:flex;flex-direction:column}
-.goal-wrap canvas{flex:1;width:100%;min-height:0}
-.goal-legend{display:flex;justify-content:space-around;color:var(--text-dim);font-size:11px;padding:8px 0 0}
+.goal-wrap{background:#000;border:1px solid var(--line);border-radius:6px;height:100%;display:grid;grid-template-columns:1fr clamp(180px,18vw,240px);overflow:hidden}
+.goal-wrap .goal-plot{position:relative;min-width:0;min-height:0}
+.goal-wrap .goal-plot canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.goal-wrap .goal-side{display:flex;flex-direction:column;gap:8px;padding:10px;border-left:1px solid #2a3140;background:#000;min-height:0}
+.goal-tile{flex:1;min-height:0;border:2px solid var(--line2);border-radius:8px;background:#0a0c10;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;align-items:center;cursor:pointer;position:relative;transition:border-color .15s,background .15s;overflow:hidden}
+.goal-tile:hover{background:#11151c}
+.goal-tile.green{border-color:var(--green)}
+.goal-tile.yellow{border-color:var(--yellow)}
+.goal-tile.red{border-color:var(--red);animation:flash 1s infinite}
+.goal-tile.gray{border-color:var(--line2)}
+.goal-tile .gt-trend{position:absolute;top:6px;right:8px;font-size:10px;color:var(--text-dim);text-align:right;line-height:1.15}
+.goal-tile .gt-lbl{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--text);font-weight:600}
+.goal-tile .gt-lbl .gt-dot{width:9px;height:9px;border-radius:50%;background:var(--line2);box-shadow:inset 0 0 2px rgba(0,0,0,.5)}
+.goal-tile.green .gt-lbl .gt-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.goal-tile.yellow .gt-lbl .gt-dot{background:var(--yellow);box-shadow:0 0 6px var(--yellow)}
+.goal-tile.red .gt-lbl .gt-dot{background:var(--red);box-shadow:0 0 6px var(--red)}
+.goal-tile .gt-lbl .gt-name{text-decoration:underline;text-underline-offset:3px}
+.goal-tile .gt-val{font-size:clamp(34px,6vh,58px);color:#fff;font-weight:300;line-height:1;font-variant-numeric:tabular-nums;margin-top:6px}
+.goal-tile .gt-unit{font-size:11px;color:var(--text-dim);margin-top:6px;border-top:1px solid #2a3140;padding-top:4px;width:80%;text-align:center}
+.goal-tile.empty{align-items:center;justify-content:center;color:var(--text-mute);font-size:12px;border-style:dashed;border-color:#3a4356}
+.goal-tile.empty .gt-add{font-size:22px;color:var(--text-dim);font-weight:300}
 
 /* ----- SCENARIO BAR ----- */
 #statusbar{display:flex;align-items:center;gap:12px;padding:0 14px;background:linear-gradient(180deg,#11151c,#0d1015);border-top:1px solid var(--line);font-size:11px;color:var(--text-dim)}
@@ -328,10 +346,18 @@ table.htbl td.white{color:#fff}
 
 /* ===== CONFIG OVERLAY (estilo HEM1: Ferramentas / Telas / Config / Ajuda) ===== */
 #configOverlay{
-  position:fixed;inset:0;background:linear-gradient(180deg,#0c1018 0%,#0a0c10 100%);
+  position:absolute;inset:0;background:linear-gradient(180deg,#0c1018 0%,#0a0c10 100%);
   display:none;flex-direction:column;z-index:80;
 }
 #configOverlay.open{display:flex}
+.cfg-frame{
+  width:100%;
+  height:100%;
+  display:flex;flex-direction:column;min-height:0;
+  background:#0a0c10;border:0;border-radius:0;
+  overflow:hidden;
+  box-shadow:none;
+}
 .cfg-tabs{display:flex;background:linear-gradient(180deg,#171c25,#11151c);border-bottom:1px solid #2a3140;height:56px;padding:0 4px 0 8px;align-items:stretch;gap:2px;flex-shrink:0}
 .cfg-tab{
   flex:1;max-width:200px;
@@ -348,29 +374,43 @@ table.htbl td.white{color:#fff}
 }
 .cfg-tab.active .ico{color:#3aa6ff;background:rgba(58,166,255,0.12)}
 .cfg-tab.tools .ico{background:#a02020;color:#fff}      /* maleta vermelha das ferramentas clínicas */
-.cfg-tab .lbl{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1;text-align:left}
-.cfg-tab .lbl .sub{font-size:9px;color:#6b7689;font-weight:400;text-transform:uppercase;letter-spacing:.8px}
+.cfg-tab .lbl{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;text-align:left;font-weight:600}
 .cfg-close{margin-left:auto;background:transparent;border:0;color:#9aa6b8;font-size:26px;cursor:pointer;padding:0 18px;line-height:1}
 .cfg-close:hover{color:#fff}
 
 .cfg-body{flex:1;display:flex;min-height:0;padding:14px;gap:14px;background:#0a0c10}
 
 /* ===== Aba "Selecionar Telas" ===== */
-.cfg-screens{flex:1;display:grid;grid-template-columns:60px 1fr;gap:14px;min-height:0}
-.cfg-numbers{display:flex;flex-direction:column;gap:8px;align-items:center}
+.cfg-screens{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
+.cfg-numbers{
+  display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:space-evenly;
+  background:transparent;padding:4px 0;
+}
 .cfg-num{
-  width:50px;height:50px;border-radius:50%;
-  background:#161b24;border:1px solid #2a3140;color:#9aa6b8;
-  font-size:22px;font-weight:600;cursor:pointer;
+  width:48px;height:48px;border-radius:50%;
+  background:#3a4150;border:0;color:#cfd5df;
+  font-size:24px;font-weight:500;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:all .12s;
 }
-.cfg-num:hover{border-color:#3aa6ff;color:#3aa6ff}
-.cfg-num.active{background:#3aa6ff;color:#fff;border-color:#3aa6ff;box-shadow:0 0 12px rgba(58,166,255,.4)}
-.cfg-screens-grid{display:flex;flex-direction:column;gap:14px;border:1px solid #2a3140;border-radius:8px;padding:14px;background:#0d1119;overflow:auto}
-.cfg-screen-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cfg-num:hover{background:#4a5263;color:#fff}
+.cfg-num.active{
+  background:#1d8af0;color:#fff;border-radius:10px;width:54px;height:54px;
+  box-shadow:0 0 0 6px rgba(255,255,255,0.06);
+}
+.cfg-screens-grid{
+  display:flex;flex-direction:column;gap:12px;border:1px solid rgba(255,255,255,0.08);border-radius:18px;
+  padding:14px;background:#15181d;overflow:hidden;flex:3 1 0;min-height:0;
+}
+.cfg-screen-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  flex:1 1 0;min-height:0;container-type:size;
+}
 .cfg-screen-thumb{
-  background:#0a0c10;border:2px solid #2a3140;border-radius:8px;
-  cursor:pointer;overflow:hidden;aspect-ratio:1.5/1;position:relative;
+  background:#0a0c10;border:2px solid #2a3140;border-radius:6px;
+  cursor:pointer;overflow:hidden;position:relative;
+  width:min(100cqw, calc(100cqh * 4 / 3));
+  height:min(100cqh, calc(100cqw * 3 / 4));
+  margin:auto;
   display:flex;align-items:center;justify-content:center;
   transition:border-color .12s,transform .08s;
 }
@@ -378,9 +418,15 @@ table.htbl td.white{color:#fff}
 .cfg-screen-thumb.active{border-color:#3aa6ff;box-shadow:0 0 14px rgba(58,166,255,.6)}
 .cfg-screen-thumb svg{width:100%;height:100%;display:block}
 .cfg-screen-thumb .lbl{position:absolute;bottom:6px;left:8px;font-size:10px;color:#9aa6b8;letter-spacing:.5px;background:rgba(0,0,0,0.6);padding:1px 5px;border-radius:3px}
-.cfg-focused-section{margin-top:14px;padding-top:14px;border-top:1px solid #2a3140}
-.cfg-focused-section h3{margin:0 0 10px;font-size:11px;letter-spacing:1.5px;color:#9aa6b8;text-transform:uppercase}
-.cfg-focused-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cfg-focused-section{
+  margin-top:2px;padding:14px;border:1px solid rgba(255,255,255,0.08);border-radius:18px;
+  background:#15181d;display:flex;flex-direction:column;gap:8px;flex:1 1 0;min-height:0;
+}
+.cfg-focused-section h3{display:none}
+.cfg-focused-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  flex:1 1 0;min-height:0;container-type:size;
+}
 
 /* === Tela tabular Clássico — células de histórico estilo Edwards === */
 .tab-cell-classic{
@@ -946,27 +992,29 @@ canvas.spark{display:block;width:100%;height:30px}
 
 <!-- ============== OVERLAY DE CONFIGURAÇÕES (HEM1) ============== -->
 <div id="configOverlay">
-  <div class="cfg-tabs">
-    <button class="cfg-tab tools" data-cfgtab="tools">
-      <span class="ico">+</span>
-      <span class="lbl"><b>Ferramentas</b><span class="sub">Clínicas</span></span>
-    </button>
-    <button class="cfg-tab active" data-cfgtab="screens">
-      <span class="ico">⊞</span>
-      <span class="lbl"><b>Selecionar Telas</b><span class="sub">visualização</span></span>
-    </button>
-    <button class="cfg-tab" data-cfgtab="settings">
-      <span class="ico">⚙</span>
-      <span class="lbl"><b>Configurações</b><span class="sub">sistema</span></span>
-    </button>
-    <button class="cfg-tab" data-cfgtab="help">
-      <span class="ico">ⓘ</span>
-      <span class="lbl"><b>Ajuda</b><span class="sub">na tela</span></span>
-    </button>
-    <button class="cfg-close" id="cfgClose" title="Fechar">×</button>
-  </div>
-  <div class="cfg-body">
-    <div id="cfgPanel" style="flex:1;display:flex;min-height:0"></div>
+  <div class="cfg-frame">
+    <div class="cfg-tabs">
+      <button class="cfg-tab tools" data-cfgtab="tools">
+        <span class="ico">+</span>
+        <span class="lbl"><b>Ferramentas</b><b>Clínicas</b></span>
+      </button>
+      <button class="cfg-tab active" data-cfgtab="screens">
+        <span class="ico">⊞</span>
+        <span class="lbl"><b>Selecionar Telas</b></span>
+      </button>
+      <button class="cfg-tab" data-cfgtab="settings">
+        <span class="ico">⚙</span>
+        <span class="lbl"><b>Configurações</b></span>
+      </button>
+      <button class="cfg-tab" data-cfgtab="help">
+        <span class="ico">ⓘ</span>
+        <span class="lbl"><b>Ajuda</b></span>
+      </button>
+      <button class="cfg-close" id="cfgClose" title="Fechar">×</button>
+    </div>
+    <div class="cfg-body">
+      <div id="cfgPanel" style="flex:1;display:flex;min-height:0"></div>
+    </div>
   </div>
 </div>
 
@@ -1366,12 +1414,16 @@ const DEFAULT_SLOTS = {
   'classic.main.trends': ['CO','SVR','MAP','SVV'],
   'classic.main.gauges': ['SVI','ScvO2','SVRI','CI'],
   'classic.keyrail': ['CO','CI','MAP','HR','SVR','SVV','ScvO2','HPI','dPdt','StO2','CVP','PAP'],
+  // Goal Positioning (HEM1 5.3.9): slots 0=Y, 1=X, 2..4=tiles laterais
+  'classic.goal':    ['CI','EDVI','CI','EDVI','MAP'],
   'vita.cockpit':    ['StO2','StO2_2','MAP','HR'],
   'vita.main':       ['MAP','SAP','DAP','HR','StO2','StO2_2','HR','HR'],
   'vita.keyrail':    ['MAP','SAP','DAP','HR','StO2','StO2_2'],
+  'vita.goal':       ['MAP','HR','MAP','HR','StO2'],
   'alta.cockpit':    ['CO','SV','CI','HPI'],
   'alta.main':       ['CO','CI','SV','SVI','SVR','SVRI','SVV','PPV','GHI'],
   'alta.keyrail':    ['CO','CI','MAP','SVV','HPI','GHI','ScvO2','StO2','CAI','HR','SVR','dPdt'],
+  'alta.goal':       ['CI','SVV','CI','SVV','MAP'],
 };
 // Carrega slots do localStorage; se não houver, usa defaults
 state.slots = {};
@@ -3610,23 +3662,117 @@ SCREEN_FNS.screenRelationship = function(host){
   host.appendChild(wrap);
 };
 
-// ---------- screenGoal (XY plot) ----------
+// ---------- screenGoal (XY plot — Hemosphere "Posicionamento de objetivos", HEM1 §5.3.9) ----------
+// Default: intervalo de 60s entre as "pegadas" históricas (configurável a futuro).
+if(!state.goalIntervalMs) state.goalIntervalMs = 60000;
+if(!state.goalTrailMaxN) state.goalTrailMaxN = 6;
+
 SCREEN_FNS.screenGoal = function(host){
   const wrap = el('div',{class:'goal-wrap'});
-  const head = el('div',{style:'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px'});
-  head.appendChild(el('div',{style:'color:#aaa;font-size:13px;letter-spacing:1px'},'Goal Positioning · CI × MAP'));
-  head.appendChild(el('div',{style:'font-size:11px;color:#789'},'azul = atual · verde = zona-alvo · cinza = histórico'));
-  wrap.appendChild(head);
+
+  // Coluna esquerda — área do plot
+  const plotBox = el('div',{class:'goal-plot'});
   const cv = el('canvas');
-  wrap.appendChild(cv);
-  wrap.appendChild(el('div',{class:'goal-legend'},[
-    el('span',null,'Y: IC (L/min/m²)'),
-    el('span',null,'Alvo IC 2.5–4 · MAP 70–100'),
-    el('span',null,'X: PAM (mmHg)')
-  ]));
+  plotBox.appendChild(cv);
+  wrap.appendChild(plotBox);
+
+  // Coluna direita — tiles configuráveis (3 parâmetros lado a lado verticalmente)
+  const side = el('div',{class:'goal-side'});
+  for(let i=0; i<3; i++){
+    const slotIdx = 2 + i;       // slots 2,3,4 = sidebar
+    side.appendChild(buildGoalTile(slotIdx));
+  }
+  wrap.appendChild(side);
+
   host.appendChild(wrap);
+
+  // Cliques para configurar eixos
+  cv.addEventListener('click', e=>{
+    const r = cv.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    // Faixa esquerda → eixo Y; faixa inferior → eixo X
+    if(x < 90)                    openParamPicker('goal', 0); // Y
+    else if(y > r.height - 56)    openParamPicker('goal', 1); // X
+  });
+
   queueGoal(cv);
 };
+
+function buildGoalTile(slotIdx){
+  const slots = getSlots('goal');
+  const pid = slots[slotIdx];
+  if(!pid){
+    const empty = el('div',{class:'goal-tile empty', onclick:()=>openParamPicker('goal', slotIdx)});
+    empty.appendChild(el('div',{class:'gt-add'},'+'));
+    empty.appendChild(el('div',null,'adicionar'));
+    return empty;
+  }
+  const p = PARAMS[pid] || {lbl:pid, unit:''};
+  const v = state.values[pid];
+  const status = paramStatus(pid, v); // green/yellow/red/gray
+  const tile = el('div',{class:'goal-tile '+(status||'gray'),
+    onclick:()=>openParamPicker('goal', slotIdx)});
+  // Tendência (Δ% vs amostra ~1 min atrás)
+  const trend = goalTrendForParam(pid, state.goalIntervalMs);
+  if(trend){
+    const arrow = trend.dir > 0 ? '↑' : trend.dir < 0 ? '↓' : '→';
+    const intLabel = (state.goalIntervalMs/60000).toFixed(0)+' min';
+    tile.appendChild(el('div',{class:'gt-trend'},[
+      el('div',null,intLabel),
+      el('div',null, arrow + Math.abs(trend.pct).toFixed(0) + '%')
+    ]));
+  }
+  const lbl = el('div',{class:'gt-lbl'});
+  lbl.appendChild(el('span',{class:'gt-dot'}));
+  lbl.appendChild(el('span',{class:'gt-name'}, state.lang==='en'?p.en:p.lbl));
+  tile.appendChild(lbl);
+  tile.appendChild(el('div',{class:'gt-val'}, fmtVal(pid, v)));
+  if(p.unit) tile.appendChild(el('div',{class:'gt-unit'}, p.unit));
+  return tile;
+}
+
+function paramStatus(pid, v){
+  const p = PARAMS[pid]; if(!p || v==null || isNaN(v)) return 'gray';
+  if(p.alarmLow!=null && v<=p.alarmLow) return 'red';
+  if(p.alarmHigh!=null && v>=p.alarmHigh) return 'red';
+  if(p.target){
+    if(v<p.target[0] || v>p.target[1]) return 'yellow';
+    return 'green';
+  }
+  return 'gray';
+}
+
+// Pega o valor de "pid" há aproximadamente intervalMs ms atrás. Retorna {pct,dir} ou null.
+function goalTrendForParam(pid, intervalMs){
+  const h = state.history && state.history[pid];
+  if(!h || h.length < 2) return null;
+  const now = h[h.length-1].t;
+  const target = now - intervalMs;
+  let prev = null;
+  for(let i = h.length - 1; i >= 0; i--){
+    if(h[i].t <= target){ prev = h[i]; break; }
+  }
+  if(!prev) return null;
+  const cur = h[h.length-1].v;
+  if(prev.v === 0 || cur == null || prev.v == null) return null;
+  const pct = ((cur - prev.v) / Math.abs(prev.v)) * 100;
+  return { pct, dir: Math.sign(cur - prev.v) };
+}
+
+// Encontra valor de "pid" no instante t (ms). Linear scan; retorna null se nao houver
+// histórico tão antigo (evita desenhar círculo de "1 min atrás" quando a sessão tem 10s).
+function valueAtTime(pid, t){
+  const h = state.history && state.history[pid];
+  if(!h || !h.length) return null;
+  if(h[0].t > t) return null; // histórico mais antigo é mais novo do que t
+  let best = null, bestDiff = Infinity;
+  for(let i = h.length - 1; i >= 0; i--){
+    const d = Math.abs(h[i].t - t);
+    if(d < bestDiff){ bestDiff = d; best = h[i]; }
+    if(h[i].t < t - 5000) break;
+  }
+  return best ? best.v : null;
+}
 
 function queueGoal(cv){ liveGoals.push(cv); }
 function flushGoals(){
@@ -3634,54 +3780,272 @@ function flushGoals(){
 }
 function drawGoal(cv){
   if(!cv.isConnected) return;
-  const W=cv.clientWidth,H=cv.clientHeight;
-  if(cv.width!==W*devicePixelRatio||cv.height!==H*devicePixelRatio){ cv.width=W*devicePixelRatio; cv.height=H*devicePixelRatio; }
-  const ctx=cv.getContext('2d'); ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-  ctx.clearRect(0,0,W,H);
-  // axes
-  const xmn=40,xmx=160; const ymn=0.5,ymx=6;
-  function X(v){return ((v-xmn)/(xmx-xmn))*W}
-  function Y(v){return H - ((v-ymn)/(ymx-ymn))*H}
-  // grid
-  ctx.strokeStyle='#212835'; ctx.beginPath();
-  for(let v=xmn;v<=xmx;v+=20){ ctx.moveTo(X(v),0); ctx.lineTo(X(v),H); }
-  for(let v=1;v<=6;v+=1){ ctx.moveTo(0,Y(v)); ctx.lineTo(W,Y(v)); }
-  ctx.stroke();
-  // axis labels
-  ctx.fillStyle='#789'; ctx.font='10px sans-serif';
-  for(let v=xmn;v<=xmx;v+=20){ ctx.fillText(v,X(v)-8,H-4); }
-  for(let v=1;v<=6;v+=1){ ctx.fillText(v,4,Y(v)+4); }
-  // target zone
-  ctx.fillStyle='rgba(27,201,100,0.15)';
-  ctx.fillRect(X(70),Y(4), X(100)-X(70), Y(2.5)-Y(4));
-  ctx.strokeStyle='#1bc964'; ctx.lineWidth=1.4;
-  ctx.strokeRect(X(70),Y(4), X(100)-X(70), Y(2.5)-Y(4));
-  ctx.fillStyle='#1bc964'; ctx.fillText('alvo', X(72), Y(3.7));
-  // alarm lines
-  ctx.strokeStyle='rgba(255,71,71,0.5)'; ctx.setLineDash([4,3]);
-  ctx.beginPath(); ctx.moveTo(X(60),0); ctx.lineTo(X(60),H);
-  ctx.moveTo(X(120),0); ctx.lineTo(X(120),H);
-  ctx.moveTo(0,Y(1)); ctx.lineTo(W,Y(1));
-  ctx.moveTo(0,Y(6)); ctx.lineTo(W,Y(6)); ctx.stroke(); ctx.setLineDash([]);
-  // history points
-  const hMAP = state.history.MAP||[]; const hCI = state.history.CI||[];
-  const len = Math.min(hMAP.length,hCI.length);
-  for(let i=Math.max(0,len-50);i<len;i++){
-    const x = X(hMAP[i].v), y = Y(hCI[i].v);
-    const a = (i-(len-50))/50;
-    ctx.fillStyle = `rgba(160,170,184,${0.15+a*0.6})`;
-    ctx.beginPath(); ctx.arc(x,y,2.5,0,Math.PI*2); ctx.fill();
+  const W = cv.clientWidth, H = cv.clientHeight;
+  if(W < 10 || H < 10) return;
+  if(cv.width !== W*devicePixelRatio || cv.height !== H*devicePixelRatio){
+    cv.width = W*devicePixelRatio; cv.height = H*devicePixelRatio;
   }
-  // current
-  const map = state.values.MAP, ci = state.values.CI;
-  const cx = X(map), cy=Y(ci);
-  // pulsing aura
-  const pulse = (Date.now()%1500)/1500;
-  ctx.strokeStyle = `rgba(58,166,255,${0.6-pulse*0.5})`;
-  ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,6+pulse*16,0,Math.PI*2); ctx.stroke();
-  ctx.fillStyle='#3aa6ff'; ctx.beginPath(); ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='#fff'; ctx.font='bold 11px sans-serif';
-  ctx.fillText(`${map.toFixed(0)},${ci.toFixed(1)}`, cx+10, cy-8);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+
+  // Fundo preto
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0,0,W,H);
+
+  // Resolve parâmetros configurados (Y = slot 0, X = slot 1)
+  const slots = getSlots('goal');
+  const pidY = slots[0] || 'CI';
+  const pidX = slots[1] || 'EDVI';
+  const pY = PARAMS[pidY] || {lbl:pidY, unit:'',  target:[0,0], alarmLow:0, alarmHigh:0, base:0};
+  const pX = PARAMS[pidX] || {lbl:pidX, unit:'',  target:[0,0], alarmLow:0, alarmHigh:0, base:0};
+
+  // Escalas: 0 → max razoável (alarmHigh + 25 % de margem ou 1.5 × alvo superior)
+  const xmn = 0, ymn = 0;
+  const xmx = goalAxisMax(pidX);
+  const ymx = goalAxisMax(pidY);
+
+  // Margens — generosas para acomodar fontes maiores
+  const ML = 96, MR = 32, MT = 36, MB = 76;
+  const pl = ML, pt = MT;
+  const pw = W - ML - MR, ph = H - MT - MB;
+  const pr = pl + pw, pb = pt + ph;
+  if(pw < 50 || ph < 50) return;
+
+  const X = v => pl + ((v - xmn) / (xmx - xmn)) * pw;
+  const Y = v => pt + ph - ((v - ymn) / (ymx - ymn)) * ph;
+
+  // ═══ EIXOS ROBUSTOS (linhas brancas grossas) ═══
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'square';
+  ctx.beginPath();
+  ctx.moveTo(pl, pt); ctx.lineTo(pl, pb);
+  ctx.lineTo(pr, pb);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+
+  // Linhas tracejadas nos limites de alvo
+  ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([6,4]);
+  ctx.beginPath();
+  if(pX.target){
+    ctx.moveTo(X(pX.target[0]), pt); ctx.lineTo(X(pX.target[0]), pb);
+    ctx.moveTo(X(pX.target[1]), pt); ctx.lineTo(X(pX.target[1]), pb);
+  }
+  if(pY.target){
+    ctx.moveTo(pl, Y(pY.target[0])); ctx.lineTo(pr, Y(pY.target[0]));
+    ctx.moveTo(pl, Y(pY.target[1])); ctx.lineTo(pr, Y(pY.target[1]));
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Caixa verde — interseção das zonas-alvo
+  if(pX.target && pY.target){
+    const tx0 = X(pX.target[0]), tx1 = X(pX.target[1]);
+    const ty1 = Y(pY.target[0]), ty0 = Y(pY.target[1]);
+    ctx.fillStyle = '#1bc964';
+    ctx.fillRect(tx0, ty0, tx1 - tx0, ty1 - ty0);
+  }
+
+  // Setas vermelhas dos alarmes
+  const arrowUp = (x,y) => {
+    ctx.fillStyle = '#ff4747';
+    ctx.beginPath();
+    ctx.moveTo(x, y - 1);
+    ctx.lineTo(x - 7, y + 11);
+    ctx.lineTo(x + 7, y + 11);
+    ctx.closePath();
+    ctx.fill();
+  };
+  const arrowRight = (x,y) => {
+    ctx.fillStyle = '#ff4747';
+    ctx.beginPath();
+    ctx.moveTo(x + 1, y);
+    ctx.lineTo(x - 11, y - 7);
+    ctx.lineTo(x - 11, y + 7);
+    ctx.closePath();
+    ctx.fill();
+  };
+  if(typeof pX.alarmLow  === 'number') arrowUp(X(pX.alarmLow),  pb);
+  if(typeof pX.alarmHigh === 'number') arrowUp(X(pX.alarmHigh), pb);
+  if(typeof pY.alarmLow  === 'number') arrowRight(pl, Y(pY.alarmLow));
+  if(typeof pY.alarmHigh === 'number') arrowRight(pl, Y(pY.alarmHigh));
+
+  // ═══ TICKS / NÚMEROS DA ESCALA — FONTE MAIOR ═══
+  ctx.fillStyle = '#fff';
+  ctx.font = '600 17px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  const xTicks = uniqSortedNums([xmn, pX.target?pX.target[0]:null, pX.target?pX.target[1]:null, xmx]);
+  xTicks.forEach(v => ctx.fillText(formatTick(v), X(v), pb + 10));
+
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  const yTicks = uniqSortedNums([ymn, pY.target?pY.target[0]:null, pY.target?pY.target[1]:null, ymx]);
+  yTicks.forEach(v => ctx.fillText(formatTick(v), pl - 12, Y(v)));
+
+  // ═══ TRILHA — 6 PEGADAS DOS MINUTOS ANTERIORES ═══
+  // O círculo MAIOR fica imediatamente "atrás" do ponto atual (~1 min atrás).
+  // Os mais antigos ficam menores e mais suaves, espalhados na trajetória do paciente.
+  const intervalMs = state.goalIntervalMs || 60000;
+  const maxN = state.goalTrailMaxN || 6;
+  const nowT = Date.now();
+  for(let n = maxN; n >= 1; n--){   // desenha do mais antigo (atrás) → mais recente (frente)
+    const t = nowT - n * intervalMs;
+    const xv = valueAtTime(pidX, t);
+    const yv = valueAtTime(pidY, t);
+    if(xv == null || yv == null) continue;
+    const cx = X(xv), cy = Y(yv);
+    // Tamanho: 1 min atrás (n=1) é o maior; n=6 é o menor
+    const r = 16 - (n - 1) * 2.2;            // 16, 13.8, 11.6, 9.4, 7.2, 5
+    const alpha = 0.85 - (n - 1) * 0.10;     // 0.85 → 0.35
+    // Anel semitransparente (preenchimento suave + borda mais nítida)
+    ctx.fillStyle = `rgba(180, 195, 215, ${alpha*0.30})`;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = `rgba(220, 230, 240, ${alpha*0.70})`;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+  }
+
+  // ═══ PONTO ATUAL (bola azul pulsante) ═══
+  const xV = state.values && state.values[pidX];
+  const yV = state.values && state.values[pidY];
+  if(xV != null && yV != null && !isNaN(xV) && !isNaN(yV)){
+    const cx = Math.max(pl, Math.min(pr, X(xV)));
+    const cy = Math.max(pt, Math.min(pb, Y(yV)));
+
+    // Pulso sutil
+    const pulse = (Date.now() % 1700) / 1700;
+    ctx.fillStyle = `rgba(58,166,255,${0.25*(1-pulse)})`;
+    ctx.beginPath(); ctx.arc(cx, cy, 9 + pulse*8, 0, Math.PI*2); ctx.fill();
+
+    // Disco azul com gradiente
+    const dotR = 9;
+    const dotGrad = ctx.createRadialGradient(cx-2, cy-2, 1, cx, cy, dotR);
+    dotGrad.addColorStop(0,    '#a4d6ff');
+    dotGrad.addColorStop(0.55, '#3aa6ff');
+    dotGrad.addColorStop(1,    '#0a6fd0');
+    ctx.fillStyle = dotGrad;
+    ctx.beginPath(); ctx.arc(cx, cy, dotR, 0, Math.PI*2); ctx.fill();
+
+    // Brilho
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.beginPath(); ctx.arc(cx-3, cy-3, 2.4, 0, Math.PI*2); ctx.fill();
+  }
+
+  // ═══ RÓTULO EIXO X (centralizado abaixo) — FONTE GRANDE ═══
+  ctx.fillStyle = '#fff';
+  ctx.font = '600 22px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  const xLabel = state.lang==='en' ? (pX.en||pidX) : (pX.lbl||pidX);
+  const xCenter = pl + pw/2;
+  const xLabelY = H - 14;
+  const xLabelW = ctx.measureText(xLabel).width;
+  ctx.fillText(xLabel, xCenter - 18, xLabelY);
+  if(pX.unit){
+    ctx.font = '14px sans-serif';
+    ctx.fillStyle = '#cfd5df';
+    ctx.textAlign = 'left';
+    ctx.fillText(pX.unit, xCenter - 18 + xLabelW/2 + 6, xLabelY);
+  }
+
+  // ═══ RÓTULO EIXO Y (rotacionado, fonte grande) ═══
+  ctx.save();
+  ctx.translate(28, pt + ph/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillStyle = '#fff';
+  ctx.font = '600 22px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  const yLabel = state.lang==='en' ? (pY.en||pidY) : (pY.lbl||pidY);
+  const yLabelW = ctx.measureText(yLabel).width;
+  ctx.fillText(yLabel, 0, -3);
+  if(pY.unit){
+    ctx.font = '14px sans-serif';
+    ctx.fillStyle = '#cfd5df';
+    ctx.textAlign = 'left';
+    ctx.fillText(pY.unit, yLabelW/2 + 6, -3);
+  }
+  ctx.restore();
+
+  // ═══ INDICADOR DE INTERVALO DE TENDÊNCIA (canto sup. direito) ═══
+  const tix = pr - 90, tiy = pt + 6;
+  ctx.fillStyle = '#fff';
+  ctx.font = '13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  const intLabel = (intervalMs/60000).toFixed(0)+' min';
+  ctx.fillText(intLabel, tix + 28, tiy);
+  for(let i = 0; i < (state.goalTrailMaxN||6); i++){
+    const r = 6.5 - i*0.9;
+    ctx.fillStyle = `rgba(200,210,225,${0.85 - i*0.12})`;
+    ctx.beginPath();
+    ctx.arc(tix + i*10, tiy + 26, r, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Atualiza tiles laterais (valores e cores) sem reconstruir o DOM inteiro
+  updateGoalSidebarLive(cv);
+}
+
+// Calcula um teto razoável para o eixo do parâmetro pid.
+function goalAxisMax(pid){
+  const p = PARAMS[pid]; if(!p) return 100;
+  const cands = [];
+  if(typeof p.alarmHigh === 'number') cands.push(p.alarmHigh * 1.25);
+  if(p.target) cands.push(p.target[1] * 1.6);
+  if(typeof p.base === 'number') cands.push(p.base * 2.5);
+  cands.push(8); // mínimo
+  let mx = Math.max.apply(null, cands);
+  // Arredonda para um número “bonito”
+  if(mx <= 10)   return Math.ceil(mx);
+  if(mx <= 50)   return Math.ceil(mx/5)*5;
+  if(mx <= 200)  return Math.ceil(mx/20)*20;
+  if(mx <= 1000) return Math.ceil(mx/100)*100;
+  return Math.ceil(mx/500)*500;
+}
+
+function uniqSortedNums(arr){
+  const xs = arr.filter(v => typeof v === 'number' && !isNaN(v));
+  return Array.from(new Set(xs)).sort((a,b)=>a-b);
+}
+
+function formatTick(v){
+  if(v === 0) return (Number.isInteger(v) ? '0' : '0.0');
+  if(Math.abs(v) >= 100) return v.toFixed(0);
+  if(Math.abs(v) >= 10)  return v.toFixed(0);
+  return v.toFixed(1);
+}
+
+// Atualiza tiles laterais "in place" — evita rebuild completo enquanto o usuário olha.
+function updateGoalSidebarLive(cv){
+  const wrap = cv && cv.closest && cv.closest('.goal-wrap');
+  if(!wrap) return;
+  const side = wrap.querySelector('.goal-side');
+  if(!side) return;
+  const slots = getSlots('goal');
+  const tiles = side.querySelectorAll('.goal-tile');
+  for(let i = 0; i < tiles.length; i++){
+    const slotIdx = 2 + i;
+    const pid = slots[slotIdx];
+    const tile = tiles[i];
+    if(!pid){ continue; }
+    const p = PARAMS[pid]; if(!p) continue;
+    const v = state.values[pid];
+    const status = paramStatus(pid, v) || 'gray';
+    tile.classList.remove('green','yellow','red','gray','empty');
+    tile.classList.add(status);
+    const valEl = tile.querySelector('.gt-val');
+    if(valEl) valEl.textContent = fmtVal(pid, v);
+    const trEl = tile.querySelector('.gt-trend');
+    const tr = goalTrendForParam(pid, state.goalIntervalMs);
+    if(trEl && tr){
+      const arrow = tr.dir > 0 ? '↑' : tr.dir < 0 ? '↓' : '→';
+      trEl.children[1].textContent = arrow + Math.abs(tr.pct).toFixed(0) + '%';
+    }
+  }
 }
 
 // ---------- screenHPISec ----------
@@ -3948,6 +4312,8 @@ function drawWaveform(cv,which,color){
         tgtMn = Math.max(-2, cvpV - 6);
         tgtMx = cvpV + 10;
       }
+      // Regra de seguranca da escala da PVC: teto nunca abaixo de 15 mmHg.
+      tgtMx = Math.max(15, tgtMx);
     } else { // pap
       // Mesmo principio para PAP — captacao do peak sistolico real do buffer
       const data = WAVE.pap;
@@ -3972,6 +4338,7 @@ function drawWaveform(cv,which,color){
       cs.autoMn += (tgtMn - cs.autoMn) * 0.005;
       cs.autoMx += (tgtMx - cs.autoMx) * 0.005;
     }
+    if(which==='cvp') cs.autoMx = Math.max(15, cs.autoMx);
     const range = Math.max(5, cs.autoMx - cs.autoMn);
     pxPerY_eff = (H - 4) / range;
     refValEff = cs.autoMn;
@@ -4362,8 +4729,10 @@ function openParamPicker(screen, slotIdx){
   state.pickerIdx = slotIdx;
   const slots = getSlots(screen);
   const currentPid = slots[slotIdx];
-  const screenName = {cockpit:'Cockpit', main:'Tela principal', keyrail:'Painel direito'}[screen]||screen;
-  $('#paramPickerTitle').textContent = `Selecionar parâmetro — ${screenName} · slot ${slotIdx+1}`;
+  const screenName = {cockpit:'Cockpit', main:'Tela principal', keyrail:'Painel direito', goal:'Posicionamento de objetivos'}[screen]||screen;
+  const slotLabelMap = {goal:['Eixo Y','Eixo X','Tile lateral 1','Tile lateral 2','Tile lateral 3']};
+  const slotLabel = (slotLabelMap[screen] && slotLabelMap[screen][slotIdx]) || `slot ${slotIdx+1}`;
+  $('#paramPickerTitle').textContent = `Selecionar parâmetro — ${screenName} · ${slotLabel}`;
   $('#paramPickerSub').textContent = currentPid
     ? `Atual: ${PARAMS[currentPid]?.lbl||currentPid}. Clique em outro para trocar.`
     : 'Slot vazio. Escolha um parâmetro.';
@@ -5365,6 +5734,11 @@ function openControlsPopup(){
 //  CONFIG OVERLAY (HEM1 — 4 abas: Ferramentas / Telas / Config / Ajuda)
 // ============================================================
 function openConfigOverlay(tab){
+  const overlay = $('#configOverlay');
+  const screenArea = $('#screenArea');
+  if(overlay && screenArea && overlay.parentElement !== screenArea){
+    screenArea.appendChild(overlay);
+  }
   $('#configOverlay').classList.add('open');
   switchCfgTab(tab||'screens');
 }
@@ -5431,21 +5805,11 @@ function renderCfgScreens(panel){
   if(!state.cfgParamCount) state.cfgParamCount = 4;
 
   const wrap = el('div',{class:'cfg-screens'});
-  // Coluna de números 1/2/3/4
-  const numCol = el('div',{class:'cfg-numbers'});
-  [1,2,3,4].forEach(n=>{
-    const btn = el('button',{class:'cfg-num'+(state.cfgParamCount===n?' active':''),onclick:()=>{
-      state.cfgParamCount = n;
-      renderCfgScreens($('#cfgPanel'));
-    }}, String(n));
-    numCol.appendChild(btn);
-  });
-  wrap.appendChild(numCol);
 
   // Grid de telas
   const grid = el('div',{class:'cfg-screens-grid'});
   const screens = screenSetsByCount[state.cfgParamCount] || screenSetsByCount[4];
-  // Organiza em linhas de 3
+  // Organiza em linhas de 3 (layout estilo painel HEM1).
   for(let i=0;i<screens.length;i+=3){
     const row = el('div',{class:'cfg-screen-row'});
     for(let j=0;j<3;j++){
@@ -5462,10 +5826,10 @@ function renderCfgScreens(panel){
     }
     grid.appendChild(row);
   }
-  // Seção de telas focadas
-  grid.appendChild(el('div',{class:'cfg-focused-section'},[
-    el('h3',null,'Formato de Monitoramento Focalizado (3 parâmetros + waveform)'),
-  ]));
+  wrap.appendChild(grid);
+
+  // Caixa inferior: telas focadas (3 previews em linha)
+  const focusedSection = el('div',{class:'cfg-focused-section'});
   const focusedRow = el('div',{class:'cfg-focused-row'});
   focusedScreens.forEach(s=>{
     const thumb = el('div',{class:'cfg-screen-thumb'+(state.screen===s.id?' active':''),onclick:()=>{
@@ -5477,9 +5841,9 @@ function renderCfgScreens(panel){
     thumb.appendChild(el('div',{class:'lbl'}, s.name));
     focusedRow.appendChild(thumb);
   });
-  grid.appendChild(focusedRow);
+  focusedSection.appendChild(focusedRow);
+  wrap.appendChild(focusedSection);
 
-  wrap.appendChild(grid);
   panel.appendChild(wrap);
 }
 
@@ -5604,13 +5968,13 @@ function thumbClassicRelation(){
     {x:88,y:21, w:26,h:9,  l:'VO2Ie', s:'green'},
     {x:9, y:37, w:24,h:9,  l:'IC',    s:'green'},
     {x:60,y:37, w:30,h:9,  l:'Hb',    s:''},
-    {x:117,y:37,w:26,h:9,  l:'SaO2',  s:''},
+    {x:115,y:37,w:26,h:9,  l:'SaO2',  s:''},
     {x:9, y:53, w:24,h:9,  l:'IVS',   s:'green'},
     {x:60,y:53, w:30,h:9,  l:'FCmed', s:'green'},
-    {x:0, y:69, w:24,h:9,  l:'IVDF',  s:'green'},
+    {x:9, y:69, w:24,h:9,  l:'IVDF',  s:'green'},
     {x:60,y:69, w:30,h:9,  l:'IRVS',  s:'green'},
-    {x:117,y:69,w:26,h:9,  l:'FEVD',  s:'green'},
-    {x:0, y:84, w:24,h:9,  l:'PVC',   s:'green'},
+    {x:115,y:69,w:26,h:9,  l:'FEVD',  s:'green'},
+    {x:9, y:84, w:24,h:9,  l:'PVC',   s:'green'},
     {x:60,y:84, w:30,h:9,  l:'PAM',   s:'green'},
   ];
   const LINKS = [
@@ -5631,9 +5995,9 @@ function thumbClassicRelation(){
   }).join('');
   return `<svg viewBox="0 0 150 100"><rect width="150" height="100" fill="#000"/>`+
          linesHtml + nodesHtml +
-         `<text x="13" y="99" font-size="3" fill="#dde4ee" text-anchor="middle">Pre-carga</text>`+
+         `<text x="21" y="99" font-size="3" fill="#dde4ee" text-anchor="middle">Pre-carga</text>`+
          `<text x="75" y="99" font-size="3" fill="#dde4ee" text-anchor="middle">Pos Carga</text>`+
-         `<text x="130" y="99" font-size="3" fill="#dde4ee" text-anchor="middle">Contratilidade</text>`+
+         `<text x="128" y="99" font-size="3" fill="#dde4ee" text-anchor="middle">Contratilidade</text>`+
          `</svg>`;
 }
 function thumbClassicCockpit(){
