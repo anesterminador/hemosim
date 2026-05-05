@@ -3870,10 +3870,15 @@ function drawWaveform(cv,which,color){
   const ctx = cv.getContext('2d');
 
   // Detecta resize → precisa fazer redraw completo do fundo
-  const sizeChanged = (cv.width!==W*devicePixelRatio||cv.height!==H*devicePixelRatio);
+  // TOLERÂNCIA: ignora diferenças de até 1px (evita disparos por subpixel
+  // em layouts com vh/fr e DPR fracionado, que causariam clearAll a cada frame).
+  const tgtW = Math.round(W*devicePixelRatio);
+  const tgtH = Math.round(H*devicePixelRatio);
+  const sizeChanged = (Math.abs(cv.width - tgtW) > 1 || Math.abs(cv.height - tgtH) > 1);
   if(sizeChanged){
-    cv.width=W*devicePixelRatio; cv.height=H*devicePixelRatio;
+    cv.width = tgtW; cv.height = tgtH;
     cs.fullRedraw = true;
+    if(window.__waveDbg) console.log('[wave]', which, 'RESIZE fullRedraw', cv.width, cv.height, 'vs', tgtW, tgtH);
   }
   ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
 
@@ -3986,8 +3991,14 @@ function drawWaveform(cv,which,color){
   const sr = WAVE.sampleRate;
   const tNow = WAVE.phase;
   const tBufStart = tNow - (data.length-1)/sr;
-  if(cs.sweepStartT < tBufStart - 0.5){ cs.sweepStartT = tBufStart; cs.fullRedraw = true; }
-  if(cs.sweepStartT > tNow + 0.1){ cs.sweepStartT = tNow; cs.fullRedraw = true; }
+  if(cs.sweepStartT < tBufStart - 0.5){
+    cs.sweepStartT = tBufStart; cs.fullRedraw = true;
+    if(window.__waveDbg) console.log('[wave]', which, 'BUF_OUT fullRedraw', cs.sweepStartT, '<', tBufStart);
+  }
+  if(cs.sweepStartT > tNow + 0.1){
+    cs.sweepStartT = tNow; cs.fullRedraw = true;
+    if(window.__waveDbg) console.log('[wave]', which, 'FUTURE fullRedraw');
+  }
 
   // Posição atual do cursor (em pixels) e wrap à direita
   let xCur = (tNow - cs.sweepStartT) * px;
@@ -4002,6 +4013,7 @@ function drawWaveform(cv,which,color){
     // conectar artificialmente (0, oldY) → (0, newY) — isso causaria
     // uma linha vertical pulsante no canto esquerdo a cada wrap.
     cs.lastDrawnY = null;
+    if(window.__waveDbg) console.log('[wave]', which, 'WRAP at tNow=', tNow.toFixed(2), 'fullRedraw=', cs.fullRedraw);
   }
 
   // Redraw completo apenas em resize ou reset por preset (não no wrap)
