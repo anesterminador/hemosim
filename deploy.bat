@@ -23,6 +23,17 @@ REM ---- 1b) Configura Git Credential Manager ----------------------
 REM Quando precisar autenticar, abre o navegador padrao automaticamente.
 git config --global credential.helper manager >nul 2>nul
 
+REM ---- 1c) Configura identidade global (so se ainda nao houver) --
+git config --global user.email >nul 2>nul
+if errorlevel 1 (
+    git config --global user.email "anesterminador@users.noreply.github.com"
+    echo [INFO] Identidade global configurada: anesterminador
+)
+git config --global user.name >nul 2>nul
+if errorlevel 1 (
+    git config --global user.name "anesterminador"
+)
+
 REM ---- 1c) Garante identidade do git ----------------------------
 REM Sem user.name/email o commit falha. Define defaults se faltarem.
 for /f "tokens=*" %%n in ('git config --global user.name 2^>nul') do set "GIT_NAME=%%n"
