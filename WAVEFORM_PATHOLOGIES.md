@@ -1,17 +1,45 @@
 # Biblioteca de Morfologias Patológicas — Simulador Hemosphere
 
-Baseado no *Atlas of Cardiovascular Monitoring* (Mark, 1998).
+Baseado no *Atlas of Cardiovascular Monitoring* (Mark, 1998) e *Hemodynamic Rounds — Interpretation of Cardiac Pathophysiology from Pressure Waveform Analysis* (Kern, Lim, Goldstein — 4th ed, 2018, Wiley).
 Use este documento como referência ao implementar `WAVE_PRESETS` no simulador.
 
-## Componentes da onda PVC normal
+## Componentes da onda PVC/PAD normal — Tabela canônica
 
-| Componente | Fase φ | Amp típica | Origem mecânica |
-|---|---|---|---|
-| a wave | 0.07 | +3.2 mmHg | Contração atrial (após P) |
-| c wave | 0.20 | +1.5 mmHg | Contração isovol. VD (após R) |
-| x descent | 0.30 | −1.8 mmHg | Relaxamento atrial sistólico |
-| v wave | 0.48 | +2.6 mmHg | Enchimento atrial (após T) |
-| y descent | 0.60 | −2.0 mmHg | Abertura tricúspide |
+**Fontes**: *Cardiovascular Hemodynamics for the Clinician*, 3ª ed (2025) Cap. 3 + *Hemodynamic Rounds*, 4ª ed (2018) Cap. 1.
+
+Timing relativo ao ECG (assumindo P em φ≈0.05, QRS R em φ≈0.18, T em φ≈0.40 num ciclo normalizado):
+
+| Componente | Âncora ECG | Tempo absoluto | Fase φ | Amplitude (% da A) | Origem mecânica |
+|---|---|---|---|---|---|
+| **Onda a** | Pico da P | + 60-80 ms | 0.13 | **100% (referência)** | Sístole atrial (após despolarização atrial). Pico mais proeminente. |
+| **Descenso x** | — | — | 0.13-0.26 (descida) | — | Relaxamento atrial ativo. Interrompido pela onda c. |
+| **Onda c** | Início do QRS | + 65 ms | 0.26 | **30-50% da a (~40%)** | Fechamento da tricúspide com protrusão ao átrio. **Visível** em traçados normais. |
+| **Descenso x'** | — | — | 0.26-0.40 (descida) | — | Deslocamento descendente do assoalho atrial durante ejeção VD. Atinge nadir em end-sístole. |
+| **Onda v** | Onda T | Simultânea/após | 0.52 | **70-80% da a (~75%)** | Enchimento venoso atrial com TV fechada. **Em normal: V < A**. Se V > A ou > 3× mean, sugere insuficiência tricúspide. |
+| **Descenso y** | — | — | 0.52-0.66 | — | Abertura da TV → esvaziamento atrial rápido. |
+| **Diastasis** | — | — | 0.66-1.0 (próx beat) | — | Retorno venoso lento enche átrio até próxima onda a. |
+
+**Valores absolutos em paciente normal**:
+- **Mean CVP/PAD**: 2-8 mmHg
+- **Pico da a**: 6-10 mmHg (mean + ~4 mmHg)
+- **Pico da c**: ~40% da altura de a sobre mean (visível como "ombro" na X)
+- **Pico da v**: ~75% da altura de a sobre mean
+- **X nadir**: ~60% da altura de a abaixo da mean
+- **Y nadir**: ~40% da altura de a abaixo da mean
+- **X mais profunda que Y**
+
+**Modulação respiratória**:
+- Normal: inspiração espontânea reduz CVP em 1-2 mmHg (queda da pressão intratorácica → ↑gradiente caval-átrio).
+- **Sinal de Kussmaul** (CVP **sobe** na inspiração) → patológico (constrição, RV infarct, restrição).
+
+**Implementação no `tickWave`** (lições aprendidas):
+- **NÃO usar soma de gaussianas isoladas** — deixa "patamares" artificiais de baseline entre as ondas. A morfologia real flui continuamente.
+- **Usar curva piecewise contínua** com transições por cosseno suave entre marcos:
+  - 0.05→0.13: rise da A (cosine smooth)
+  - 0.13→0.40: descida contínua A→X nadir + Gaussiana sobreposta da C em φ=0.26
+  - 0.40→0.52: rise da V (X nadir → V peak)
+  - 0.52→0.66: Y descent (V peak → Y nadir)
+  - 0.66→1.0: diastasis (Y nadir → 0)
 
 ## PVC patológico
 

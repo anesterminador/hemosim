@@ -1722,9 +1722,10 @@ function tickWave(dt){
         sapBase = sap0 * (1 + presetA.paradoxAmp*Math.sin(2*Math.PI*((WAVE.respPhase % respLen) / respLen) - Math.PI));
         dapBase = dap0 * (1 + presetA.paradoxAmp*0.5*Math.sin(2*Math.PI*((WAVE.respPhase % respLen) / respLen) - Math.PI));
       }
-      // Multiplicadores diretos de SAP/DAP do preset
-      if(presetA.sapMul) sapBase *= presetA.sapMul;
-      if(presetA.dapMul) dapBase *= presetA.dapMul;
+      // sapMul/dapMul NÃO sao mais aplicados aqui —
+      // ja sao propagados pra state.values.SAP/DAP via applyPresetClinicalEffects,
+      // e sap0/dap0 (lidos no inicio do tickWave) ja refletem essa mudanca.
+      // Aplicar de novo causaria multiplicacao dupla (curva acima da escala).
 
       // FA — RR irregular + Frank-Starling (RR longo → SV maior → SAP maior)
       let rrMul = 1;
@@ -1734,8 +1735,8 @@ function tickWave(dt){
         cycleLen = 60/hr * rrMul;
         if(presetA.afib){
           const ampMul = Math.pow(rrMul, 0.6);
-          sapBase = sap0 * ampMul * (presetA.sapMul||1);
-          dapBase = dap0 * (presetA.dapMul||1);
+          sapBase = sap0 * ampMul;
+          dapBase = dap0;
         }
       } else {
         cycleLen = 60/hr;
@@ -1941,35 +1942,99 @@ function tickWave(dt){
     WAVE.arterial.push(art);
     if(WAVE.arterial.length>WAVE.N) WAVE.arterial.shift();
 
-    // ─── PVC / CVP — ondas a/c/v + descidas x/y ───
+    // ─── PVC / CVP — modelo piecewise contínuo (NÃO soma de gaussianas) ─────
+    // Referências:
+    //   - Kern, Hemodynamic Rounds, 4ª ed, 2018, Cap. 1 (Goldstein/Kern)
+    //   - Cardiovascular Hemodynamics for the Clinician, 3ª ed, 2025, Cap. 3
+    // Timing fisiológico (relativo ao ECG, com P em φ≈0.05 e R em φ≈0.18):
+    //   A peak    : 60-80ms após P → φ ≈ 0.11
+    //   X nadir   : end-sístole, simultâneo a T wave → φ ≈ 0.40
+    //   C wave    : interrupção sutil da X no QRS+PR → φ ≈ 0.22 (ausente/sutil em normais)
+    //   V peak    : simultâneo a T → φ ≈ 0.52
+    //   Y nadir   : pós-abertura tricúspide → φ ≈ 0.66
+    //   Diastasis : retorno venoso lento da Y nadir até próxima A → φ 0.66-1.0
+    // Em normal: A > V, X mais profunda que Y, mean 2-8 mmHg.
     const aMul = presetC.aMul!=null ? presetC.aMul : 1;
     const cMul = presetC.cMul!=null ? presetC.cMul : 1;
     const xMul = presetC.xMul!=null ? presetC.xMul : 1;
     const vMul = presetC.vMul!=null ? presetC.vMul : 1;
     const yMul = presetC.yMul!=null ? presetC.yMul : 1;
-    const vAt  = presetC.vAt  || 0.48;
-    const vSig = presetC.vSig || 0.040;
-    const vAmp = presetC.vAmp!=null ? presetC.vAmp : 2.6;
-    const cvpMean = (state.values.CVP||6) + (presetC.meanShift||0);
+    const cvpMean = (state.values.CVP||4) + (presetC.meanShift||0);
+
+    // Amplitudes calibradas a partir de valores ABSOLUTOS (Cardiovascular Hemodynamics):
+    //   PAD média 2-8 (default 4); A peak 5-10 (avg +3.5 acima da mean);
+    //   C peak 3-5 (≈ 0 acima da mean — só um "entalhe" na descida, não um pico real);
+    //   X nadir 0-3 (avg -2.5 abaixo); V peak 4-8 (avg +2.0 acima); Y nadir 2-4 (avg -1.0 abaixo).
+    const A_AMP   =  3.5 * aMul;                  // pico mais alto, +3.5 acima da mean
+    const X_NADIR = -2.5 * xMul;                  // ponto mais baixo do ciclo
+    const V_AMP   = (presetC.vAmp!=null ? presetC.vAmp : 2.0) * vMul;  // ~+2 acima
+    const Y_NADIR = -1.0 * yMul;                  // y menos profundo que x
+    const C_BUMP  =  1.2 * cMul;                  // c bem visivel — eleva ~1.2 sobre a descida (c peak ~5.9 mmHg abs)
+
+    // Marcos de fase (timing baseado no ECG):
+    //   A peak  = P + 60-80ms → φ 0.13 (P em φ 0.05, +80ms = +0.08 phi a HR 78)
+    //   C peak  = QRS + 65ms → φ 0.26 (QRS em φ 0.18, +65ms = +0.085 phi)
+    //   X nadir = end-sístole/T wave → φ 0.40
+    //   V peak  = T wave → φ 0.52
+    //   Y nadir = pós-abertura tricúspide → φ 0.66
+    const aStart   = 0.05;
+    const aPeakP   = 0.13;
+    const cPeakP   = 0.26;
+    const xNadirP  = 0.40;
+    const vPeakP   = (presetC.vAt||0.52);
+    const yNadirP  = 0.66;
+    // Helper: cosine smooth interpolation 0→1
+    const cs = t => (1 - Math.cos(Math.PI * Math.max(0, Math.min(1, t)))) * 0.5;
 
     let cvpY = 0;
-    cvpY += 3.2 * aMul * gauss(phi, 0.07, 0.022);   // a
-    cvpY += 1.4 * cMul * gauss(phi, 0.20, 0.018);   // c
-    cvpY -= 1.8 * xMul * gauss(phi, 0.30, 0.025);   // x descent
-    cvpY += vAmp * vMul * gauss(phi, vAt, vSig);     // v (amplitude/posição configuráveis)
-    cvpY -= 2.0 * yMul * gauss(phi, 0.60, 0.040);   // y descent
 
-    // Cannon a wave em meio do batimento (durante QRS)
+    if(phi < aStart){
+      // Trecho final da diástasis — sobe lentamente da Y nadir (do beat anterior)
+      // de volta a 0 (baseline pré-A). Modelo simples: linha contínua usando o
+      // mesmo Y_NADIR como ponto de partida do beat anterior.
+      const t = (phi + (1 - yNadirP)) / ((1 - yNadirP) + aStart);
+      cvpY = Y_NADIR + (0 - Y_NADIR) * Math.pow(t, 1.4);
+    }
+    else if(phi < aPeakP){
+      // A wave rise: 0 → A_AMP (cosine smooth, rápido)
+      cvpY = A_AMP * cs((phi - aStart) / (aPeakP - aStart));
+    }
+    else if(phi < xNadirP){
+      // A peak fall + X descent: A_AMP → X_NADIR (descent contínuo, longa).
+      // O C wave (interrupção positiva) é sobreposto em cPeakP, criando o "ombro"
+      // típico que separa a X (relaxamento atrial) da X' (ejeção ventricular).
+      const t = (phi - aPeakP) / (xNadirP - aPeakP);
+      cvpY = A_AMP + (X_NADIR - A_AMP) * cs(t);
+      // C wave bump (~40% da A) — interrompe visivelmente a descida
+      cvpY += C_BUMP * gauss(phi, cPeakP, 0.020);
+    }
+    else if(phi < vPeakP){
+      // V wave rise: X_NADIR → V_AMP (subida do enchimento atrial durante sístole VD)
+      cvpY = X_NADIR + (V_AMP - X_NADIR) * cs((phi - xNadirP) / (vPeakP - xNadirP));
+    }
+    else if(phi < yNadirP){
+      // Y descent: V_AMP → Y_NADIR (queda rápida pós-abertura tricúspide)
+      cvpY = V_AMP + (Y_NADIR - V_AMP) * cs((phi - vPeakP) / (yNadirP - vPeakP));
+    }
+    else {
+      // Diastasis: Y_NADIR → ~0 (subida lenta do retorno venoso)
+      const t = (phi - yNadirP) / (1.0 - yNadirP);
+      cvpY = Y_NADIR + (0 - Y_NADIR) * Math.pow(t, 1.4);
+    }
+
+    // ── Modificadores patológicos sobrepostos ────────────────────────────────
+    // Cannon a wave (BAVT): átrio contra TV fechada durante QRS
     if(WAVE.cannonOnThisBeat){
       cvpY += (presetC.cannonAmp||18) * gauss(phi, 0.18, 0.025);
     }
-    // FA: ondas f finas na linha de base (sem onda a)
+    // FA: sem onda A, ondas f finas na baseline
     if(presetC.fwaves){
       cvpY += 0.4 * Math.sin(WAVE.phase*2*Math.PI*7) * (1+0.3*Math.random());
     }
-    // Sinal de Kussmaul: PVC sobe na inspiração
+    // Modulação respiratória
     let cvpRespMod = 0;
-    if(presetC.kussmaul) cvpRespMod = 2 * respMod;
+    if(presetC.kussmaul) cvpRespMod = 2 * respMod;       // patológico: sobe na inspiração
+    else cvpRespMod = -0.4 * respMod;                    // normal: leve queda na inspiração
 
     WAVE.cvp.push(cvpMean + cvpY + cvpRespMod);
     if(WAVE.cvp.length>WAVE.N) WAVE.cvp.shift();
@@ -3860,13 +3925,41 @@ function drawWaveform(cv,which,color){
       tgtMn = Math.max(0, dapV - 20);
       tgtMx = sapV + 20;
     } else if(which==='cvp'){
-      const cvpV = state.values.CVP || 6;
-      tgtMn = Math.max(-2, cvpV - 6);
-      tgtMx = cvpV + 10;
+      // Auto-scale usando o BUFFER REAL — capta picos patológicos (cannon a, v gigante,
+      // tamponamento) que o mean nao revela. Marggem ~3 mmHg acima/abaixo dos extremos.
+      const data = WAVE.cvp;
+      if(data && data.length > 200){
+        let mn = Infinity, mx = -Infinity;
+        const start = Math.max(0, data.length - 1000);  // ultimos ~5s a 200Hz
+        for(let i = start; i < data.length; i++){
+          if(data[i] < mn) mn = data[i];
+          if(data[i] > mx) mx = data[i];
+        }
+        tgtMn = Math.floor(mn - 3);
+        tgtMx = Math.ceil(mx + 3);
+      } else {
+        // Fallback se buffer ainda nao tem dados suficientes
+        const cvpV = state.values.CVP || 4;
+        tgtMn = Math.max(-2, cvpV - 6);
+        tgtMx = cvpV + 10;
+      }
     } else { // pap
-      const papV = state.values.PAP || 14;
-      tgtMn = 0;
-      tgtMx = Math.max(papV*2 + 10, 30);
+      // Mesmo principio para PAP — captacao do peak sistolico real do buffer
+      const data = WAVE.pap;
+      if(data && data.length > 200){
+        let mn = Infinity, mx = -Infinity;
+        const start = Math.max(0, data.length - 1000);
+        for(let i = start; i < data.length; i++){
+          if(data[i] < mn) mn = data[i];
+          if(data[i] > mx) mx = data[i];
+        }
+        tgtMn = Math.max(0, Math.floor(mn - 5));
+        tgtMx = Math.ceil(mx + 5);
+      } else {
+        const papV = state.values.PAP || 14;
+        tgtMn = 0;
+        tgtMx = Math.max(papV*2 + 10, 30);
+      }
     }
     // Suaviza via EMA (constante de tempo ~3s) — evita "respiração" da escala
     if(cs.autoMn == null){ cs.autoMn = tgtMn; cs.autoMx = tgtMx; }
