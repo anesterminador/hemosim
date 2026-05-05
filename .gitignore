@@ -1,0 +1,16 @@
+# Backups locais (não versionar)
+Backups/
+
+# Arquivos temporários do OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
