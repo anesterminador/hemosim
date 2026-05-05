@@ -879,7 +879,7 @@ canvas.spark{display:block;width:100%;height:30px}
         <img src="Barra%20de%20navega%C3%A7%C3%A3o/5.%20An%C3%A1lise%20de%20interven%C3%A7%C3%A3o.png" alt="">
       </button>
       <button class="nav-btn" id="navWaveform" data-tip="Exibir / ocultar forma de onda da pressão arterial">
-        <img src="Barra%20de%20navega%C3%A7%C3%A3o/6.1%20Exibir%20a%20forma%20de%20onda%20da%20press%C3%A3o%20arterial.png" alt="" id="imgWaveform">
+        <img src="Barra%20de%20navega%C3%A7%C3%A3o/6.2%20Ocultar%20a%20forma%20de%20onda%20da%20press%C3%A3o%20arterial.png" alt="" id="imgWaveform">
       </button>
       <div class="nav-divider"></div>
       <button class="nav-btn" id="navPatient" data-tip="Dados do paciente (idade, peso, altura, Hb)">
@@ -1040,17 +1040,39 @@ const MODULES = [
 
 /* SCENARIOS — perfis hemodinâmicos clássicos */
 const SCENARIOS = {
-  normal:        {name:'Estável / Normal',   desc:'Paciente estável',                 bias:{}},
-  hipovolemia:   {name:'Hipovolemia',        desc:'↓pré-carga, ↑SVR compensatório',   bias:{CO:0.65,CI:0.65,SV:0.55,SVI:0.55,SVV:2.5,PPV:2.5,SVR:1.45,SVRI:1.45,MAP:0.78,SAP:0.85,DAP:0.85,CVP:0.4,HR:1.3,HPI:5.0,dPdt:0.85,EDV:0.65,EDVI:0.65}},
-  septico_quente:{name:'Choque Séptico (quente)',desc:'↓SVR, ↑CO, ↑HR',              bias:{CO:1.45,CI:1.45,SV:1.1,SVI:1.1,SVV:1.6,PPV:1.6,SVR:0.45,SVRI:0.45,MAP:0.7,SAP:0.8,DAP:0.6,CVP:1.4,HR:1.45,ScvO2:0.95,StO2:0.85,HPI:5.5,dPdt:1.1}},
-  septico_frio:  {name:'Choque Séptico (frio)',  desc:'↓SVR, ↓CO tardio',             bias:{CO:0.6,CI:0.6,SV:0.55,SVI:0.55,SVR:0.7,SVRI:0.7,MAP:0.7,SAP:0.78,DAP:0.7,CVP:1.3,HR:1.4,ScvO2:0.7,StO2:0.7,HPI:5.5,dPdt:0.75}},
-  cardiogenico:  {name:'Choque Cardiogênico', desc:'↓CO, ↑SVR, ↑PVC',                  bias:{CO:0.45,CI:0.45,SV:0.55,SVI:0.55,SVR:1.7,SVRI:1.7,MAP:0.8,SAP:0.85,DAP:0.95,CVP:2.5,PAP:1.8,HR:1.25,ScvO2:0.6,StO2:0.6,HPI:5.5,dPdt:0.45,RVEF:0.6,Eadyn:1.4,SVV:1.3}},
-  obstrutivo:    {name:'Choque Obstrutivo (TEP)',desc:'↑PAP, ↓CO, ↑PVC',                bias:{CO:0.55,CI:0.55,SV:0.6,SVR:1.4,MAP:0.8,CVP:2.2,PAP:2.5,HR:1.4,ScvO2:0.7,RVEF:0.4,EDV:1.4,EDVI:1.4,SVV:1.5}},
-  hipertensivo:  {name:'Crise Hipertensiva', desc:'↑↑PA, SVR alto',                    bias:{MAP:1.55,SAP:1.5,DAP:1.4,SVR:1.7,SVRI:1.7,HR:1.05,SVV:0.6,PPV:0.6,HPI:0.5,dPdt:1.3,Eadyn:1.3}},
-  pre_hpi:       {name:'Hipotensão iminente (HPI alto)',desc:'HPI > 85, MAP ainda OK', bias:{MAP:0.9,SAP:0.92,DAP:0.9,HPI:6.5,SVV:1.6,PPV:1.6,dPdt:0.8,SVR:0.85,Eadyn:1.2}},
-  hipoxia_tec:   {name:'Hipóxia tecidual',   desc:'↓StO₂ cerebral',                    bias:{StO2:0.65,StO2_2:0.7,ScvO2:0.7,CAI:3.5}},
-  ic_baixo:      {name:'IC Baixo / Disfunção VE',desc:'IC<2, SVR alto',                bias:{CO:0.55,CI:0.55,SV:0.7,SVR:1.5,MAP:0.95,HR:1.15,dPdt:0.55,RVEF:0.85,CPO:0.55,CPI:0.55}},
-  hiperdinamico: {name:'Hiperdinâmico',      desc:'IC>4, SVR baixo',                   bias:{CO:1.5,CI:1.5,SV:1.2,SVR:0.7,HR:1.2,dPdt:1.2}},
+  normal:        {name:'Estável / Normal',   desc:'Paciente estável',                 bias:{},
+                  waves:{arterial:'normal', cvp:'normal', pap:'normal', ecg:'normal'}},
+  hipovolemia:   {name:'Hipovolemia',        desc:'↓pré-carga, ↑SVR compensatório',   bias:{CO:0.65,CI:0.65,SV:0.55,SVI:0.55,SVV:2.5,PPV:2.5,SVR:1.45,SVRI:1.45,MAP:0.78,SAP:0.85,DAP:0.85,CVP:0.4,HR:1.3,HPI:5.0,dPdt:0.85,EDV:0.65,EDVI:0.65},
+                  waves:{arterial:'hipovolemia'}},
+  septico_quente:{name:'Choque Séptico (quente)',desc:'↓SVR, ↑CO, ↑HR',              bias:{CO:1.45,CI:1.45,SV:1.1,SVI:1.1,SVV:1.6,PPV:1.6,SVR:0.45,SVRI:0.45,MAP:0.7,SAP:0.8,DAP:0.6,CVP:1.4,HR:1.45,ScvO2:0.95,StO2:0.85,HPI:5.5,dPdt:1.1},
+                  waves:{arterial:'hipovolemia'}},  /* PP estreito + ↑PPV */
+  septico_frio:  {name:'Choque Séptico (frio)',  desc:'↓SVR, ↓CO tardio',             bias:{CO:0.6,CI:0.6,SV:0.55,SVI:0.55,SVR:0.7,SVRI:0.7,MAP:0.7,SAP:0.78,DAP:0.7,CVP:1.3,HR:1.4,ScvO2:0.7,StO2:0.7,HPI:5.5,dPdt:0.75},
+                  waves:{arterial:'hipovolemia'}},
+  cardiogenico:  {name:'Choque Cardiogênico', desc:'↓CO, ↑SVR, ↑PVC',                  bias:{CO:0.45,CI:0.45,SV:0.55,SVI:0.55,SVR:1.7,SVRI:1.7,MAP:0.8,SAP:0.85,DAP:0.95,CVP:2.5,PAP:1.8,HR:1.25,ScvO2:0.6,StO2:0.6,HPI:5.5,dPdt:0.45,RVEF:0.6,Eadyn:1.4,SVV:1.3},
+                  waves:{arterial:'alternans', cvp:'constritiva'}},  /* alternans em ICC + onda v alta de TR funcional */
+  obstrutivo:    {name:'Choque Obstrutivo (TEP)',desc:'↑PAP, ↓CO, ↑PVC',                bias:{CO:0.55,CI:0.55,SV:0.6,SVR:1.4,MAP:0.8,CVP:2.2,PAP:2.5,HR:1.4,ScvO2:0.7,RVEF:0.4,EDV:1.4,EDVI:1.4,SVV:1.5},
+                  waves:{arterial:'hipovolemia', pap:'tep_agudo', cvp:'rv_infarct'}},
+  hipertensivo:  {name:'Crise Hipertensiva', desc:'↑↑PA, SVR alto',                    bias:{MAP:1.55,SAP:1.5,DAP:1.4,SVR:1.7,SVRI:1.7,HR:1.05,SVV:0.6,PPV:0.6,HPI:0.5,dPdt:1.3,Eadyn:1.3},
+                  waves:{arterial:'hipertensao'}},
+  pre_hpi:       {name:'Hipotensão iminente (HPI alto)',desc:'HPI > 85, MAP ainda OK', bias:{MAP:0.9,SAP:0.92,DAP:0.9,HPI:6.5,SVV:1.6,PPV:1.6,dPdt:0.8,SVR:0.85,Eadyn:1.2},
+                  waves:{arterial:'hipovolemia'}},
+  hipoxia_tec:   {name:'Hipóxia tecidual',   desc:'↓StO₂ cerebral',                    bias:{StO2:0.65,StO2_2:0.7,ScvO2:0.7,CAI:3.5},
+                  waves:{}},
+  ic_baixo:      {name:'IC Baixo / Disfunção VE',desc:'IC<2, SVR alto',                bias:{CO:0.55,CI:0.55,SV:0.7,SVR:1.5,MAP:0.95,HR:1.15,dPdt:0.55,RVEF:0.85,CPO:0.55,CPI:0.55},
+                  waves:{arterial:'alternans'}},
+  hiperdinamico: {name:'Hiperdinâmico',      desc:'IC>4, SVR baixo',                   bias:{CO:1.5,CI:1.5,SV:1.2,SVR:0.7,HR:1.2,dPdt:1.2},
+                  waves:{arterial:'normal'}},  /* PP largo natural */
+  /* Cenários valvulares — onde a fisiopatologia é definida pela morfologia */
+  insuf_aortica: {name:'Insuf. aórtica grave', desc:'PP enorme (water-hammer)',         bias:{SAP:1.4,DAP:0.65,HR:1.1,SVR:0.9,SV:1.3,SVV:0.8},
+                  waves:{arterial:'insuf_aortica'}},
+  estenose_aortica:{name:'Estenose aórtica',   desc:'Parvus et tardus, PP estreito',   bias:{SAP:0.92,DAP:1.0,SV:0.85,CO:0.85,SVR:1.15},
+                  waves:{arterial:'estenose_aortica'}},
+  fibrilacao:    {name:'Fibrilação atrial',    desc:'RR irregular, ondas f',            bias:{HR:1.2,SVV:1.4},
+                  waves:{arterial:'fa', ecg:'fa', cvp:'fa'}},
+  tamponamento:  {name:'Tamponamento cardíaco',desc:'Pulso paradoxal, CVP↑↑, x dominante', bias:{CO:0.6,SV:0.55,SVR:1.3,MAP:0.85,CVP:2.8,HR:1.35},
+                  waves:{arterial:'paradox', cvp:'tamponamento'}},
+  bav3:          {name:'BAV 3º grau',          desc:'Dissociação AV, escape ventricular',bias:{HR:0.5,CO:0.7,SVR:1.2},
+                  waves:{ecg:'bav3', cvp:'cannon_a'}},
 };
 
 /* ============================================================
@@ -1251,6 +1273,83 @@ function setWavePreset(which, preset){
   // Reset do buffer e da varredura — a curva começa a ser desenhada do zero (devagar, da esquerda)
   WAVE[which] = [];
   resetWaveCanvases(which);
+  // Propaga os efeitos clínicos do preset para state.values (via overrides)
+  // pra que os números mostrados nos tiles/trends batam com a morfologia escolhida.
+  applyPresetClinicalEffects(which, preset);
+}
+
+function applyScenarioWavePresets(scenarioKey){
+  // Quando o cenário muda, aplica as morfologias de onda associadas
+  // pra que a curva visual reflita a fisiopatologia do cenário.
+  const sc = SCENARIOS[scenarioKey]; if(!sc) return;
+  const waves = sc.waves || {};
+  // Em cenários sem waves: volta TUDO pra normal
+  ['arterial','cvp','pap','ecg','pleth'].forEach(which => {
+    const targetPreset = waves[which] || 'normal';
+    if(state.wavePresets[which] !== targetPreset){
+      // Usa setWavePreset que ja reseta buffer/canvas e aplica efeitos clinicos
+      setWavePreset(which, targetPreset);
+    }
+  });
+}
+
+function applyPresetClinicalEffects(which, presetKey){
+  const preset = (WAVE_PRESETS[which]||{})[presetKey];
+  if(!preset) return;
+
+  if(which === 'arterial'){
+    // Aplica multiplicadores na BASELINE (não no valor atual)
+    const baseSAP = PARAMS.SAP.base;   // 120
+    const baseDAP = PARAMS.DAP.base;   // 70
+    const sapMul = preset.sapMul || 1;
+    const dapMul = preset.dapMul || 1;
+    if(presetKey === 'normal' || (sapMul === 1 && dapMul === 1)){
+      // Volta para os valores naturais — remove overrides relacionados
+      delete state.overrides.SAP;
+      delete state.overrides.DAP;
+      delete state.overrides.MAP;
+    } else {
+      const newSAP = baseSAP * sapMul;
+      const newDAP = baseDAP * dapMul;
+      state.overrides.SAP = newSAP;
+      state.overrides.DAP = newDAP;
+      state.overrides.MAP = (newSAP + 2 * newDAP) / 3;
+    }
+    // Casos especiais
+    if(presetKey === 'cpb'){
+      // CPB não-pulsátil: SAP ≈ DAP ≈ MAP (~70 mmHg)
+      state.overrides.SAP = 75; state.overrides.DAP = 70;
+      state.overrides.MAP = (75 + 2*70) / 3;
+    }
+    if(presetKey === 'paradox'){
+      // Pulso paradoxal: SAP varia muito com respiração — médias normais
+      delete state.overrides.SAP; delete state.overrides.DAP; delete state.overrides.MAP;
+    }
+  }
+
+  if(which === 'ecg'){
+    // HR fixa em arritmias (TSV, TV, bradi, etc.)
+    if(preset.hrFixed){
+      state.overrides.HR = preset.hrFixed;
+    } else if(presetKey === 'normal'){
+      delete state.overrides.HR;
+    } else {
+      // Outras arritmias sem HR fixa (FA, BAV1, BAV2, marcapasso, WPW, etc.)
+      // — mantém HR atual ou natural
+      delete state.overrides.HR;
+    }
+  }
+
+  if(which === 'pap'){
+    // Hipertensão pulmonar: PAP elevada
+    if(presetKey === 'hipertensao_pulmonar'){
+      state.overrides.PAP = 50;  // mean PAP elevada
+    } else if(presetKey === 'tep'){
+      state.overrides.PAP = 32;
+    } else if(presetKey === 'normal'){
+      delete state.overrides.PAP;
+    }
+  }
 }
 function getWavePreset(which){
   const p = (WAVE_PRESETS[which]||{})[state.wavePresets[which]||'normal'];
@@ -4760,7 +4859,8 @@ function ivConfirm(){
 }
 
 // 6) Exibir / Ocultar forma de onda da pressão arterial
-state.showWaveformsOnMain = true;
+// Default: oculta na tela inicial — o usuário ativa via botão da navbar quando precisar
+state.showWaveformsOnMain = false;
 $('#navWaveform').addEventListener('click', ()=>{
   state.showWaveformsOnMain = !state.showWaveformsOnMain;
   const img = $('#imgWaveform');
@@ -5043,6 +5143,7 @@ function openControlsPopup(){
     scen.value = state.scenario;
     scen.addEventListener('change', e => {
       state.scenario = e.target.value;
+      applyScenarioWavePresets(e.target.value);
       const m = document.getElementById('statusMsg');
       if(m) m.textContent = 'Cenário: ' + SCENARIOS[e.target.value].name;
     });
