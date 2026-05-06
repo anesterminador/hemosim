@@ -2054,23 +2054,22 @@ function moduleAvailable(id){
 function paramAvailable(pid){
   const p = PARAMS[pid]; if(!p) return false;
   if(p.altaOnly && state.version!=='alta') return false;
-  // Swan-Ganz Clássico: CO e derivados só ficam disponíveis após termodiluição (DCi).
-  const sgcDeps = ['CO','CI','SV','SVI'];
-  if(sgcDeps.includes(pid)){
-    let viaOther = false, viaSGC = false;
-    for(const src of p.source){
-      if(src==='derivado'){ viaOther = true; break; }
-      if(src.includes('+')){
-        const parts = src.split('+');
-        if(parts.every(x=>moduleAvailable(x))){
-          if(parts.includes('SwanGanzClassic')) viaSGC = true; else viaOther = true;
-        }
-      } else if(moduleAvailable(src)){
-        if(src==='SwanGanzClassic') viaSGC = true; else viaOther = true;
-      }
-    }
-    if(viaOther) return true;
-    if(viaSGC && state.thermodilutionDone) return true;
+  // Swan-Ganz Clássico ou VolumeView: CO e TODOS os derivados (resistência,
+  // potência, DO₂/VO₂) só ficam disponíveis após a primeira termodiluição (DCi/TPTD).
+  // Algoritmo por waveform precisa de calibração inicial pelo bolus.
+  const coDeps = ['CO','CI','SV','SVI','SVR','SVRI','CPO','CPI','DO2I','VO2I'];
+  if(coDeps.includes(pid)){
+    const hasUncalibratedDC = moduleAvailable('FloTrac') || moduleAvailable('AcumenIQ')
+                           || moduleAvailable('AcumenIQCuff') || moduleAvailable('ClearSight')
+                           || moduleAvailable('SwanGanz');
+    const hasCalibratedDC  = moduleAvailable('SwanGanzClassic') || moduleAvailable('VolumeView');
+    if(hasUncalibratedDC) return true;
+    if(hasCalibratedDC && state.thermodilutionDone) return true;
+    return false;
+  }
+  // Parâmetros volumétricos exclusivos do TPTD (VolumeView): só após termodiluição
+  if(['ELWI','PVPI','GEDI','GEDV','GEF'].includes(pid)){
+    if(moduleAvailable('VolumeView') && state.thermodilutionDone) return true;
     return false;
   }
   for(const src of p.source){
@@ -2154,6 +2153,8 @@ state.engineTime = state.engineTime || 0;
 function tickEngine(dt){
   const sc = SCENARIOS[state.scenario].bias;
   state.engineTime += dt;
+  // Master ON/OFF: quando o monitoramento está parado, todos os parâmetros congelam.
+  if(state.monitoringActive === false) return;
   const t = state.engineTime;
   // Quando a medição de DC (Swan-Ganz CCO) está parada, "congelamos" CO/CI/SV/SVI/RVEF/EDV/EDVI.
   // Os demais parâmetros (HR, MAP, CVP, ScvO2, etc.) continuam evoluindo normalmente.
@@ -6777,56 +6778,88 @@ $('#navTools').addEventListener('click', ()=>openConfigOverlay('tools'));
 const openModeFromRailBtn = $('#openModeFromRail');
 if(openModeFromRailBtn) openModeFromRailBtn.addEventListener('click', openMonitoringModeModal);
 
-// 2) Iniciar / Parar monitoramento de DC (Swan-Ganz CCO)
-// Aciona SOMENTE a medição de débito cardíaco contínuo (CO/CI/SV/SVI/RVEF/EDV/EDVI),
-// sem afetar o resto do monitor. Conforme HEM1 §4.1.1.
-const CCO_FROZEN_PIDS = ['CO','CI','SV','SVI','RVEF','EDV','EDVI'];
-const CO_SOURCE_MODULES = ['FloTrac','AcumenIQ','AcumenIQCuff','SwanGanz','ClearSight'];
-if(state.ccoActive == null) state.ccoActive = false;
+// 2) Iniciar / Parar monitoramento (master ON/OFF da sessão)
+// Aciona o processamento contínuo de dados e atualizações na tela. Comportamento
+// varia conforme o perfil acoplado (invasivo / mín. invasivo / não invasivo).
+if(state.monitoringActive == null) state.monitoringActive = true;
 state.ccoStartTime = state.ccoStartTime || Date.now();
+// Compat: ccoActive segue o monitoringActive para manter o congelamento dos params CO
+state.ccoActive = state.monitoringActive;
+
+function detectMonitoringMode(){
+  const m = state.modules;
+  if(m.SwanGanz || m.SwanGanzClassic || m.VolumeView) return 'invasive';
+  if(m.ClearSight || m.VitaWave) return 'noninvasive';
+  if(m.FloTrac || m.AcumenIQ || m.AcumenIQCuff || m.TruWave) return 'mini';
+  return null;
+}
+function modeStartMessage(mode){
+  switch(mode){
+    case 'invasive':    return '● Monitoramento iniciado — DC contínuo (Swan-Ganz / VolumeView)';
+    case 'noninvasive': return '● Monitoramento iniciado — pressão arterial via dedeira (ClearSight)';
+    case 'mini':        return '● Monitoramento iniciado — formas de onda e parâmetros (FloTrac / Acumen)';
+    default:            return '● Monitoramento iniciado';
+  }
+}
+function applyStartIcon(){
+  const img   = document.getElementById('imgStartCO');
+  const btn   = document.getElementById('navStartCO');
+  const badge = document.getElementById('navStartCOBadge');
+  if(!img||!btn) return;
+  if(state.monitoringActive){
+    img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.2%20Parar%20monitoramento%20do%20DC.png';
+    btn.classList.add('on');
+    btn.setAttribute('data-tip','Parar monitoramento');
+    if(badge) badge.style.display = '';
+  } else {
+    img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.1%20Iniciar%20monitoramento%20do%20DC.png';
+    btn.classList.remove('on');
+    btn.setAttribute('data-tip','Iniciar monitoramento');
+    if(badge) badge.style.display = 'none';
+  }
+}
 
 $('#navStartCO').addEventListener('click', ()=>{
-  const willActivate = !state.ccoActive;
-  const img    = $('#imgStartCO');
-  const btn    = $('#navStartCO');
-  const badge  = $('#navStartCOBadge');
-
-  if(willActivate){
-    // Se nenhum sensor de DC contínuo está acoplado, acopla automaticamente o
-    // cabo Swan-Ganz CCO (módulo canônico de DC contínuo, conforme HEM1 §4.1.1).
-    // Caso o usuário já tenha um Swan-Ganz clássico (sem CCO), trocamos pelo
-    // cabo CCO — apenas um cateter PA por vez.
-    const hasCoSensor = CO_SOURCE_MODULES.some(id => state.modules[id]);
-    if(!hasCoSensor){
-      const upgrading = !!state.modules.SwanGanzClassic;
-      state.modules.SwanGanz = true;
-      state.modules.SwanGanzClassic = false;
-      try { renderModuleList(); } catch(_) {}
-      try { renderScreen(); renderKeyTiles(); } catch(_) {}
-      showToast(upgrading
-        ? 'Cabo trocado: Swan-Ganz clássico → CCO'
-        : 'Cabo Swan-Ganz CCO acoplado');
+  if(!state.monitoringActive){
+    // INICIAR — exige pelo menos um sensor acoplado, sem auto-acoplagem
+    const mode = detectMonitoringMode();
+    if(!mode){
+      showToast('Acople um sensor antes de iniciar o monitoramento');
+      return;
     }
+    state.monitoringActive = true;
     state.ccoActive = true;
     state.ccoStartTime = Date.now();
     state.ccoSnapshot = null;
-    img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.2%20Parar%20monitoramento%20do%20DC.png';
-    btn.classList.add('on');
-    btn.setAttribute('data-tip','Parar monitoramento de DC (Swan-Ganz CCO)');
-    if(badge) badge.style.display = '';
-    $('#statusMsg').textContent = '● Medição de DC iniciada (Swan-Ganz CCO)';
-    showToast('Medição de DC iniciada');
+    applyStartIcon();
+    $('#statusMsg').textContent = modeStartMessage(mode);
+    showToast('Monitoramento iniciado');
   } else {
-    state.ccoActive = false;
-    // Congela snapshot dos valores derivados de Swan-Ganz
-    state.ccoSnapshot = {};
-    CCO_FROZEN_PIDS.forEach(pid => { state.ccoSnapshot[pid] = state.values[pid]; });
-    img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.1%20Iniciar%20monitoramento%20do%20DC.png';
-    btn.classList.remove('on');
-    btn.setAttribute('data-tip','Iniciar monitoramento de DC (Swan-Ganz CCO)');
-    if(badge){ badge.style.display = 'none'; }
-    $('#statusMsg').textContent = '⏸ Medição de DC interrompida — demais parâmetros mantidos';
-    showToast('Medição de DC parada');
+    // PARAR — exige confirmação para evitar interrupção acidental
+    const wrap = el('div');
+    wrap.appendChild(el('p',{style:'color:var(--text-dim);font-size:13px;line-height:1.5;margin:0 0 14px'},
+      'Confirme a interrupção. O sistema irá congelar todos os parâmetros e formas de onda na tela até que o monitoramento seja reiniciado.'));
+    const btnRow = el('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:14px'});
+    const cancelBtn = el('button',{class:'btn btn-secondary',style:'padding:8px 16px',
+      onclick: ()=>{ const m=document.getElementById('__infoModal'); if(m) m.style.display='none'; }
+    }, 'Cancelar');
+    const okBtn = el('button',{class:'btn btn-primary',style:'padding:8px 16px;background:#c83a3a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600',
+      onclick: ()=>{
+        state.monitoringActive = false;
+        state.ccoActive = false;
+        // Snapshot dos params CO para manter os valores exibidos congelados
+        state.ccoSnapshot = {};
+        ['CO','CI','SV','SVI','RVEF','EDV','EDVI'].forEach(pid => { state.ccoSnapshot[pid] = state.values[pid]; });
+        applyStartIcon();
+        $('#statusMsg').textContent = '⏸ Monitoramento interrompido — todos os parâmetros congelados';
+        showToast('Monitoramento parado');
+        const m=document.getElementById('__infoModal'); if(m) m.style.display='none';
+      }
+    }, 'Parar Monitoramento');
+    btnRow.appendChild(cancelBtn);
+    btnRow.appendChild(okBtn);
+    wrap.appendChild(btnRow);
+    showInfoModalDom('Parar Monitoramento?', wrap);
   }
 });
 
