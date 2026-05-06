@@ -191,6 +191,10 @@ button{font-family:inherit}
 .nav-btn:active{transform:scale(0.94)}
 .nav-btn.on{background:rgba(58,166,255,0.18);border-color:var(--accent)}
 .nav-btn img{width:78%;height:78%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.6))}
+/* Botão atalho de "Selecionar Telas" — 4 mini-thumbs em grade 2x2 */
+.nav-screens-btn .nav-screens-grid{width:80%;height:80%;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1.5px;padding:0;border-radius:3px;overflow:hidden;background:#000;box-shadow:0 1px 3px rgba(0,0,0,0.7),inset 0 0 0 1px #2a3140}
+.nav-screens-btn .ns-cell{overflow:hidden;display:flex;align-items:center;justify-content:center}
+.nav-screens-btn .ns-cell svg{width:100%;height:100%;display:block}
 .nav-btn .lbl{font-size:1.1vh;color:var(--text-mute);letter-spacing:.3px;line-height:1;margin-top:0.2vh;text-align:center;pointer-events:none}
 .nav-btn[data-tip]:hover::after{
   content:attr(data-tip);
@@ -537,14 +541,14 @@ table.htbl td.white{color:#fff}
 .tpd-result{flex:1;display:flex;flex-direction:column;min-height:0;gap:1.5cqh}
 .tpd-result .gauges{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:1fr 1fr;gap:2cqh 2cqw;flex:1;min-height:0}
 .tpd-gauge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.6cqh;min-height:0}
-.tpd-gauge .ring{position:relative;width:min(95%,17.1cqh);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 30% 30%,#3a3f47,#1a1f2a 60%,#0a0c10);border:2px solid #2a3140;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 6px rgba(0,0,0,0.6)}
+.tpd-gauge .ring{position:relative;width:min(82%,15cqh);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 30% 30%,#3a3f47,#1a1f2a 60%,#0a0c10);border:2px solid #2a3140;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 2px 6px rgba(0,0,0,0.6)}
 .tpd-gauge .pill{position:absolute;top:-7%;left:50%;transform:translateX(-50%);width:19%;height:26.6%;border-radius:18px 18px 10px 10px;box-shadow:inset 0 2px 4px rgba(255,255,255,0.4),0 0 10px currentColor}
 .tpd-gauge .pill.green{background:linear-gradient(180deg,#34dd8a,#1a9b5a);color:#1bc964}
 .tpd-gauge .pill.yellow{background:linear-gradient(180deg,#ffe46a,#caa810);color:#facc15}
 .tpd-gauge .pill.red{background:linear-gradient(180deg,#ff7a8a,#c01828);color:#ef4444}
-.tpd-gauge .ring .val{font-family:"Inter",sans-serif;font-weight:700;font-size:clamp(1.8rem,4cqw,4rem);color:#fff;line-height:1}
-.tpd-gauge .lbl{font-size:clamp(1.3rem,2.3cqw,2rem);color:#1a1f2a;font-weight:700;margin-top:0.4cqh;letter-spacing:.3px}
-.tpd-gauge .unit{font-size:clamp(1rem,1.7cqw,1.4rem);color:#3a4250;font-weight:500}
+.tpd-gauge .ring .val{font-family:"Inter",sans-serif;font-weight:700;font-size:clamp(1.7rem,3.6cqw,3.6rem);color:#fff;line-height:1}
+.tpd-gauge .lbl{font-size:clamp(1.6rem,2.8cqw,2.5rem);color:#1a1f2a;font-weight:700;margin-top:0.6cqh;letter-spacing:.4px}
+.tpd-gauge .unit{font-size:clamp(1.2rem,2.1cqw,1.8rem);color:#3a4250;font-weight:500;line-height:1.1}
 .tpd-result .footer-info{display:grid;grid-template-columns:auto auto 1fr auto;gap:0.5cqh 3cqw;align-items:center;font-size:clamp(1.2rem,2cqw,1.7rem);color:#1a1f2a;margin-top:0.5cqh;line-height:1.5}
 .tpd-result .footer-info .info-pair{display:contents}
 .tpd-result .footer-info .info-pair span{white-space:nowrap}
@@ -609,15 +613,15 @@ table.htbl td.white{color:#fff}
 .gauge canvas{flex:1;width:100%;min-height:0;display:block}
 /* Unidade no canto superior esquerdo (estilo HEM1) */
 .gauge .gunit{
-  position:absolute;top:6px;left:8px;
-  font-size:12px;color:#dde4ee;letter-spacing:.4px;
+  position:absolute;top:6px;left:10px;
+  font-size:15px;color:#dde4ee;letter-spacing:.4px;font-weight:500;
   z-index:2;pointer-events:none;
 }
 /* Label do parâmetro (IC/VS/PAM/IRVS) abaixo do gauge */
 .gauge .glabel{
   position:absolute;left:0;right:0;bottom:6px;
-  text-align:center;font-size:18px;font-weight:600;
-  color:#fff;letter-spacing:.5px;
+  text-align:center;font-size:24px;font-weight:700;
+  color:#fff;letter-spacing:.6px;
   z-index:2;pointer-events:none;
 }
 .gauge.alarming{animation:flash 1s infinite}
@@ -1461,8 +1465,13 @@ canvas.spark{display:block;width:100%;height:30px}
       <button class="nav-btn" id="navTGM" data-tip="Rastreamento de TGM (terapia guiada por metas)">
         <img src="Barra%20de%20navega%C3%A7%C3%A3o/3.%20Rastreamento%20de%20TGM.png" alt="">
       </button>
-      <button class="nav-btn" id="navZero" data-tip="Zerar e forma de onda (transdutores de pressão)">
-        <img src="Barra%20de%20navega%C3%A7%C3%A3o/4.%20Zerar%20e%20forma%20de%20onda.png" alt="">
+      <button class="nav-btn nav-screens-btn" id="navScreens" data-tip="Selecionar telas">
+        <div class="nav-screens-grid">
+          <div class="ns-cell ns-main"><svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#0a0c10"/><text x="30" y="26" text-anchor="middle" fill="#1bc964" font-family="Inter,sans-serif" font-size="14" font-weight="700">5.5</text></svg></div>
+          <div class="ns-cell ns-graph"><svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#0a0c10"/><polyline points="3,30 12,22 22,26 32,15 42,20 52,12 58,16" fill="none" stroke="#1bc964" stroke-width="2"/></svg></div>
+          <div class="ns-cell ns-cockpit"><svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#0a0c10"/><circle cx="18" cy="20" r="11" fill="none" stroke="#1bc964" stroke-width="2.5"/><circle cx="42" cy="20" r="11" fill="none" stroke="#facc15" stroke-width="2.5"/></svg></div>
+          <div class="ns-cell ns-physio"><svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#0a0c10"/><image href="fisiologica/pulmaoevasosswan.png" x="14" y="0" width="32" height="40" preserveAspectRatio="xMidYMid meet"/><image href="fisiologica/cora%C3%A7%C3%A3oswan.png" x="22" y="6" width="16" height="22" preserveAspectRatio="xMidYMid meet"/></svg></div>
+        </div>
       </button>
       <button class="nav-btn" id="navIntervention" data-tip="Intervenção (registrar evento clínico)">
         <img src="Barra%20de%20navega%C3%A7%C3%A3o/5.%20An%C3%A1lise%20de%20interven%C3%A7%C3%A3o.png" alt="">
@@ -3594,7 +3603,7 @@ function screenPhysioVV(host, mode, subMode){
             <svg class="fs-curve" viewBox="0 0 100 72">
               <line x1="4" y1="2" x2="4" y2="68"  stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
               <line x1="4" y1="68" x2="98" y2="68" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-              <path class="fs-path" d="M 6 68 C 6 28, 12 8, 30 6 C 60 5, 80 5, 96 5"
+              <path class="fs-path" d="M 6 68 C 14 42, 26 14, 50 8 C 70 6, 85 5, 96 5"
                     fill="none" stroke="#fff" stroke-width="3"
                     stroke-linecap="round" stroke-linejoin="round"/>
               <circle class="fs-dot" cx="6" cy="64" r="5" fill="#1bc964" stroke="#fff" stroke-width="1.5"/>
@@ -4411,13 +4420,14 @@ function drawGauge(cv,pid){
   if(pid==='HPI'){ mn=0; mx=100; }
   if(pid==='Eadyn'){ mn=0; mx=2; }
 
-  // Reserva espaço pro label de baixo (~22px) e unidade do topo (~18px)
-  const topReserve = 22;
-  const bottomReserve = 28;
+  // Reserva espaço maior pro label de baixo (.glabel mais grande) e unidade do topo
+  const topReserve = 26;
+  const bottomReserve = 36;
   const cx = W/2;
   const cy = topReserve + (H - topReserve - bottomReserve) * 0.50;
   const availH = H - topReserve - bottomReserve;
-  const r = Math.min(W*0.34, availH*0.40);
+  // Reduz levemente o raio para dar espaço aos números maiores ao redor do dial
+  const r = Math.min(W*0.30, availH*0.36);
   const ringW = Math.max(12, r*0.26);   // anel mais grosso pra dar volume
   const innerR = r - ringW/2 - 2;            // raio do "poço" central
   const wellR  = innerR - 1;
@@ -4527,10 +4537,11 @@ function drawGauge(cv,pid){
   }
 
   // ─── 6) Rótulos numéricos distribuídos ao redor do dial ───
-  ctx.font = '600 12px "Segoe UI", sans-serif';
+  const tickFontSize = Math.max(14, Math.floor(r*0.13));
+  ctx.font = '600 '+tickFontSize+'px "Segoe UI", sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  const lblR = r + ringW/2 + 14;
+  const lblR = r + ringW/2 + tickFontSize + 4;
   function placeLabelAt(val, color){
     if(val==null) return;
     const a = ang(val);
@@ -6934,25 +6945,8 @@ $('#navTGM').addEventListener('click', ()=>{
     rows);
 });
 
-// 4) Zerar e forma de onda
-$('#navZero').addEventListener('click', ()=>{
-  const items = [
-    ['Zerar linha arterial',     'TruWave / FloTrac / Acumen IQ',   'Linha arterial zerada (TruWave A-Line)'],
-    ['Zerar PVC',                'TruWave venoso',                  'Linha venosa zerada (PVC)'],
-    ['Zerar Swan-Ganz',          'PA / PCWP / RVEF',                'Cateter Swan-Ganz zerado'],
-    ['Calibrar HRS (ClearSight)','Sensor de altura de referência',  'Sensor cardíaco de referência calibrado'],
-  ];
-  const wrap = el('div',{style:'display:flex;flex-direction:column;gap:6px'});
-  wrap.appendChild(el('p',{style:'color:var(--text-dim);margin:0 0 12px;font-size:12px'},
-    'Zeragem dos transdutores de pressão. Em um Hemosphere real, abre-se a stopcock à atmosfera para zerar a referência (eixo flebostático).'));
-  items.forEach(([label, desc, msg])=>{
-    const btn = el('button',{class:'param-pick-btn',onclick:()=>{ showToast(msg); $('#__infoModal').style.display='none'; }});
-    btn.appendChild(el('span',{class:'pid'}, label));
-    btn.appendChild(el('span',{class:'desc'}, desc));
-    wrap.appendChild(btn);
-  });
-  showInfoModalDom('Zerar e forma de onda', wrap);
-});
+// 4) Atalho — Selecionar Telas (substituiu o antigo navZero)
+$('#navScreens')?.addEventListener('click', ()=> openConfigOverlay('screens'));
 
 // 5) Análise de intervenção — modal estilo Hemosphere oficial
 const IV_CATEGORIES = [
