@@ -42,7 +42,103 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-famil
 button{font-family:inherit}
 
 /* ----- SHELL (top bar / left rail / status bar) ----- */
-#app{display:grid;grid-template-rows:48px 1fr 32px;height:100vh}
+#app{display:grid;grid-template-rows:48px 1fr 32px;height:100vh;position:relative}
+
+/* ===== STARTUP SCREEN (Seleção do modo de monitoramento — tela inicial HEM1) ===== */
+#startupScreen{
+  position:absolute;inset:0;z-index:200;
+  background:#15171c;color:#e8edf3;
+  display:flex;flex-direction:column;
+  font-family:inherit;
+  animation:ssFadeIn .35s ease-out;
+}
+#startupScreen.hidden{opacity:0;pointer-events:none;transition:opacity .3s}
+@keyframes ssFadeIn{from{opacity:0}to{opacity:1}}
+#startupScreen .ss-topbar{
+  display:flex;justify-content:flex-end;align-items:flex-start;gap:18px;
+  padding:6px 14px;background:#000;color:#9aa6b8;font-size:11px;
+  border-bottom:1px solid #000;flex-shrink:0;
+}
+#startupScreen .ss-tray{display:flex;gap:14px;align-items:center;font-size:13px;color:#cbd2dd}
+#startupScreen .ss-tray .battery{
+  display:inline-block;width:22px;height:11px;border:1.5px solid #1bc964;border-radius:2px;
+  position:relative;background:linear-gradient(90deg,#1bc964 0%,#1bc964 80%,transparent 80%,transparent 100%);
+}
+#startupScreen .ss-tray .battery::after{
+  content:'';position:absolute;right:-3px;top:2.5px;width:2px;height:5px;background:#1bc964;border-radius:0 1px 1px 0;
+}
+#startupScreen .ss-clock{text-align:right;line-height:1.15;font-size:11px}
+#startupScreen .ss-clock>span{display:block}
+#startupScreen .ss-header{
+  display:grid;grid-template-columns:auto 1fr;gap:0;align-items:center;
+  padding:18px 50px 6px;flex-shrink:0;
+}
+#startupScreen .ss-emark{
+  width:108px;height:108px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#9aa6b8;background:transparent;
+  border:1px solid #2a3140;border-radius:2px;
+  background-image:linear-gradient(180deg,#1c2028 0%,#0a0c10 100%);
+}
+#startupScreen .ss-emark-letter{
+  font-family:'Times New Roman','Garamond',serif;font-size:62px;line-height:.9;color:#9aa6b8;font-weight:400;
+}
+#startupScreen .ss-emark-name{font-size:14px;color:#9aa6b8;font-style:italic;letter-spacing:.4px;margin-top:2px}
+#startupScreen .ss-titles{text-align:center;padding-right:108px}
+#startupScreen .ss-title{margin:0;font-size:48px;font-weight:300;color:#fff;letter-spacing:-.5px;line-height:1}
+#startupScreen .ss-copy{margin:4px 0 14px;color:#9aa6b8;font-size:13px;font-weight:400}
+#startupScreen .ss-subtitle{margin:0;font-size:22px;font-weight:300;color:#fff;letter-spacing:.2px}
+#startupScreen .ss-cards{
+  flex:1;display:flex;justify-content:center;align-items:center;gap:14px;padding:10px 32px 0;min-height:0;
+}
+#startupScreen .ss-card{
+  background:#1a1d24;border:2px solid #1a2030;border-radius:6px;
+  height:min(88%,380px);aspect-ratio:3/4;flex:0 1 26%;
+  padding:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  cursor:pointer;color:#7a8497;font-size:17px;font-weight:400;
+  overflow:hidden;
+  transition:border-color .2s, color .2s, box-shadow .2s, background .2s;
+}
+#startupScreen .ss-card.selected{
+  border-color:#3aa6ff;color:#fff;background:#0d2032;
+  box-shadow:0 0 0 1px #3aa6ff inset, 0 0 24px rgba(58,166,255,.45);
+}
+#startupScreen .ss-card:hover:not(.selected){border-color:#3a4356;color:#cbd2dd}
+#startupScreen .ss-card-art{flex:1;display:flex;align-items:center;justify-content:center;width:100%;padding:10px;min-height:0}
+#startupScreen .ss-card-art img,
+#startupScreen .ss-card-art svg{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+#startupScreen .ss-card-label{padding:14px 0 18px;font-weight:500;font-size:18px;letter-spacing:.4px}
+#startupScreen .ss-foot-note{
+  text-align:center;font-size:14px;color:#cbd2dd;font-weight:600;padding:14px 0 16px;flex-shrink:0;
+}
+#startupScreen .ss-bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 22px;background:#0c0e13;border-top:1px solid #1a2030;flex-shrink:0;
+}
+#startupScreen .ss-bottom-left{display:flex;gap:12px}
+#startupScreen .ss-iconbtn{
+  width:50px;height:50px;background:#1a1d24;border:1px solid #2a3140;border-radius:4px;
+  color:#9aa6b8;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:.15s;
+}
+#startupScreen .ss-iconbtn:hover{border-color:#3aa6ff;color:#3aa6ff}
+#startupScreen .ss-iconbtn svg{width:28px;height:28px;fill:currentColor}
+#startupScreen .ss-cta{
+  background:#22272f;border:1px solid #3a4356;color:#9aa6b8;
+  padding:14px 30px;border-radius:4px;font-size:16px;letter-spacing:.4px;
+  cursor:not-allowed;transition:.2s;font-weight:400;
+}
+#startupScreen .ss-cta:not(:disabled){background:#1f3a5e;border-color:#3aa6ff;color:#fff;cursor:pointer}
+#startupScreen .ss-cta:not(:disabled):hover{background:#264a78;box-shadow:0 0 14px rgba(58,166,255,.4)}
+#startupScreen .ss-edwards-strip{
+  display:flex;align-items:center;gap:12px;justify-content:center;
+  padding:8px 0;background:#22272f;color:#cbd2dd;font-style:italic;font-size:20px;
+  font-family:'Times New Roman','Garamond',serif;flex-shrink:0;
+}
+#startupScreen .ss-edwards-strip-mark{
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  font-size:30px;color:#cbd2dd;font-weight:400;line-height:1;
+  border:1px solid #4a5366;border-radius:2px;background:transparent;
+}
 
 #topbar{display:flex;align-items:center;gap:14px;padding:0 14px;background:linear-gradient(180deg,#171c25,#11151c);border-bottom:1px solid var(--line)}
 #topbar .brand{display:flex;align-items:center;gap:10px;min-width:200px}
@@ -232,6 +328,76 @@ table.htbl td.white{color:#fff}
 .phys-svg{background:var(--tile-bg);border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center}
 .phys-svg svg{width:100%;height:100%;max-height:100%}
 .phys-side{display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+
+/* ===== VolumeView / PiCCO (Fisiologia) — adaptado de fisiologica/volumeview-standalone.html ===== */
+.vv-screen{
+  position:relative;width:100%;height:100%;
+  background:radial-gradient(ellipse at top,#1e3a5f 0%,#0f1f33 40%,#0a1422 100%);
+  display:flex;flex-direction:column;border-radius:6px;overflow:hidden;
+  --vv-text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 0 4px rgba(0,0,0,0.9),0 1px 2px rgba(0,0,0,1);
+}
+.vv-screen .vv-main{flex:1;display:flex;min-height:0}
+.vv-screen .vv-stage{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;container-type:size}
+.vv-screen .vv-wrapper{
+  position:relative;
+  width:min(100cqw, calc(100cqh * 1020.75 / 810));
+  height:min(100cqh, calc(100cqw * 810 / 1020.75));
+  container-type:inline-size;
+}
+.vv-screen .vv-bg,.vv-screen .vv-heart{position:absolute;inset:0;width:100%;height:100%;user-select:none;pointer-events:none}
+@keyframes vvHeartbeat{
+  0%,100% { transform:scale(1); }
+  18%     { transform:scale(1.04); }
+  40%     { transform:scale(1); }
+}
+.vv-screen .heartbeat-anim{
+  animation-name:vvHeartbeat;animation-iteration-count:infinite;animation-timing-function:ease-in-out;
+  transform-origin:center center;will-change:transform;
+}
+.vv-screen .vv-label{position:absolute;display:flex;flex-direction:column;align-items:center;pointer-events:none;user-select:none}
+.vv-screen .vv-label .row{display:flex;align-items:baseline;gap:6px}
+.vv-screen .vv-label .led{
+  width:clamp(6px,0.9cqw,12px);height:clamp(6px,0.9cqw,12px);
+  border-radius:999px;flex-shrink:0;
+  box-shadow:0 0 7px currentColor,0 0 14px color-mix(in srgb,currentColor 40%,transparent),0 0 0 1px rgba(0,0,0,0.6);
+}
+.vv-screen .vv-label .value{
+  font-family:"Courier New",monospace;font-weight:700;line-height:1;color:#fff;
+  font-size:clamp(1rem,3.6cqw,3rem);text-shadow:var(--vv-text-shadow);
+}
+.vv-screen .vv-label .name{
+  margin-top:2px;font-weight:600;line-height:1.15;color:#fff;
+  font-size:clamp(0.75rem,2cqw,1.8rem);text-shadow:var(--vv-text-shadow);
+}
+.vv-screen .vv-label .unit{
+  color:#fff;opacity:0.9;line-height:1;
+  font-size:clamp(0.6rem,1.5cqw,1.4rem);text-shadow:var(--vv-text-shadow);
+}
+.vv-screen .vv-svv{position:absolute;display:flex;flex-direction:column;align-items:center;pointer-events:none;user-select:none}
+.vv-screen .vv-svv svg.fs-curve{
+  width:clamp(45px,7cqw,110px);height:auto;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,1));margin-bottom:4px;
+}
+.vv-screen .vv-svv .row{display:flex;align-items:baseline;gap:6px}
+.vv-screen .vv-dial{position:absolute;width:16%;aspect-ratio:1}
+.vv-screen .vv-dial .ring{
+  position:absolute;inset:0;border-radius:999px;
+  background:radial-gradient(circle at 30% 30%,#5a626f,#2a2f37 60%,#14171c 100%);
+  box-shadow:0 4px 12px rgba(0,0,0,0.6),inset 0 1px 1px rgba(255,255,255,0.1);
+}
+.vv-screen .vv-dial .disc{
+  position:absolute;inset:8%;border-radius:999px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 50%,#0a0d12,#050709);
+}
+.vv-screen .vv-dial .led-top{position:absolute;top:8%;width:14%;height:14%;border-radius:999px}
+.vv-screen .vv-dial .value{font-family:"Courier New",monospace;font-weight:700;line-height:1;font-size:clamp(0.9rem,3.4cqw,3rem);margin-top:18%}
+.vv-screen .vv-dial .unit{color:#a1a1aa;line-height:1;margin-top:2px;font-size:clamp(0.55rem,1.2cqw,1.1rem)}
+.vv-screen .vv-dial .label{color:#fff;font-weight:600;margin-top:4px;font-size:clamp(0.7rem,1.7cqw,1.6rem)}
+.vv-screen .vv-dial .bars{position:absolute;top:35%;display:flex;flex-direction:column;gap:2px}
+.vv-screen .vv-dial .bars.left{left:2%}
+.vv-screen .vv-dial .bars.right{right:2%}
+.vv-screen .vv-dial .bar{width:3px;height:5px}
 
 /* ----- COCKPIT ----- */
 .cockpit-grid{display:grid;gap:10px;height:100%;min-height:0}
@@ -615,6 +781,78 @@ table.htbl td.white{color:#fff}
 .cfg-page button.row b{font-size:13px;color:#fff;font-weight:600}
 .cfg-page button.row span{font-size:11px;color:#9aa6b8}
 
+/* Aba "Ferramentas Clínicas" — autofit: a página ocupa todo o espaço disponível
+   e a grade de ícones se expande para preencher a área entre o título e o
+   bloco "Valores Calculados". Ícones e fontes escalam via container queries
+   para que tiles maiores tenham ícones maiores. */
+.cfg-tools-page{
+  display:flex; flex-direction:column;
+  padding:18px 18px 16px;
+  overflow:auto;
+}
+.cfg-tools-page > h2{flex-shrink:0; margin:0 0 12px}
+.cfg-tools-page .calc-title{flex-shrink:0}
+.cfg-tools-page .calc-grid{flex-shrink:0}
+.cfg-tools-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+  grid-auto-rows: minmax(120px, 1fr);
+  gap:10px;
+  max-width:none;
+}
+.cfg-tools-page .cfg-tools-grid{
+  flex:1 1 0;            /* expande para preencher o espaço vertical */
+  min-height:240px;      /* nunca fica minúscula em telas baixas */
+  align-content:stretch;
+}
+.cfg-tools-grid button.tool-tile{
+  background:#161b24;border:1px solid #2a3140;color:#e8edf3;
+  padding:10px 8px;border-radius:8px;cursor:pointer;text-align:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  min-height:0; line-height:1.25;
+  container-type:size;
+  transition:background .15s, border-color .15s, transform .1s;
+}
+.cfg-tools-grid button.tool-tile:hover{background:#1f2738;border-color:#3aa6ff;transform:translateY(-1px)}
+.cfg-tools-grid button.tool-tile:active{transform:translateY(0)}
+.cfg-tools-grid button.tool-tile img{
+  width:clamp(48px, 38cqh, 96px);
+  height:clamp(48px, 38cqh, 96px);
+  object-fit:contain;
+  background:#0a0c10;border-radius:6px;padding:8px;
+  border:1px solid #232a39;
+  transition:filter .2s;
+  flex-shrink:0;
+}
+.cfg-tools-grid button.tool-tile .tlabel{
+  font-size:clamp(11px, 8.5cqh, 14px);color:#fff;font-weight:600;letter-spacing:.2px;
+  width:100%;
+}
+/* Estado "módulo não acoplado" — ícone preto-e-branco + texto esmaecido,
+   conforme o comportamento dos monitores HEM1 reais. */
+.cfg-tools-grid button.tool-tile.disabled{cursor:not-allowed}
+.cfg-tools-grid button.tool-tile.disabled img{
+  filter:grayscale(1) brightness(.85) contrast(.95);
+  opacity:.7;
+}
+.cfg-tools-grid button.tool-tile.disabled .tlabel{color:#9aa6b8}
+.cfg-tools-grid button.tool-tile.disabled .tlabel small{color:#5a6478}
+.cfg-tools-grid button.tool-tile.disabled:hover{background:#161b24;border-color:#2a3140;transform:none}
+.cfg-tools-grid button.tool-tile .tlabel small{
+  display:block;font-size:clamp(9px, 5.5cqh, 11px);color:#7a8497;font-weight:500;margin-top:3px;letter-spacing:.3px;
+}
+.cfg-page h3.calc-title{
+  margin:18px 0 8px;font-size:11px;letter-spacing:1.5px;
+  color:#9aa6b8;text-transform:uppercase;font-weight:600;
+}
+.cfg-page .calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;max-width:none}
+.cfg-page .calc-grid .calc-cell{
+  background:#101620;border:1px solid #232a39;border-radius:6px;padding:8px 12px;
+  display:flex;flex-direction:column;gap:1px;
+}
+.cfg-page .calc-grid .calc-cell b{font-size:12px;color:#fff;font-weight:600}
+.cfg-page .calc-grid .calc-cell span{font-size:11px;color:#9aa6b8}
+
 /* ===== Aspect ratio fixo no modo Clássico (HEM1 ≈ 4:3) ===== */
 body.locked-classic{background:#000;margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh}
 body.locked-classic #app{
@@ -812,6 +1050,42 @@ body.locked-classic #screenInner{padding-bottom:14px}
 .param-pick-btn .source-tag{font-size:9px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.5px}
 .param-pick-btn.current .source-tag{color:var(--accent)}
 .param-pick-btn .no-sensor{font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.5px}
+/* Modal "Selecionar modo de monitoramento" — layout com painel lateral
+   para módulos com sub-acessório configurável (ex.: ClearSight + dedeira). */
+.mm-wrap{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:14px;align-items:start}
+@media (max-width:820px){ .mm-wrap{grid-template-columns:1fr} }
+.mm-main{min-width:0}
+.mm-aside{
+  position:sticky;top:0;
+  background:var(--panel2);border:1px solid var(--line);border-radius:6px;
+  padding:12px;display:flex;flex-direction:column;gap:6px;
+}
+.mm-aside h4{margin:0;font-size:11px;letter-spacing:1.5px;color:var(--text-dim);
+  text-transform:uppercase;border-bottom:1px solid var(--line);padding-bottom:6px}
+.mm-aside .mm-aside-desc{margin:2px 0 8px;font-size:11px;color:var(--text-mute);line-height:1.45}
+.mm-aside .mm-aside-empty{
+  text-align:center;color:var(--text-mute);font-size:11px;padding:18px 6px;line-height:1.55;
+  border:1px dashed var(--line);border-radius:4px;
+}
+.mm-aside .mm-aside-empty p{margin:0 0 4px;color:var(--text-dim)}
+.mm-aside .mm-aside-empty small{display:block;color:var(--text-mute);font-size:10px}
+.param-pick-btn .mm-sublabel{font-size:10px;color:var(--accent);
+  text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.param-pick-btn.has-config{padding-right:24px;position:relative}
+.param-pick-btn.has-config::after{
+  content:'›';position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  color:var(--text-dim);font-size:20px;line-height:1;transition:color .15s, transform .15s;
+}
+.param-pick-btn.has-config.expanded::after{color:var(--accent);transform:translateY(-50%) rotate(90deg)}
+/* Modal "Selecionar modo de monitoramento" — sempre em tela cheia, ocupando
+   toda a janela do simulador. Usa o overlay já existente do showInfoModalDom. */
+#__infoModal.mm-fullscreen{padding:0}
+#__infoModal.mm-fullscreen .modal-card{
+  max-width:none !important; width:100vw; height:100vh; max-height:100vh;
+  border-radius:0; border:0;
+}
+#__infoModal.mm-fullscreen .mm-wrap{grid-template-columns:minmax(0,1fr) 340px}
+#__infoModal.mm-fullscreen .mm-aside{position:sticky;top:0;align-self:start}
 
 /* parameter trend mini-chart */
 canvas.spark{display:block;width:100%;height:30px}
@@ -878,6 +1152,75 @@ canvas.spark{display:block;width:100%;height:30px}
 
 <div id="app" class="app-classic">
 
+  <!-- ============== STARTUP SCREEN (HEM1 — Seleção do modo de monitoramento) ============== -->
+  <div id="startupScreen" role="dialog" aria-label="Seleção do modo de monitoramento">
+    <div class="ss-topbar">
+      <div class="ss-tray">
+        <span class="battery" title="Bateria"></span>
+        <span title="Captura de tela">📷</span>
+        <span title="Brilho">☀</span>
+        <span title="Volume">🔇</span>
+      </div>
+      <div class="ss-clock">
+        <span id="ssDate">--.--.--</span>
+        <span id="ssTime">--:--:--</span>
+      </div>
+    </div>
+    <div class="ss-header">
+      <div class="ss-emark" aria-hidden="true">
+        <span class="ss-emark-letter">E</span>
+        <span class="ss-emark-name">Edwards</span>
+      </div>
+      <div class="ss-titles">
+        <h1 class="ss-title">HemoSphere</h1>
+        <p class="ss-copy">Copyright © 2020 Edwards Lifesciences LLC</p>
+        <h2 class="ss-subtitle">Seleção do modo de monitoramento *</h2>
+      </div>
+    </div>
+    <div class="ss-cards">
+      <button class="ss-card" data-mode="invasive" type="button" aria-label="Modo invasivo">
+        <div class="ss-card-art">
+          <img src="Barra%20de%20navega%C3%A7%C3%A3o/%C3%8Dcones%20do%20menu%20de%20sele%C3%A7%C3%A3o%20do%20modo%20de%20monitoramento/Bot%C3%A3o%20de%20modo%20de%20monitoramento%20Invasivo.png" alt="Modo invasivo">
+        </div>
+        <div class="ss-card-label">Invasivo</div>
+      </button>
+      <button class="ss-card" data-mode="mini" type="button" aria-label="Modo minimamente invasivo">
+        <div class="ss-card-art">
+          <img src="Barra%20de%20navega%C3%A7%C3%A3o/%C3%8Dcones%20do%20menu%20de%20sele%C3%A7%C3%A3o%20do%20modo%20de%20monitoramento/Bot%C3%A3o%20de%20modo%20de%20monitoramento%20minimamente%20invasivo.png" alt="Modo minimamente invasivo">
+        </div>
+        <div class="ss-card-label">Minimamente Invasivo</div>
+      </button>
+      <button class="ss-card" data-mode="noninvasive" type="button" aria-label="Modo não invasivo">
+        <div class="ss-card-art">
+          <img src="Barra%20de%20navega%C3%A7%C3%A3o/%C3%8Dcones%20do%20menu%20de%20sele%C3%A7%C3%A3o%20do%20modo%20de%20monitoramento/Bot%C3%A3o%20de%20modo%20de%20monitoramento%20n%C3%A3o%20invasivo.png" alt="Modo não invasivo">
+        </div>
+        <div class="ss-card-label">Não Invasivo</div>
+      </button>
+    </div>
+    <div class="ss-foot-note">*Oximetria de tecido disponível em todos os modos</div>
+    <div class="ss-bottom">
+      <div class="ss-bottom-left">
+        <button class="ss-iconbtn" type="button" id="ssAlarmBtn" title="Silenciar alarmes" aria-label="Silenciar alarmes">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M16 4 C12 4 9 7 9 11 L9 18 L6 22 L26 22 L23 18 L23 11 C23 7 20 4 16 4 Z" fill="none" stroke="#dc2626" stroke-width="2"/>
+            <path d="M13 25 C13 27 14 28 16 28 C18 28 19 27 19 25" fill="none" stroke="#dc2626" stroke-width="2"/>
+            <line x1="5" y1="6" x2="27" y2="28" stroke="#dc2626" stroke-width="2.2"/>
+          </svg>
+        </button>
+        <button class="ss-iconbtn" type="button" id="ssGearBtn" title="Configurações" aria-label="Configurações">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M16 11 a5 5 0 1 0 0 10 a5 5 0 1 0 0 -10 Z M16 3 L18 6 L21 5 L22 8 L25 9 L24 12 L26 14 L24 16 L26 18 L24 21 L25 24 L22 25 L21 28 L18 27 L16 30 L14 27 L11 28 L10 25 L7 24 L8 21 L6 18 L8 16 L6 14 L8 12 L7 9 L10 8 L11 5 L14 6 Z" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+      <button class="ss-cta" id="ssStart" type="button" disabled>Inicie o Monitoramento</button>
+    </div>
+    <div class="ss-edwards-strip">
+      <span class="ss-edwards-strip-mark">E</span>
+      <span>Edwards Lifesciences</span>
+    </div>
+  </div>
+
   <!-- ============== TOP BAR ============== -->
   <div id="topbar">
     <div class="brand">
@@ -912,8 +1255,9 @@ canvas.spark{display:block;width:100%;height:30px}
       <button class="nav-btn" id="navMode" data-tip="Selecionar modo de monitoramento (invasivo / não-invasivo / oximetria)">
         <img src="Barra%20de%20navega%C3%A7%C3%A3o/1.%20Selecionar%20modo%20de%20monitoramento.png" alt="">
       </button>
-      <button class="nav-btn" id="navStartCO" data-tip="Iniciar monitoramento de DC (Swan-Ganz)">
+      <button class="nav-btn" id="navStartCO" data-tip="Iniciar monitoramento de DC (Swan-Ganz CCO)">
         <img src="Barra%20de%20navega%C3%A7%C3%A3o/2.1%20Iniciar%20monitoramento%20do%20DC.png" alt="" id="imgStartCO">
+        <span class="badge-time" id="navStartCOBadge" style="display:none">0:30</span>
       </button>
       <button class="nav-btn" id="navTGM" data-tip="Rastreamento de TGM (terapia guiada por metas)">
         <img src="Barra%20de%20navega%C3%A7%C3%A3o/3.%20Rastreamento%20de%20TGM.png" alt="">
@@ -1044,7 +1388,7 @@ const PARAMS = {
   CI:    {lbl:'IC',en:'CI',unit:'L/min/m²',target:[2.5,4],alarmLow:1.0,alarmHigh:6.0,source:['SwanGanz','FloTrac','AcumenIQ','ClearSight'],precision:1,base:2.7,drift:0.1},
   SV:    {lbl:'VS',en:'SV',unit:'mL/b',target:[60,100],alarmLow:30,alarmHigh:140,source:['SwanGanz','FloTrac','AcumenIQ','ClearSight'],precision:0,base:75,drift:3},
   SVI:   {lbl:'IVS',en:'SVI',unit:'mL/b/m²',target:[33,47],alarmLow:20,alarmHigh:70,source:['SwanGanz','FloTrac','AcumenIQ','ClearSight'],precision:0,base:38,drift:2},
-  SVR:   {lbl:'RVS',en:'SVR',unit:'dyne·s/cm⁵',target:[800,1200],alarmLow:500,alarmHigh:2000,source:['FloTrac','AcumenIQ','ClearSight','TruWave+SwanGanz'],precision:0,base:1100,drift:40},
+  SVR:   {lbl:'RVS',en:'SVR',unit:'dyne·s/cm⁵',target:[800,1200],alarmLow:500,alarmHigh:2000,source:['FloTrac','AcumenIQ','ClearSight','TruWave+SwanGanz','TruWave+SwanGanzClassic'],precision:0,base:1100,drift:40},
   SVRI:  {lbl:'IRVS',en:'SVRI',unit:'dyne·s·m²/cm⁵',target:[1970,2390],alarmLow:1000,alarmHigh:3000,source:['FloTrac','AcumenIQ','ClearSight'],precision:0,base:2150,drift:80},
   SVV:   {lbl:'VVS',en:'SVV',unit:'%',target:[10,15],alarmHigh:20,source:['FloTrac','AcumenIQ','ClearSight'],precision:0,base:12,drift:1.5},
   PPV:   {lbl:'VPP',en:'PPV',unit:'%',target:[10,15],alarmHigh:20,source:['FloTrac','AcumenIQ','ClearSight','TruWave'],precision:0,base:11,drift:1.5},
@@ -1052,36 +1396,38 @@ const PARAMS = {
   SAP:   {lbl:'PAS',en:'SYSART',unit:'mmHg',target:[90,140],alarmLow:80,alarmHigh:160,source:['TruWave','FloTrac','AcumenIQ','ClearSight','VitaWave'],precision:0,base:120,drift:3},
   DAP:   {lbl:'PAD',en:'DIAART',unit:'mmHg',target:[60,90],alarmLow:50,alarmHigh:100,source:['TruWave','FloTrac','AcumenIQ','ClearSight','VitaWave'],precision:0,base:70,drift:2},
   CVP:   {lbl:'PVC',en:'CVP',unit:'mmHg',target:[2,6],alarmLow:0,alarmHigh:14,source:['TruWave'],precision:0,base:4,drift:1},
-  PAP:   {lbl:'PAPm',en:'MPAP',unit:'mmHg',target:[10,20],alarmLow:5,alarmHigh:25,source:['TruWave+SwanGanz'],precision:0,base:14,drift:1},
-  HR:    {lbl:'FC',en:'HR/PR',unit:'bpm',target:[60,100],alarmLow:50,alarmHigh:130,source:['TruWave','FloTrac','AcumenIQ','ClearSight','SwanGanz','VitaWave'],precision:0,base:78,drift:3},
+  PAP:   {lbl:'PAPm',en:'MPAP',unit:'mmHg',target:[10,20],alarmLow:5,alarmHigh:25,source:['TruWave+SwanGanz','TruWave+SwanGanzClassic'],precision:0,base:14,drift:1},
+  HR:    {lbl:'FC',en:'HR/PR',unit:'bpm',target:[60,100],alarmLow:50,alarmHigh:130,source:['TruWave','FloTrac','AcumenIQ','ClearSight','SwanGanz','SwanGanzClassic','VitaWave'],precision:0,base:78,drift:3},
   ScvO2: {lbl:'ScvO₂',en:'ScvO2',unit:'%',target:[60,70],alarmLow:50,alarmHigh:90,source:['Oximetry'],precision:0,base:65,drift:2},
   StO2:  {lbl:'StO₂',en:'StO2',unit:'%',target:[60,90],alarmLow:40,source:['ForeSight'],precision:0,base:75,drift:2,site:'cerebral'},
   StO2_2:{lbl:'StO₂',en:'StO2 som.',unit:'%',target:[60,90],alarmLow:40,source:['ForeSight'],precision:0,base:78,drift:2,site:'somático'},
-  HPI:   {lbl:'HPI',en:'HPI',unit:'',target:[0,85],alarmHigh:85,source:['AcumenIQ'],precision:0,base:15,drift:5,special:'hpi'},
-  dPdt:  {lbl:'dP/dt',en:'dP/dt',unit:'mmHg/s',target:[480,1300],alarmLow:380,alarmHigh:1800,source:['AcumenIQ'],precision:0,base:780,drift:30},
-  Eadyn: {lbl:'Eadyn',en:'Eadyn',unit:'',target:[0.2,1.5],source:['AcumenIQ'],precision:2,base:0.85,drift:0.05},
+  HPI:   {lbl:'HPI',en:'HPI',unit:'',target:[0,85],alarmHigh:85,source:['AcumenIQ','AcumenIQCuff'],precision:0,base:15,drift:5,special:'hpi'},
+  dPdt:  {lbl:'dP/dt',en:'dP/dt',unit:'mmHg/s',target:[480,1300],alarmLow:380,alarmHigh:1800,source:['AcumenIQ','AcumenIQCuff'],precision:0,base:780,drift:30},
+  Eadyn: {lbl:'Eadyn',en:'Eadyn',unit:'',target:[0.2,1.5],source:['AcumenIQ','AcumenIQCuff'],precision:2,base:0.85,drift:0.05},
   RVEF:  {lbl:'FEVD',en:'RVEF',unit:'%',target:[40,60],alarmLow:20,alarmHigh:60,source:['SwanGanz'],precision:0,base:48,drift:2},
   EDV:   {lbl:'VDF',en:'EDV',unit:'mL',target:[100,160],source:['SwanGanz'],precision:0,base:130,drift:5},
   EDVI:  {lbl:'IVDF',en:'EDVI',unit:'mL/m²',target:[59,94],alarmLow:40,alarmHigh:200,source:['SwanGanz'],precision:0,base:75,drift:3},
-  CPO:   {lbl:'POC',en:'CPO',unit:'W',target:[0.8,1.5],source:['ClearSight','FloTrac','AcumenIQ'],precision:2,base:1.10,drift:0.05},
-  CPI:   {lbl:'IPOC',en:'CPI',unit:'W/m²',target:[0.5,0.7],source:['ClearSight','FloTrac','AcumenIQ'],precision:2,base:0.60,drift:0.03},
+  CPO:   {lbl:'POC',en:'CPO',unit:'W',target:[0.8,1.5],source:['ClearSight','FloTrac','AcumenIQ','AcumenIQCuff'],precision:2,base:1.10,drift:0.05},
+  CPI:   {lbl:'IPOC',en:'CPI',unit:'W/m²',target:[0.5,0.7],source:['ClearSight','FloTrac','AcumenIQ','AcumenIQCuff'],precision:2,base:0.60,drift:0.03},
   DO2I:  {lbl:'DO₂i',en:'DO2I',unit:'mL/min/m²',target:[500,600],alarmLow:300,alarmHigh:800,source:['derivado'],precision:0,base:560,drift:15},
   VO2I:  {lbl:'VO₂i',en:'VO2I',unit:'mL/min/m²',target:[120,160],alarmLow:80,alarmHigh:250,source:['derivado'],precision:0,base:140,drift:8},
   // Alta only
-  GHI:   {lbl:'GHI',en:'GHI',unit:'',target:[0,30],alarmHigh:50,source:['AcumenIQ','derivado'],precision:0,base:18,drift:4,altaOnly:true},
+  GHI:   {lbl:'GHI',en:'GHI',unit:'',target:[0,30],alarmHigh:50,source:['AcumenIQ','AcumenIQCuff','derivado'],precision:0,base:18,drift:4,altaOnly:true},
   CAI:   {lbl:'CAI',en:'CAI',unit:'',target:[0,30],alarmHigh:50,source:['ForeSight'],precision:0,base:12,drift:3,altaOnly:true},
-  CO20:  {lbl:'DC₂₀ₛ',en:'CO20s',unit:'L/min',target:[4,8],source:['FloTrac','AcumenIQ'],precision:1,base:5.5,drift:0.4,altaOnly:true},
+  CO20:  {lbl:'DC₂₀ₛ',en:'CO20s',unit:'L/min',target:[4,8],source:['FloTrac','AcumenIQ','AcumenIQCuff'],precision:1,base:5.5,drift:0.4,altaOnly:true},
 };
 
 /* MODULES — definição dos slots/dispositivos */
 const MODULES = [
-  {id:'TruWave',     name:'Cabo de pressão (TruWave)',     desc:'Linha arterial / venosa / PA',  defaultOn:true,  versions:['classic','vita','alta'], provides:['MAP','SAP','DAP','HR','PPV']},
-  {id:'FloTrac',     name:'Sensor FloTrac',                desc:'DC mín. invasivo (linha art.)',  defaultOn:true,  versions:['classic','alta'],         provides:['CO','CI','SV','SVI','SVR','SVRI','SVV','PPV','HR','MAP','SAP','DAP','CPO','CPI']},
-  {id:'AcumenIQ',    name:'Sensor Acumen IQ (HPI)',        desc:'FloTrac + HPI/dP/dt/Eadyn',      defaultOn:true,  versions:['classic','alta'],         provides:['CO','CI','SV','SVI','SVR','SVRI','SVV','PPV','HR','MAP','SAP','DAP','HPI','dPdt','Eadyn','GHI','CO20']},
-  {id:'SwanGanz',    name:'Cabo Swan-Ganz CCO',            desc:'Cateter PA contínuo',            defaultOn:false, versions:['classic','alta'],         provides:['CO','CI','SV','SVI','RVEF','EDV','EDVI','HR','PAP']},
-  {id:'Oximetry',    name:'Cabo de Oximetria (ScvO₂/SvO₂)',desc:'Oximetria venosa central/mista', defaultOn:true,  versions:['classic','alta'],         provides:['ScvO2']},
+  {id:'TruWave',     name:'Cabo de pressão (TruWave)',     desc:'Linha arterial / venosa / PA',  defaultOn:false, versions:['classic','vita','alta'], provides:['MAP','SAP','DAP','HR','PPV']},
+  {id:'FloTrac',     name:'Sensor FloTrac',                desc:'DC mín. invasivo (linha art.)',  defaultOn:false, versions:['classic','alta'],         provides:['CO','CI','SV','SVI','SVR','SVRI','SVV','PPV','HR','MAP','SAP','DAP','CPO','CPI']},
+  {id:'AcumenIQ',    name:'Sensor Acumen IQ',              desc:'Sensor arterial (FloTrac) com HPI/dP/dt/Eadyn',  defaultOn:false, versions:['classic','alta'], provides:['CO','CI','SV','SVI','SVR','SVRI','SVV','PPV','HR','MAP','SAP','DAP','HPI','dPdt','Eadyn','GHI','CO20']},
+  {id:'AcumenIQCuff',name:'Dedeira Acumen IQ',             desc:'Manguito digital ClearSight com HPI/dP/dt/Eadyn',defaultOn:false, versions:['classic','alta'], provides:['CO','CI','SV','SVI','SVR','SVRI','SVV','PPV','HR','MAP','SAP','DAP','HPI','dPdt','Eadyn','GHI','CO20']},
+  {id:'SwanGanzClassic', name:'Cabo Swan-Ganz (clássico)',  desc:'Cateter PA sem CCO — apenas DCi por termodiluição', defaultOn:false, versions:['classic','alta'], provides:['HR','PAP']},
+  {id:'SwanGanz',    name:'Cabo Swan-Ganz CCO',            desc:'Cateter PA com termistor — DC contínuo', defaultOn:false, versions:['classic','alta'],         provides:['CO','CI','SV','SVI','RVEF','EDV','EDVI','HR','PAP']},
+  {id:'Oximetry',    name:'Cabo de Oximetria (ScvO₂/SvO₂)',desc:'Oximetria venosa central/mista', defaultOn:false, versions:['classic','alta'],         provides:['ScvO2']},
   {id:'ClearSight',  name:'Módulo ClearSight',             desc:'Manguito digital não-invasivo',  defaultOn:false, versions:['classic','alta'],         provides:['CO','CI','SV','SVI','SVR','SVRI','SVV','PPV','HR','MAP','SAP','DAP','CPO','CPI']},
-  {id:'VitaWave',    name:'Módulo VitaWave',               desc:'Manguito digital (Vita)',        defaultOn:true,  versions:['vita'],                   provides:['MAP','SAP','DAP','HR']},
+  {id:'VitaWave',    name:'Módulo VitaWave',               desc:'Manguito digital (Vita)',        defaultOn:false, versions:['vita'],                   provides:['MAP','SAP','DAP','HR']},
   {id:'ForeSight',   name:'Módulo Tissue Oximetry/ForeSight',desc:'rSO₂ cerebral/somática',       defaultOn:false, versions:['classic','vita','alta'],  provides:['StO2','StO2_2','CAI']},
   {id:'Stream',      name:'HemoSphere Stream Module',      desc:'Saída de dados HL7/HIS',         defaultOn:false, versions:['alta'],                   provides:[]},
 ];
@@ -1552,9 +1898,18 @@ function tickEngine(dt){
   const sc = SCENARIOS[state.scenario].bias;
   state.engineTime += dt;
   const t = state.engineTime;
+  // Quando a medição de DC (Swan-Ganz CCO) está parada, "congelamos" CO/CI/SV/SVI/RVEF/EDV/EDVI.
+  // Os demais parâmetros (HR, MAP, CVP, ScvO2, etc.) continuam evoluindo normalmente.
+  const ccoFrozen = (state.ccoActive === false);
+  const ccoFrozenSet = ccoFrozen ? new Set(['CO','CI','SV','SVI','RVEF','EDV','EDVI']) : null;
   for(const pid in PARAMS){
     if(state.overrides[pid]!==undefined){
       state.values[pid] = state.overrides[pid];
+    } else if(ccoFrozen && ccoFrozenSet.has(pid)){
+      // Congelado — mantém o último valor amostrado quando o usuário parou a medição
+      if(state.ccoSnapshot && state.ccoSnapshot[pid] != null){
+        state.values[pid] = state.ccoSnapshot[pid];
+      }
     } else {
       const p = PARAMS[pid];
       const baseTarget = (sc[pid]!==undefined) ? p.base * sc[pid] : p.base;
@@ -1580,13 +1935,15 @@ function tickEngine(dt){
       state.values[pid] = nv;
     }
   }
-  // Coerência básica: derivar CI a partir de CO/BSA quando disponível
+  // Coerência básica: derivar CI a partir de CO/BSA quando disponível.
+  // SVRI continua derivando porque depende de SVR (não-CCO). Os demais não
+  // recalculam quando o CCO está parado, para manter CI/SVI/EDVI congelados.
   const b = bsa();
   if(b>0){
-    if(state.overrides.CI===undefined) state.values.CI = state.values.CO / b;
-    if(state.overrides.SVI===undefined) state.values.SVI = state.values.SV / b;
+    if(state.overrides.CI===undefined  && !ccoFrozen) state.values.CI  = state.values.CO / b;
+    if(state.overrides.SVI===undefined && !ccoFrozen) state.values.SVI = state.values.SV / b;
     if(state.overrides.SVRI===undefined) state.values.SVRI = state.values.SVR * b;
-    if(state.overrides.EDVI===undefined) state.values.EDVI = state.values.EDV / b;
+    if(state.overrides.EDVI===undefined && !ccoFrozen) state.values.EDVI = state.values.EDV / b;
   }
   // CPO ≈ CO * MAP * 0.0022
   if(state.overrides.CPO===undefined) state.values.CPO = state.values.CO * state.values.MAP * 0.0022;
@@ -2506,8 +2863,10 @@ function sourceForParam(pid){
   // Nomes "vistos no monitor real"
   const friendly = {
     AcumenIQ: 'IQ Sensor · A-Line',
+    AcumenIQCuff: 'IQ · ClearSight',
     FloTrac:  'FloTrac · A-Line',
-    SwanGanz: 'Swan-Ganz',
+    SwanGanz: 'Swan-Ganz CCO',
+    SwanGanzClassic: 'Swan-Ganz',
     ClearSight:'ClearSight',
     VitaWave: 'VitaWave',
     ForeSight:'ForeSight IQ',
@@ -2917,92 +3276,226 @@ SCREEN_FNS.screenSplit = function(host){
   host.appendChild(left); host.appendChild(right);
 };
 
-// ---------- screenPhysio (animação coração/vasos) ----------
+// ---------- screenPhysio (VolumeView/PiCCO — adaptado de fisiologica/volumeview-standalone.html) ----------
 SCREEN_FNS.screenPhysio = function(host){
-  const wrap = el('div',{class:'phys-screen'});
-  const svgWrap = el('div',{class:'phys-svg'});
-  // SVG schematic: heart + vessels
-  const svg = `
-  <svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet">
-    <defs>
-      <linearGradient id="art" x1="0" x2="1"><stop offset="0" stop-color="#ff4747"/><stop offset="1" stop-color="#9c1f1f"/></linearGradient>
-      <linearGradient id="ven" x1="0" x2="1"><stop offset="0" stop-color="#4a78c2"/><stop offset="1" stop-color="#1f3a6c"/></linearGradient>
-      <radialGradient id="heart"><stop offset="0" stop-color="#ff5a5a"/><stop offset="1" stop-color="#7d1818"/></radialGradient>
-    </defs>
-    <!-- coração -->
-    <g id="heartG" transform="translate(300,200)">
-      <path id="heartPath" d="M0,-30 C-50,-90 -130,-50 -90,20 C-60,80 0,110 0,110 C0,110 60,80 90,20 C130,-50 50,-90 0,-30 Z" fill="url(#heart)" stroke="#3a0e0e" stroke-width="2"/>
-      <text x="0" y="0" fill="white" font-size="14" text-anchor="middle" id="heartLbl">CO</text>
-      <text x="0" y="22" fill="#ffd" font-size="22" text-anchor="middle" font-weight="300" id="heartVal">5.5</text>
-      <text x="0" y="42" fill="#ddd" font-size="10" text-anchor="middle">L/min</text>
-    </g>
-    <!-- artéria (saída) -->
-    <path id="artery" d="M390,160 Q480,130 540,180 L540,220 Q480,200 390,220 Z" fill="url(#art)" stroke="#5a1a1a" stroke-width="1"/>
-    <text x="500" y="155" fill="#ff7a7a" font-size="10">aorta</text>
-    <text x="490" y="250" fill="#ffd" font-size="14" id="mapLbl">MAP 85</text>
-    <text x="490" y="266" fill="#aaa" font-size="11" id="svrLbl">SVR 1100</text>
-    <!-- veia (retorno) -->
-    <path id="vein" d="M210,160 Q120,130 60,180 L60,220 Q120,200 210,220 Z" fill="url(#ven)" stroke="#1a2c5a" stroke-width="1"/>
-    <text x="80" y="155" fill="#7a99cf" font-size="10">cava</text>
-    <text x="40" y="250" fill="#ffd" font-size="14" id="cvpLbl">PVC 6</text>
-    <text x="40" y="266" fill="#aaa" font-size="11" id="scvLbl">ScvO₂ 70%</text>
-    <!-- circulação pulmonar -->
-    <ellipse cx="300" cy="80" rx="160" ry="40" fill="rgba(80,160,255,0.1)" stroke="#3a5a8a" stroke-width="1" stroke-dasharray="3,3"/>
-    <text x="300" y="60" fill="#7aaee0" font-size="11" text-anchor="middle">circulação pulmonar</text>
-    <text x="300" y="100" fill="#ffd" font-size="13" text-anchor="middle" id="papLbl">PAP 14</text>
-    <!-- frank-starling lantern -->
-    <g id="lantern" transform="translate(300,360)">
-      <rect x="-60" y="-10" width="120" height="20" fill="#1a2030" stroke="#3a4356"/>
-      <rect id="lantBar" x="-58" y="-8" width="50" height="16" fill="#1bc964"/>
-      <text x="0" y="-15" fill="#aaa" font-size="9" text-anchor="middle">SVV / lanterna Frank-Starling</text>
-    </g>
-  </svg>`;
-  svgWrap.innerHTML = svg;
-  wrap.appendChild(svgWrap);
+  const wrap = el('div',{class:'vv-screen'});
+  // HTML do VolumeView — labels sobre anatomia + 4 KPI dials.
+  // Posições % são calibradas para o viewBox 1020.75×810 dos SVGs em fisiologica/.
+  wrap.innerHTML = `
+    <div class="vv-main">
+      <div class="vv-stage">
+        <div class="vv-wrapper">
+          <img class="vv-bg"    src="fisiologica/volumeview-bg.svg" alt="" draggable="false"/>
+          <img class="vv-heart" src="fisiologica/coracao.svg"        alt="" draggable="false"/>
 
-  const side = el('div',{class:'phys-side'});
-  ['CO','CI','SV','MAP','HR','SVR','SVV','ScvO2','StO2'].forEach(pid=>{
-    const t = renderTile(pid,{compact:true,spark:false});
-    if(t) side.appendChild(t);
-  });
-  wrap.appendChild(side);
+          <!-- SVI — sobre o tronco pulmonar -->
+          <div class="vv-label" data-key="SVI" style="top:34%;left:50%;transform:translate(-50%,0);">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">SVI</div><div class="unit">mL/b/m²</div>
+          </div>
+          <!-- PVPI — pulmão direito -->
+          <div class="vv-label" data-key="PVPI" style="top:40%;left:62%;">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">PVPI</div>
+          </div>
+          <!-- ELWI — pulmão esquerdo -->
+          <div class="vv-label" data-key="ELWI" style="top:58%;left:38%;">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">ELWI</div><div class="unit">mL/kg</div>
+          </div>
+          <!-- SVV (com curva Frank-Starling) -->
+          <div class="vv-svv" data-key="SVV" style="top:40%;left:22%;">
+            <svg class="fs-curve" viewBox="0 0 100 72">
+              <line x1="4" y1="2" x2="4" y2="68"  stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="4" y1="68" x2="98" y2="68" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M 6 64 Q 10 60, 18 38 Q 28 12, 50 8 Q 72 6, 96 6"
+                    fill="none" stroke="#fff" stroke-width="3"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">SVV</div><div class="unit">%</div>
+          </div>
+          <!-- GEDI — sobre o coração -->
+          <div class="vv-label" data-key="GEDI" style="top:55%;left:48%;transform:translate(-50%,0);">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">GEDI</div>
+          </div>
+          <!-- GEF — ventrículo -->
+          <div class="vv-label" data-key="GEF" style="top:55%;left:60%;">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">GEF</div><div class="unit">%</div>
+          </div>
+          <!-- SvO2 — caminho venoso -->
+          <div class="vv-label" data-key="SvO2" style="top:68%;left:26%;">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">SvO₂</div><div class="unit">%</div>
+          </div>
+          <!-- PR (FC) — sobre o coração -->
+          <div class="vv-label" data-key="HR" style="top:63%;left:56%;">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">PR</div><div class="unit">bpm</div>
+          </div>
+          <!-- CVP — esquerda do U venoso -->
+          <div class="vv-label" data-key="CVP" style="top:76%;left:32%;">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">CVP</div><div class="unit">mmHg</div>
+          </div>
+          <!-- SVRI — centro inferior do U -->
+          <div class="vv-label" data-key="SVRI" style="top:71%;left:50%;transform:translate(-50%,0);">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">SVRI</div><div class="unit">dyne·s·m²/cm⁵</div>
+          </div>
+          <!-- CI — direita do U arterial -->
+          <div class="vv-label" data-key="CI" style="top:73%;left:63%;">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">CI</div><div class="unit">L/min/m²</div>
+          </div>
+          <!-- MAP — canto inferior direito do U -->
+          <div class="vv-label" data-key="MAP" style="top:85%;left:66%;">
+            <div class="row"><span class="led"></span><span class="value" data-bind></span></div>
+            <div class="name">MAP</div><div class="unit">mmHg</div>
+          </div>
+
+          <!-- 4 KPI Dials (canto direito) -->
+          <div class="vv-dial" data-dial="CI"   style="top:13%;right:4%;"></div>
+          <div class="vv-dial" data-dial="SVV"  style="top:33%;right:4%;"></div>
+          <div class="vv-dial" data-dial="SVRI" style="top:53%;right:4%;"></div>
+          <div class="vv-dial" data-dial="SvO2" style="top:73%;right:4%;"></div>
+        </div>
+      </div>
+    </div>
+  `;
   host.appendChild(wrap);
 
-  // Anima coração
-  const heart = svgWrap.querySelector('#heartG');
-  const heartVal = svgWrap.querySelector('#heartVal');
-  const heartLbl = svgWrap.querySelector('#heartLbl');
-  const mapLbl = svgWrap.querySelector('#mapLbl');
-  const svrLbl = svgWrap.querySelector('#svrLbl');
-  const cvpLbl = svgWrap.querySelector('#cvpLbl');
-  const scvLbl = svgWrap.querySelector('#scvLbl');
-  const papLbl = svgWrap.querySelector('#papLbl');
-  const lantBar = svgWrap.querySelector('#lantBar');
-  const artery = svgWrap.querySelector('#artery');
-  const vein = svgWrap.querySelector('#vein');
-  let phys_t = 0;
-  physioAnim = function(dt){
-    phys_t += dt;
-    const hr = state.values.HR||75;
-    const beatPhase = (phys_t * hr/60) % 1;
-    const scale = 1 + 0.10*Math.exp(-Math.pow((beatPhase-0.05)/0.08,2));
-    heart.setAttribute('transform',`translate(300,200) scale(${scale.toFixed(3)})`);
-    heartVal.textContent = (state.values.CO||0).toFixed(1);
-    heartLbl.textContent = state.lang==='en'?'CO':'DC';
-    mapLbl.textContent = (state.lang==='en'?'MAP ':'PAM ')+ (state.values.MAP||0).toFixed(0);
-    svrLbl.textContent = 'SVR '+ (state.values.SVR||0).toFixed(0);
-    cvpLbl.textContent = (state.lang==='en'?'CVP ':'PVC ')+ (state.values.CVP||0).toFixed(0);
-    scvLbl.textContent = 'ScvO₂ '+ (state.values.ScvO2||0).toFixed(0)+'%';
-    papLbl.textContent = 'PAP '+ (state.values.PAP||0).toFixed(0);
-    // Lanterna SVV
-    const svv = state.values.SVV||0;
-    const w = Math.min(120, 30 + svv*4.5);
-    lantBar.setAttribute('width', w);
-    lantBar.setAttribute('fill', svv>13?'#ffc445':(svv>20?'#ff4747':'#1bc964'));
-    // Constrição da artéria (SVR)
-    const svr = state.values.SVR||1100;
-    const constr = Math.max(0.3, Math.min(1.5, 1500/svr));
-    artery.setAttribute('transform',`scale(1, ${constr.toFixed(2)}) translate(0, ${(200*(1-constr)/constr).toFixed(0)})`);
+  // Faixas de normalidade locais (alinhadas com PARAMS quando existem; valores
+  // educacionais para PiCCO-only — GEDI/GEF/ELWI/PVPI — não estão no PARAMS).
+  const VV_RANGES = {
+    SVI:  PARAMS.SVI  ? PARAMS.SVI.target  : [33,47],
+    PVPI: [1,3],
+    ELWI: [3,7],
+    SVV:  PARAMS.SVV  ? PARAMS.SVV.target  : [10,15],
+    GEDI: [680,800],
+    GEF:  [25,35],
+    SvO2: PARAMS.ScvO2? PARAMS.ScvO2.target: [60,70],
+    HR:   PARAMS.HR   ? PARAMS.HR.target   : [60,100],
+    CVP:  PARAMS.CVP  ? PARAMS.CVP.target  : [2,6],
+    SVRI: PARAMS.SVRI ? PARAMS.SVRI.target : [1970,2390],
+    CI:   PARAMS.CI   ? PARAMS.CI.target   : [2.5,4],
+    MAP:  PARAMS.MAP  ? PARAMS.MAP.target  : [70,105],
+  };
+  const INVERT_HIGH = { SVV:true, PVPI:true, ELWI:true }; // só limita no alto
+
+  function vvStatus(key, val){
+    if(val==null || isNaN(val)) return 'warn';
+    const r = VV_RANGES[key]; if(!r) return 'ok';
+    const opts = INVERT_HIGH[key] ? {invertHigh:true} : {};
+    if(opts.invertHigh){
+      if(val > r[1]*1.5) return 'alert';
+      if(val > r[1])     return 'warn';
+      return 'ok';
+    }
+    if(val < r[0]*0.7 || val > r[1]*1.3) return 'alert';
+    if(val < r[0]      || val > r[1])    return 'warn';
+    return 'ok';
+  }
+  const ledColorRaw = s => s==='alert' ? '#ef4444' : s==='warn' ? '#facc15' : '#22c55e';
+
+  function vvFmt(key, val){
+    if(val==null || isNaN(val)) return '--';
+    if(key==='CI' || key==='PVPI') return Number(val).toFixed(1);
+    if(key==='HR' && val<=0) return '--';
+    return String(Math.round(val));
+  }
+
+  // Cache dos refs uma única vez
+  const heartEl = wrap.querySelector('.vv-heart');
+  const labelEls = {};
+  wrap.querySelectorAll('.vv-label[data-key], .vv-svv[data-key]').forEach(el2 => {
+    labelEls[el2.dataset.key] = el2;
+  });
+  const dialEls = {};
+  wrap.querySelectorAll('.vv-dial[data-dial]').forEach(el2 => {
+    dialEls[el2.dataset.dial] = el2;
+  });
+
+  function paintLabel(key, val){
+    const elx = labelEls[key]; if(!elx) return;
+    const status = vvStatus(key, val);
+    const color  = ledColorRaw(status);
+    elx.style.color = color;
+    const led = elx.querySelector('.led');     if(led) led.style.background = color;
+    const v   = elx.querySelector('[data-bind]'); if(v)  v.textContent = vvFmt(key, val);
+  }
+  function renderDial(key, label, unit, val){
+    const mount = dialEls[key]; if(!mount) return;
+    const status = vvStatus(key, val);
+    const color  = ledColorRaw(status);
+    const glow = status==='alert' ? 'rgba(239,68,68,0.45)'
+              : status==='warn'  ? 'rgba(250,204,21,0.35)'
+                                 : 'rgba(34,197,94,0.35)';
+    mount.innerHTML =
+      '<div class="ring"></div>'+
+      '<div class="disc" style="box-shadow:inset 0 0 18px '+glow+'">'+
+        '<div class="led-top" style="background:'+color+';box-shadow:0 0 8px '+color+',0 0 14px '+color+';"></div>'+
+        '<div class="value" style="color:'+color+'">'+vvFmt(key, val)+'</div>'+
+        '<div class="unit">'+unit+'</div>'+
+        '<div class="label">'+label+'</div>'+
+      '</div>'+
+      '<div class="bars left">'+
+        [1,2,3,4].map(i=>'<div class="bar" style="background:'+(i<=2?color:'#3a3f47')+';opacity:'+(i<=2?0.9:0.5)+'"></div>').join('')+
+      '</div>'+
+      '<div class="bars right">'+
+        [1,2,3,4].map(i=>'<div class="bar" style="background:'+(i<=2?color:'#3a3f47')+';opacity:'+(i<=2?0.9:0.5)+'"></div>').join('')+
+      '</div>';
+  }
+
+  let lastHR = -1;
+  // Hook na animação: chamada a cada tick pelo loop principal
+  physioAnim = function(/*dt*/){
+    const v = state.values || {};
+
+    // Derivações educacionais (parâmetros que não existem no PARAMS):
+    // GEDI ≈ 9.5 × EDVI (heurística, alvo 680–800 quando EDVI ≈ 75)
+    const gedi = (v.EDVI != null) ? v.EDVI * 9.5 : 720;
+    // GEF ≈ 0.58 × RVEF (faixa global ~25–35 quando RVEF ≈ 48)
+    const gef  = (v.RVEF != null) ? v.RVEF * 0.58 : 28;
+    // ELWI/PVPI: valores fixos (educacional). Sobem em cardiogênico (edema pulmonar).
+    const isPulmEdema = (state.preset==='cardiogenico');
+    const elwi = isPulmEdema ? 11 : 5;
+    const pvpi = isPulmEdema ? 3.0 : 1.8;
+    const svo2 = (v.SvO2 != null) ? v.SvO2 : v.ScvO2; // proxy
+
+    paintLabel('SVI',  v.SVI);
+    paintLabel('PVPI', pvpi);
+    paintLabel('ELWI', elwi);
+    paintLabel('SVV',  v.SVV);
+    paintLabel('GEDI', gedi);
+    paintLabel('GEF',  gef);
+    paintLabel('SvO2', svo2);
+    paintLabel('HR',   v.HR);
+    paintLabel('CVP',  v.CVP);
+    paintLabel('SVRI', v.SVRI);
+    paintLabel('CI',   v.CI);
+    paintLabel('MAP',  v.MAP);
+
+    renderDial('CI',   'CI',   'L/min/m²',         v.CI);
+    renderDial('SVV',  'SVV',  '%',                v.SVV);
+    renderDial('SVRI', 'SVRI', 'dyne·s·m²/cm⁵',    v.SVRI);
+    renderDial('SvO2', 'SvO₂', '%',                svo2);
+
+    // Coração pulsante: anim CSS com duração = 60/HR. Atualiza só quando muda
+    // significativamente para não reiniciar a animação a cada frame.
+    const hr = (v.HR && v.HR>0) ? v.HR : 0;
+    if(Math.abs(hr - lastHR) >= 1){
+      lastHR = hr;
+      if(hr > 0){
+        heartEl.classList.add('heartbeat-anim');
+        heartEl.style.animationDuration = (60/hr).toFixed(3)+'s';
+      } else {
+        heartEl.classList.remove('heartbeat-anim');
+        heartEl.style.animationDuration = '0s';
+      }
+    }
   };
 };
 let physioAnim = null;
@@ -4050,8 +4543,8 @@ function updateGoalSidebarLive(cv){
 
 // ---------- screenHPISec ----------
 SCREEN_FNS.screenHPISec = function(host){
-  if(!moduleAvailable('AcumenIQ')){
-    host.appendChild(el('div',{class:'empty'},'A tela secundária HPI requer o sensor Acumen IQ. Acople o módulo no painel à esquerda.'));
+  if(!moduleAvailable('AcumenIQ') && !moduleAvailable('AcumenIQCuff')){
+    host.appendChild(el('div',{class:'empty'},'A tela secundária HPI requer o Acumen IQ — sensor arterial (FloTrac) ou dedeira (ClearSight). Acople o módulo no painel à esquerda.'));
     return;
   }
   const wrap = el('div',{class:'hpi-sec'});
@@ -4614,7 +5107,9 @@ function renderModuleList(){
   const summary = $('#moduleSummary'); if(!summary) return;
   summary.innerHTML='';
   const friendly = {
-    AcumenIQ:'Acumen IQ', FloTrac:'FloTrac', SwanGanz:'Swan-Ganz CCO',
+    AcumenIQ:'Acumen IQ (sensor)', AcumenIQCuff:'Acumen IQ (dedeira)',
+    FloTrac:'FloTrac', SwanGanz:'Swan-Ganz CCO',
+    SwanGanzClassic:'Swan-Ganz (clássico)',
     ClearSight:'ClearSight', VitaWave:'VitaWave', ForeSight:'ForeSight',
     TruWave:'TruWave', Oximetry:'Oximetria ScvO₂', Stream:'Stream Module'
   };
@@ -4932,6 +5427,9 @@ function showInfoModalDom(title, contentNode){
     modal.addEventListener('click', e=>{ if(e.target===modal) modal.style.display='none'; });
   }
   modal.innerHTML = '';
+  // Cada chamada começa com layout neutro; modais especiais (ex.: "Selecionar
+  // modo de monitoramento") aplicam suas próprias classes depois.
+  modal.classList.remove('mm-fullscreen');
   const card = el('div',{class:'modal-card',style:'max-width:760px'});
   const head = el('div',{class:'head'});
   head.appendChild(el('h2',null,title));
@@ -4969,111 +5467,387 @@ $('#rightRailToggle').addEventListener('click', ()=>{ state.rightRailCollapsed =
 //  BARRA DE NAVEGAÇÃO (HEM1) — handlers
 // ============================================================
 
-// 1) Selecionar modo de monitoramento — agora com perfis + gerenciamento individual de módulos
+// 1) Selecionar modo de monitoramento — módulos agrupados por perfil de monitoramento
+// (Invasivo · Mín. invasivo · Não invasivo · Oximetria), conforme HEM1 §4.1.
+const MODULE_GROUPS = [
+  { id:'invasive',    title:'Invasivo',
+    desc:'Cateter de artéria pulmonar via módulo HemoSphere Swan-Ganz.',
+    modules:['SwanGanz','SwanGanzClassic'] },
+  { id:'mini',        title:'Minimamente Invasivo',
+    desc:'Cabo de pressão HemoSphere com sensores arteriais para DC mín. invasivo.',
+    modules:['TruWave','FloTrac','AcumenIQ'] },
+  { id:'noninvasive', title:'Não Invasivo',
+    desc:'Manguito digital via módulo HemoSphere ClearSight.',
+    modules:['ClearSight','VitaWave'] },
+  { id:'oximetry',    title:'Oximetria  ·  disponível em todos os modos',
+    desc:'Oximetria venosa central/mista (ScvO₂/SvO₂) e oximetria tecidual ForeSight (rSO₂).',
+    modules:['Oximetry','ForeSight'] },
+  { id:'data',        title:'Saída de dados',
+    desc:'Transmissão de parâmetros para sistemas hospitalares (HL7/HIS).',
+    modules:['Stream'] },
+];
+
+// Módulos com configuração detalhada (sub-acessório selecionável)
+// abrem um painel lateral à direita ao serem clicados, em vez de
+// alternar acoplamento direto no botão.
+const MODULES_WITH_DETAIL = ['ClearSight'];
+let _mmAsideMod = null;
+
 function openMonitoringModeModal(){
-  const wrap = el('div');
+  _mmAsideMod = null; // sempre começa sem painel aberto
+  const wrap = el('div',{class:'mm-wrap'});
+  const main = el('div',{class:'mm-main'});
 
-  // ===== Seção 1: Perfis rápidos =====
-  wrap.appendChild(el('h3',{class:'group',style:'margin-top:0'},'Perfil rápido'));
-  wrap.appendChild(el('p',{style:'color:var(--text-dim);font-size:11px;margin:0 0 10px'},'Aplica um conjunto pré-configurado de módulos compatível com a versão atual. Ajuste fino abaixo.'));
-  const modes = [
-    {label:'Invasivo completo',          on:['TruWave','FloTrac','SwanGanz','Oximetry'], desc:'Linha arterial + Swan-Ganz + ScvO₂'},
-    {label:'Mínimo invasivo (FloTrac)',  on:['TruWave','FloTrac'],                       desc:'Apenas linha arterial + DC mín. invasivo'},
-    {label:'Acumen IQ + HPI',            on:['TruWave','FloTrac','AcumenIQ'],            desc:'FloTrac + HPI / dP/dt / Eadyn'},
-    {label:'Não-invasivo (ClearSight)',  on:['ClearSight'],                              desc:'Manguito digital, sem cateteres'},
-    {label:'Oximetria tecidual',         on:['ForeSight','TruWave'],                     desc:'rSO₂ cerebral/somática + linha arterial'},
-    {label:'Tudo conectado',             on:['TruWave','FloTrac','AcumenIQ','SwanGanz','Oximetry','ForeSight'], desc:'Todos os sensores compatíveis ativados'},
-  ];
-  const profileGrid = el('div',{class:'param-grid'});
-  modes.forEach(m=>{
-    const supported = m.on.filter(k=> MODULES.find(x=>x.id===k)?.versions.includes(state.version));
-    const btn = el('button',{class:'param-pick-btn'+(supported.length===0?' unavailable':''),onclick:()=>{
-      Object.keys(state.modules).forEach(k=>state.modules[k]=false);
-      supported.forEach(k=> state.modules[k] = true);
-      renderModuleList(); renderScreen(); renderKeyTiles();
-      // Atualiza a aba de módulos individuais sem fechar o modal
-      refreshIndividualModules();
-      showToast('Modo: ' + m.label);
-    }});
-    btn.appendChild(el('span',{class:'pid'}, m.label));
-    btn.appendChild(el('span',{class:'desc'}, m.desc));
-    btn.appendChild(el('span',{class:'source-tag'}, supported.length===0 ? 'indisp. nesta versão' : supported.join(' · ')));
-    profileGrid.appendChild(btn);
+  main.appendChild(el('p',{style:'color:var(--text-dim);font-size:12px;margin:0 0 6px;line-height:1.5'},
+    'Acople ou desacople sensores e módulos clicando em cada bloco. Os itens estão agrupados pelo perfil de monitoramento. Módulos com seta › abrem opções de sub-acessório no painel à direita.'));
+
+  MODULE_GROUPS.forEach(g => {
+    const visibleModules = g.modules.filter(id => {
+      const m = MODULES.find(x => x.id === id);
+      return m && m.versions.includes(state.version);
+    });
+    if(visibleModules.length === 0) return;
+
+    main.appendChild(el('h3',{class:'group',style:'margin-top:14px'}, g.title));
+    if(g.desc){
+      main.appendChild(el('p',{style:'color:var(--text-dim);font-size:11px;margin:-4px 0 8px;line-height:1.4'}, g.desc));
+    }
+    const grid = el('div',{class:'param-grid','data-group':g.id});
+    grid.dataset.modules = JSON.stringify(visibleModules);
+    visibleModules.forEach(id => {
+      const m = MODULES.find(x => x.id === id);
+      grid.appendChild(buildModuleBtn(m));
+    });
+    main.appendChild(grid);
   });
-  wrap.appendChild(profileGrid);
 
-  // ===== Seção 2: Módulos individuais =====
-  wrap.appendChild(el('h3',{class:'group',style:'margin-top:18px'},'Módulos individuais (toque para acoplar/desacoplar)'));
-  const indWrap = el('div',{id:'__individualModules',class:'param-grid'});
-  wrap.appendChild(indWrap);
+  const aside = el('div',{class:'mm-aside',id:'mmAside'});
+  renderMmAside(aside);
 
-  // ===== Seção 3: Slots físicos do monitor (apenas visual / ilustrativo) =====
-  wrap.appendChild(el('h3',{class:'group',style:'margin-top:18px'},'Slots físicos do monitor'));
-  const slotsBox = el('div',{style:'background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:10px;font-size:11px;color:var(--text-mute);display:grid;grid-template-columns:1fr 1fr;gap:4px'});
-  ['Slot 1 · módulo padrão','Slot 2 · módulo padrão','Slot 3 · L-Tech (largo)','Cabo 1 · porta lateral','Cabo 2 · porta lateral'].forEach(s=>{
-    slotsBox.appendChild(el('div',null,s));
-  });
-  wrap.appendChild(slotsBox);
+  wrap.appendChild(main);
+  wrap.appendChild(aside);
 
   showInfoModalDom('Selecionar modo de monitoramento', wrap);
-  refreshIndividualModules();
+
+  // Sempre fullscreen: ocupa toda a janela do simulador para refletir o
+  // comportamento do menu Edwards (não é um diálogo flutuante).
+  const modal = document.getElementById('__infoModal');
+  if(modal) modal.classList.add('mm-fullscreen');
+  const card = document.querySelector('#__infoModal .modal-card');
+  if(card) card.style.maxWidth = '';
 }
-function refreshIndividualModules(){
-  const host = document.getElementById('__individualModules');
-  if(!host) return;
-  host.innerHTML='';
-  MODULES.forEach(m=>{
-    const supported = m.versions.includes(state.version);
-    const isOn = state.modules[m.id] && supported;
-    const cls = ['param-pick-btn'];
-    if(isOn) cls.push('current');
-    if(!supported) cls.push('unavailable');
-    const btn = el('button',{class:cls.join(' '),onclick:()=>{
-      if(!supported) return;
-      state.modules[m.id] = !state.modules[m.id];
-      // Dependências automáticas (como antes)
-      if(m.id==='AcumenIQ' && state.modules.AcumenIQ) state.modules.FloTrac=true;
-      if(m.id==='SwanGanz' && state.modules.SwanGanz) state.modules.TruWave=true;
-      if(m.id==='FloTrac' && !state.modules.FloTrac) state.modules.AcumenIQ=false;
-      renderModuleList(); renderScreen(); renderKeyTiles();
-      refreshIndividualModules();
-    }});
+
+function renderMmAside(aside){
+  aside.innerHTML = '';
+  if(!_mmAsideMod){
+    const empty = el('div',{class:'mm-aside-empty'});
+    empty.appendChild(el('p',null,'Selecione um módulo configurável.'));
+    empty.appendChild(el('small',null,'O Módulo HemoSphere ClearSight abre as opções de dedeira aqui (padrão ou Acumen IQ).'));
+    aside.appendChild(empty);
+    return;
+  }
+  if(_mmAsideMod === 'ClearSight'){
+    aside.appendChild(buildClearSightDetail());
+  }
+}
+
+function buildClearSightDetail(){
+  const wrap = el('div');
+  wrap.appendChild(el('h4',null,'Módulo HemoSphere ClearSight'));
+  wrap.appendChild(el('p',{class:'mm-aside-desc'},
+    'Selecione a dedeira que será acoplada. As medidas básicas (DC, VS, PA, VVS, VPP) são fornecidas pelo ClearSight; HPI, dP/dT e Eadyn ficam disponíveis apenas com a Dedeira Acumen IQ.'));
+
+  const onStandard = !!state.modules.ClearSight && !state.modules.AcumenIQCuff;
+  const onAcumen   = !!state.modules.ClearSight &&  !!state.modules.AcumenIQCuff;
+  const off        = !state.modules.ClearSight;
+
+  const mkOpt = (label, sub, on, fn) => {
+    const cls = ['param-pick-btn']; if(on) cls.push('current');
+    const b = el('button',{class:cls.join(' '), onclick:()=>{ fn(); afterClearSightChange(); }});
     const dot = el('span',{class:'pid',style:'display:flex;align-items:center;gap:6px'});
-    dot.appendChild(el('span',{style:'width:8px;height:8px;border-radius:50%;background:'+(isOn?'var(--green)':'#3a4356')+';box-shadow:'+(isOn?'0 0 6px var(--green)':'none')+';flex-shrink:0'}));
-    dot.appendChild(el('span',null, m.name));
-    btn.appendChild(dot);
-    btn.appendChild(el('span',{class:'desc'}, m.desc));
-    if(!supported) btn.appendChild(el('span',{class:'no-sensor'}, 'indisp. nesta versão'));
-    host.appendChild(btn);
+    dot.appendChild(el('span',{
+      style:'width:8px;height:8px;border-radius:50%;background:'
+          + (on?'var(--green)':'#3a4356')
+          + ';box-shadow:'+(on?'0 0 6px var(--green)':'none')
+          + ';flex-shrink:0'
+    }));
+    dot.appendChild(el('span',null,label));
+    b.appendChild(dot);
+    b.appendChild(el('span',{class:'desc'},sub));
+    return b;
+  };
+
+  wrap.appendChild(mkOpt(
+    'Dedeira ClearSight padrão',
+    'DC · VS · PA · VVS · VPP',
+    onStandard,
+    ()=>{ state.modules.ClearSight = true; state.modules.AcumenIQCuff = false; }
+  ));
+  wrap.appendChild(mkOpt(
+    'Dedeira Acumen IQ',
+    'ClearSight padrão + HPI · dP/dT · Eadyn',
+    onAcumen,
+    ()=>{ state.modules.ClearSight = true; state.modules.AcumenIQCuff = true; }
+  ));
+  wrap.appendChild(mkOpt(
+    'Sem dedeira (desacoplar)',
+    'Desativa o módulo ClearSight.',
+    off,
+    ()=>{ state.modules.ClearSight = false; state.modules.AcumenIQCuff = false; }
+  ));
+  return wrap;
+}
+
+function afterClearSightChange(){
+  // Sincroniza estado CCO conforme há ou não fonte de DC contínuo
+  const hasCo = ['FloTrac','AcumenIQ','AcumenIQCuff','SwanGanz','ClearSight'].some(id => state.modules[id]);
+  if(!hasCo && state.ccoActive){
+    state.ccoActive = false;
+    const _img   = document.getElementById('imgStartCO');
+    const _btnCO = document.getElementById('navStartCO');
+    const _badge = document.getElementById('navStartCOBadge');
+    if(_img)   _img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.1%20Iniciar%20monitoramento%20do%20DC.png';
+    if(_btnCO){ _btnCO.classList.remove('on'); _btnCO.setAttribute('data-tip','Iniciar monitoramento de DC (Swan-Ganz CCO)'); }
+    if(_badge) _badge.style.display = 'none';
+  }
+  renderModuleList(); renderScreen(); renderKeyTiles();
+  refreshGroupedModules();
+  const aside = $('#mmAside'); if(aside) renderMmAside(aside);
+}
+
+function buildModuleBtn(m){
+  const supported = m.versions.includes(state.version);
+  const isOn = state.modules[m.id] && supported;
+  const hasDetail = MODULES_WITH_DETAIL.includes(m.id);
+  const cls = ['param-pick-btn'];
+  if(isOn) cls.push('current');
+  if(!supported) cls.push('unavailable');
+  if(hasDetail) cls.push('has-config');
+  if(hasDetail && _mmAsideMod === m.id) cls.push('expanded');
+  const btn = el('button',{class:cls.join(' '), onclick:()=>{
+    if(!supported) return;
+    if(hasDetail){
+      // Abre/fecha o painel lateral de configuração — não alterna acoplamento direto.
+      _mmAsideMod = (_mmAsideMod === m.id) ? null : m.id;
+      const aside = $('#mmAside'); if(aside) renderMmAside(aside);
+      refreshGroupedModules();
+      return;
+    }
+    state.modules[m.id] = !state.modules[m.id];
+    // Dependências automáticas
+    if(m.id==='AcumenIQ' && state.modules.AcumenIQ){
+      // Sensor Acumen IQ pega o cabo da via arterial (FloTrac) e
+      // é mutuamente exclusivo com a versão dedeira (mesma licença HPI).
+      state.modules.FloTrac = true;
+      state.modules.AcumenIQCuff = false;
+    }
+    if(m.id==='SwanGanz' && state.modules.SwanGanz){
+      state.modules.TruWave = true;
+      // Swan-Ganz CCO e clássico são mutuamente exclusivos
+      state.modules.SwanGanzClassic = false;
+    }
+    if(m.id==='SwanGanzClassic' && state.modules.SwanGanzClassic){
+      state.modules.TruWave = true;
+      state.modules.SwanGanz = false;
+    }
+    if(m.id==='FloTrac' && !state.modules.FloTrac) state.modules.AcumenIQ = false;
+    // Sincroniza estado CCO conforme há ou não fonte de DC contínuo
+    const hasCo = ['FloTrac','AcumenIQ','AcumenIQCuff','SwanGanz','ClearSight'].some(id => state.modules[id]);
+    if(!hasCo && state.ccoActive){
+      state.ccoActive = false;
+      const _img   = document.getElementById('imgStartCO');
+      const _btnCO = document.getElementById('navStartCO');
+      const _badge = document.getElementById('navStartCOBadge');
+      if(_img)   _img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.1%20Iniciar%20monitoramento%20do%20DC.png';
+      if(_btnCO){ _btnCO.classList.remove('on'); _btnCO.setAttribute('data-tip','Iniciar monitoramento de DC (Swan-Ganz CCO)'); }
+      if(_badge) _badge.style.display = 'none';
+    }
+    renderModuleList(); renderScreen(); renderKeyTiles();
+    refreshGroupedModules();
+  }});
+  const dot = el('span',{class:'pid',style:'display:flex;align-items:center;gap:6px'});
+  dot.appendChild(el('span',{
+    style:'width:8px;height:8px;border-radius:50%;background:'
+        + (isOn?'var(--green)':'#3a4356')
+        + ';box-shadow:'+(isOn?'0 0 6px var(--green)':'none')
+        + ';flex-shrink:0'
+  }));
+  dot.appendChild(el('span',null, m.name));
+  btn.appendChild(dot);
+  btn.appendChild(el('span',{class:'desc'}, m.desc));
+  // Sub-etiqueta da dedeira escolhida no ClearSight
+  if(m.id === 'ClearSight' && isOn){
+    const cuff = state.modules.AcumenIQCuff ? 'Dedeira: Acumen IQ' : 'Dedeira: ClearSight padrão';
+    btn.appendChild(el('span',{class:'mm-sublabel'}, cuff));
+  }
+  if(!supported) btn.appendChild(el('span',{class:'no-sensor'}, 'indisp. nesta versão'));
+  return btn;
+}
+
+function refreshGroupedModules(){
+  // Re-renderiza in-place os botões de módulo de cada grupo, preservando
+  // a posição de scroll do modal e a estrutura dos cabeçalhos/descrições.
+  document.querySelectorAll('.param-grid[data-group]').forEach(grid => {
+    let ids = [];
+    try { ids = JSON.parse(grid.dataset.modules || '[]'); } catch(_){}
+    grid.innerHTML = '';
+    ids.forEach(id => {
+      const m = MODULES.find(x => x.id === id);
+      if(m) grid.appendChild(buildModuleBtn(m));
+    });
   });
 }
 $('#navMode').addEventListener('click', openMonitoringModeModal);
 const openModeFromRailBtn = $('#openModeFromRail');
 if(openModeFromRailBtn) openModeFromRailBtn.addEventListener('click', openMonitoringModeModal);
 
-// 2) Iniciar / Parar monitoramento DC
+// 2) Iniciar / Parar monitoramento de DC (Swan-Ganz CCO)
+// Aciona SOMENTE a medição de débito cardíaco contínuo (CO/CI/SV/SVI/RVEF/EDV/EDVI),
+// sem afetar o resto do monitor. Conforme HEM1 §4.1.1.
+const CCO_FROZEN_PIDS = ['CO','CI','SV','SVI','RVEF','EDV','EDVI'];
+const CO_SOURCE_MODULES = ['FloTrac','AcumenIQ','AcumenIQCuff','SwanGanz','ClearSight'];
+if(state.ccoActive == null) state.ccoActive = false;
+state.ccoStartTime = state.ccoStartTime || Date.now();
+
 $('#navStartCO').addEventListener('click', ()=>{
-  state.paused = !state.paused;
-  // Sincroniza checkbox no popup de controles, se aberto
-  if(__controlsWin && !__controlsWin.closed){
-    const cb = __controlsWin.document.getElementById('optPause');
-    if(cb) cb.checked = state.paused;
-  }
-  const img = $('#imgStartCO');
-  if(state.paused){
+  const willActivate = !state.ccoActive;
+  const img    = $('#imgStartCO');
+  const btn    = $('#navStartCO');
+  const badge  = $('#navStartCOBadge');
+
+  if(willActivate){
+    // Se nenhum sensor de DC contínuo está acoplado, acopla automaticamente o
+    // cabo Swan-Ganz CCO (módulo canônico de DC contínuo, conforme HEM1 §4.1.1).
+    // Caso o usuário já tenha um Swan-Ganz clássico (sem CCO), trocamos pelo
+    // cabo CCO — apenas um cateter PA por vez.
+    const hasCoSensor = CO_SOURCE_MODULES.some(id => state.modules[id]);
+    if(!hasCoSensor){
+      const upgrading = !!state.modules.SwanGanzClassic;
+      state.modules.SwanGanz = true;
+      state.modules.SwanGanzClassic = false;
+      try { renderModuleList(); } catch(_) {}
+      try { renderScreen(); renderKeyTiles(); } catch(_) {}
+      showToast(upgrading
+        ? 'Cabo trocado: Swan-Ganz clássico → CCO'
+        : 'Cabo Swan-Ganz CCO acoplado');
+    }
+    state.ccoActive = true;
+    state.ccoStartTime = Date.now();
+    state.ccoSnapshot = null;
     img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.2%20Parar%20monitoramento%20do%20DC.png';
-    $('#navStartCO').classList.add('on');
-    $('#navStartCO').setAttribute('data-tip','Parar monitoramento (pausado)');
-    $('#statusMsg').textContent = '⏸ Monitorização pausada';
-    showToast('Monitorização pausada');
+    btn.classList.add('on');
+    btn.setAttribute('data-tip','Parar monitoramento de DC (Swan-Ganz CCO)');
+    if(badge) badge.style.display = '';
+    $('#statusMsg').textContent = '● Medição de DC iniciada (Swan-Ganz CCO)';
+    showToast('Medição de DC iniciada');
   } else {
+    state.ccoActive = false;
+    // Congela snapshot dos valores derivados de Swan-Ganz
+    state.ccoSnapshot = {};
+    CCO_FROZEN_PIDS.forEach(pid => { state.ccoSnapshot[pid] = state.values[pid]; });
     img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.1%20Iniciar%20monitoramento%20do%20DC.png';
-    $('#navStartCO').classList.remove('on');
-    $('#navStartCO').setAttribute('data-tip','Iniciar monitoramento de DC (Swan-Ganz)');
-    $('#statusMsg').textContent = '● Monitorização ativa';
-    showToast('Monitorização retomada');
+    btn.classList.remove('on');
+    btn.setAttribute('data-tip','Iniciar monitoramento de DC (Swan-Ganz CCO)');
+    if(badge){ badge.style.display = 'none'; }
+    $('#statusMsg').textContent = '⏸ Medição de DC interrompida — demais parâmetros mantidos';
+    showToast('Medição de DC parada');
   }
 });
+
+// ─── Tela inicial: "Seleção do modo de monitoramento" (HEM1) ───
+// Aparece sempre que o usuário entra no simulador. O usuário escolhe entre
+// Invasivo (Swan-Ganz CCO) ou Minimamente Invasivo (FloTrac), e só depois
+// segue para o monitor. A oximetria de tecido (ForeSight) pode ser somada
+// posteriormente em qualquer modo (nota com asterisco).
+(function initStartupScreen(){
+  const ss   = document.getElementById('startupScreen');
+  if(!ss) return;
+  const cta  = document.getElementById('ssStart');
+  const cards = ss.querySelectorAll('.ss-card');
+  let chosen = null;
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      cards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      chosen = card.dataset.mode;
+      cta.disabled = false;
+    });
+  });
+
+  cta.addEventListener('click', () => {
+    if(!chosen) return;
+    // Reseta todos os módulos e acopla os do modo escolhido
+    Object.keys(state.modules).forEach(k => state.modules[k] = false);
+    let modeLabel = '';
+    if(chosen === 'invasive'){
+      // Invasivo — módulo HemoSphere Swan-Ganz CCO + cabo de pressão para PAP
+      state.modules.TruWave  = true;
+      state.modules.SwanGanz = true;
+      state.modules.Oximetry = true;
+      modeLabel = 'Invasivo (Swan-Ganz CCO)';
+    } else if(chosen === 'mini'){
+      // Minimamente invasivo — cabo de pressão HemoSphere + sensor FloTrac
+      state.modules.TruWave  = true;
+      state.modules.FloTrac  = true;
+      state.modules.Oximetry = true;
+      modeLabel = 'Minimamente Invasivo (FloTrac)';
+    } else if(chosen === 'noninvasive'){
+      // Não invasivo — módulo HemoSphere ClearSight (manguito digital)
+      state.modules.ClearSight = true;
+      state.modules.Oximetry   = true;
+      modeLabel = 'Não Invasivo (ClearSight)';
+    }
+    state.ccoActive    = true;
+    state.ccoStartTime = Date.now();
+    state.ccoSnapshot  = null;
+    try { $('#statusMsg').textContent = '● Modo ' + modeLabel + ' — monitoramento iniciado'; } catch(_){}
+    setTimeout(()=>showToast('Modo ' + modeLabel + ' iniciado'), 200);
+
+    // Sincroniza o botão "Iniciar/Parar DC" do menu lateral
+    const _img   = document.getElementById('imgStartCO');
+    const _btn   = document.getElementById('navStartCO');
+    const _badge = document.getElementById('navStartCOBadge');
+    if(_img)   _img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.2%20Parar%20monitoramento%20do%20DC.png';
+    if(_btn){  _btn.classList.add('on'); _btn.setAttribute('data-tip','Parar monitoramento de DC'); }
+    if(_badge) _badge.style.display = '';
+
+    try { renderModuleList(); renderScreen(); renderKeyTiles(); } catch(_){}
+
+    ss.classList.add('hidden');
+    setTimeout(() => {
+      ss.style.display = 'none';
+      // Já abre o modal de seleção de monitoramento em tela cheia, para
+      // o usuário refinar/trocar módulos antes de começar a monitorização.
+      if(typeof openMonitoringModeModal === 'function') openMonitoringModeModal();
+    }, 320);
+  });
+
+  // Botão de configurações abre o pop-up de seleção de modo (alternativa à tela de seleção)
+  const gearBtn = document.getElementById('ssGearBtn');
+  if(gearBtn) gearBtn.addEventListener('click', () => {
+    if(typeof openMonitoringModeModal === 'function') openMonitoringModeModal();
+  });
+  // Botão de silenciar alarmes — apenas feedback visual nesta tela
+  const alarmBtn = document.getElementById('ssAlarmBtn');
+  if(alarmBtn) alarmBtn.addEventListener('click', () => {
+    alarmBtn.classList.toggle('on');
+  });
+
+  // Relógio em tempo real (data + hora)
+  function tickClock(){
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2,'0');
+    const mm = String(now.getMonth()+1).padStart(2,'0');
+    const yy = String(now.getFullYear()).slice(-2);
+    const dateEl = document.getElementById('ssDate');
+    const timeEl = document.getElementById('ssTime');
+    if(dateEl) dateEl.textContent = `${dd}.${mm}.${yy}`;
+    if(timeEl) timeEl.textContent = now.toTimeString().slice(0,8);
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+})();
 
 // 3) Rastreamento de TGM (Goal-Directed Therapy tracker)
 $('#navTGM').addEventListener('click', ()=>{
@@ -6065,33 +6839,222 @@ function thumbFocusedMain(){return `<svg viewBox="0 0 150 100"><rect width="150"
 function thumbFocusedGraph(){return `<svg viewBox="0 0 150 100"><rect width="150" height="100" fill="#0a0c10"/><polyline points="${Array.from({length:30},(_,k)=>(6+k*4.7)+','+(15+Math.sin(k*0.5)*7)).join(' ')}" fill="none" stroke="#ff5252" stroke-width="1"/>${[0,1,2].map(i=>{const y=40+i*18;return `<polyline points="${Array.from({length:25},(_,k)=>(6+k*5.5)+','+(y+Math.sin(k*0.6+i)*4)).join(' ')}" fill="none" stroke="${['#1bc964','#ffc445','#3aa6ff'][i]}" stroke-width="0.8"/>`}).join('')}</svg>`}
 
 // ─── Aba "Ferramentas Clínicas" ───
-function renderCfgTools(panel){
+// Ícones e ordem conforme HEM1 §3 ("Ícones do menu Ferramentas clínicas").
+// Cada item mapeia para um arquivo PNG na pasta
+//   "Barra de navegação/Ícones do menu Ferramentas clínicas/<arquivo>".
+const CFG_TOOLS_DIR = 'Barra de navegação/Ícones do menu Ferramentas clínicas/';
+function toolIconUrl(filename){
+  // encodeURI preserva os "/" mas codifica espaços e caracteres acentuados.
+  return encodeURI(CFG_TOOLS_DIR + filename);
+}
+// Lista (na ordem do print da página 55-56 do manual HEM1)
+const CFG_TOOLS = [
+  { id:'mode',   label:'Selecionar Modo de Monitoramento', sub:'Invasivo / Não-invasivo / Oximetria',
+    icon:'1. Selecionar modo de monitoramento.png', iconDir:'Barra de navegação/',
+    action: ()=>{ closeConfigOverlay(); if(typeof openMonitoringModeModal==='function') openMonitoringModeModal(); }
+  },
+  { id:'ico',    label:'DCi · Termodiluição', sub:'Bolus salino frio (Swan-Ganz)',
+    icon:'DCi (débito cardíaco intermitente) (módulo HemoSphere Swan-Ganz).png',
+    requiresAny:['SwanGanz','SwanGanzClassic'],
+    action: ()=>showInfoModal('DCi — Débito Cardíaco Intermitente',
+      'Procedimento iCO por <b>termodiluição</b> com bolus de soro fisiológico frio (10 mL, ≤ 8 °C) injetado pelo lúmen proximal do cateter Swan-Ganz.<br><br>'+
+      '<b>Resultado simulado:</b> três medidas concordantes — média 5,4 L/min (DP 0,2).<br><br>'+
+      '<i>No equipamento real, esta tela exibe a curva de termodiluição de cada injeção e a média ponderada. Disponível tanto no Swan-Ganz clássico quanto no CCO.</i>')
+  },
+  { id:'oxcal',  label:'Calibração da Oximetria Venosa', sub:'Cabo de oximetria HemoSphere',
+    icon:'Calibração da Oximetria venosa (cabo de oximetria HemoSphere).png',
+    requires:'Oximetry',
+    action: ()=>showInfoModal('Calibração da Oximetria Venosa (in-vivo)',
+      'Calibração com amostra de sangue colhida pela porta distal do cateter, processada em gasometria/co-oxímetro.<br><br>'+
+      '<b>Hb inserida:</b> '+state.patient.hgb.toFixed(1)+' g/dL · <b>ScvO₂ medida (referência):</b> '+
+      Math.round(state.values.ScvO2)+' %<br><br>'+
+      'Calibração aceita ✓ — desvio &lt; 4 % nos próximos 24 h.')
+  },
+  { id:'cvp',    label:'Informe o PVC', sub:'Necessário para SVR/SVRI sem Swan-Ganz',
+    icon:'Informe o PVC.png',
+    action: ()=>{
+      const cur = state.overrides.CVP!=null ? state.overrides.CVP : state.values.CVP;
+      const inp = prompt('Informe o valor de PVC (mmHg):', Math.round(cur));
+      if(inp==null) return;
+      const n = parseFloat(String(inp).replace(',','.'));
+      if(!isFinite(n) || n<0 || n>40){ showToast('Valor de PVC inválido (0-40 mmHg)'); return; }
+      state.overrides.CVP = n;
+      showToast('PVC informado: '+n.toFixed(0)+' mmHg');
+      try{ renderKeyTiles(); }catch(_){}
+    }
+  },
+  { id:'calc',   label:'Calcular Valores Inseridos', sub:'Calculadora hemodinâmica',
+    icon:'Calcular Valores Inseridos.png',
+    action: ()=>showCalcModal()
+  },
+  { id:'events', label:'Rever Eventos', sub:'Histórico da sessão',
+    icon:'Rever Eventos.png',
+    action: ()=>showInfoModal('Rever Eventos',
+      buildEventsList())
+  },
+  { id:'zero',   label:'Zerar e Formato de Onda', sub:'Transdutores de pressão',
+    icon:'Zerar e Formato de onda.png',
+    action: ()=>{ closeConfigOverlay(); if(typeof window.openWavePicker==='function') window.openWavePicker('arterial'); else showToast('Tela de formas de onda indisponível'); }
+  },
+  { id:'cco_test', label:'Teste do Cabo CCO do Paciente', sub:'Diagnóstico Swan-Ganz',
+    icon:'Teste do Cabo CCO do Paciente (módulo HemoSphere Swan-Ganz).png',
+    requires:'SwanGanz',
+    action: ()=>showInfoModal('Teste do Cabo CCO do Paciente',
+      'Diagnóstico interno do cabo Swan-Ganz CCO:<br>'+
+      '• Continuidade do filamento térmico ............. <b style="color:#1bc964">OK</b><br>'+
+      '• Termistor distal ....................................... <b style="color:#1bc964">OK</b><br>'+
+      '• Comunicação serial com o módulo HEM1 ... <b style="color:#1bc964">OK</b><br><br>'+
+      '<i>Cabo apto para monitoramento contínuo de DC.</i>')
+  },
+  { id:'hpi2',   label:'Tela Secundária de HPI', sub:'Pré-carga / Contratilidade / Pós-carga',
+    icon:'Tela secundária de HPI (recurso avançado).png',
+    requiresAny:['AcumenIQ','AcumenIQCuff'],
+    action: ()=>{ closeConfigOverlay(); state.screen='hpi'; renderBottomNav(); renderScreen(); }
+  },
+  { id:'frt',    label:'Teste de Fluido-Responsividade', sub:'ΔSV após carga volêmica',
+    icon:'Teste de Fluido-responsividade (recurso avançado).png',
+    requiresAny:['AcumenIQ','AcumenIQCuff','FloTrac','ClearSight'],
+    action: ()=>showInfoModal('Teste de Fluido-Responsividade',
+      'Manobra de carga volêmica (250-500 mL em 10-15 min) com avaliação de variação de SV.<br><br>'+
+      '<b>SV basal:</b> '+Math.round(state.values.SV)+' mL · <b>SV após bolus simulado:</b> '+
+      Math.round(state.values.SV*1.12)+' mL<br>'+
+      '<b>ΔSV:</b> +12 % → <b style="color:#1bc964">FLUIDO-RESPONSIVO</b>')
+  },
+  { id:'csbp',   label:'Calibração da PA (ClearSight)', sub:'Comparação com PA não-invasiva',
+    icon:'Calibração (PA do ClearSight) (módulo HemoSphere ClearSight).png',
+    requires:'ClearSight',
+    action: ()=>showInfoModal('Calibração da PA — Módulo ClearSight',
+      'Calibre o manguito digital comparando com uma PA de referência (esfigmomanômetro/oscilométrico).<br><br>'+
+      '<b>PA de referência:</b> '+Math.round(state.values.SAP)+'/'+Math.round(state.values.DAP)+
+      ' mmHg · PAM '+Math.round(state.values.MAP)+'<br>'+
+      'Offset aplicado ao ClearSight ✓ — recomendamos recalibrar a cada 4 h ou a cada troca de dedo.')
+  },
+  { id:'hrs',    label:'Calibração do HRS', sub:'Heart Reference Sensor (ClearSight)',
+    icon:'Calibração do HRS.png',
+    requires:'ClearSight',
+    action: ()=>showInfoModal('Calibração do HRS (Heart Reference Sensor)',
+      'O HRS compensa diferenças hidrostáticas entre o dedo e o nível do átrio direito.<br><br>'+
+      '<b>Procedimento:</b> alinhe os dois sensores no mesmo plano e mantenha imóvel por 10 s.<br><br>'+
+      '<b>Calibração concluída ✓</b> — diferença residual < 1 mmHg.')
+  },
+  { id:'cthb',   label:'Ferramentas de ctHb', sub:'Hemoglobina total (oximetria)',
+    icon:'Ferramentas de ctHb.png',
+    requires:'ForeSight',
+    action: ()=>showInfoModal('Ferramentas de ctHb',
+      'Atualize a concentração de hemoglobina total para corrigir os cálculos de oximetria tecidual (rSO₂).<br><br>'+
+      '<b>Hb atual:</b> '+state.patient.hgb.toFixed(1)+' g/dL<br>'+
+      '<i>Para alterar, abra "Dados do Paciente".</i>')
+  },
+  { id:'patient',label:'Dados do Paciente', sub:'Idade · Peso · Altura · Hb · SpO₂',
+    icon:'Dados do paciente.png',
+    action: ()=>{ closeConfigOverlay(); if(typeof openPatientPopup==='function') openPatientPopup(); }
+  },
+];
+
+function isToolEnabled(tool){
+  if(tool.requires) return moduleAvailable(tool.requires);
+  if(tool.requiresAny) return tool.requiresAny.some(m=>moduleAvailable(m));
+  return true;
+}
+
+function showInfoModal(title, htmlBody){
+  const old = document.getElementById('infoModal'); if(old) old.remove();
+  const ov = el('div',{id:'infoModal',style:'position:absolute;inset:0;background:rgba(4,7,12,0.78);display:flex;align-items:center;justify-content:center;z-index:120'});
+  const card = el('div',{style:'background:#0d1119;border:1px solid #2a3140;border-radius:8px;width:min(560px,90%);max-height:80%;overflow:auto;padding:20px 22px;color:#e8edf3'});
+  card.innerHTML = `<h3 style="margin:0 0 12px;font-size:13px;letter-spacing:1.5px;color:#3aa6ff;text-transform:uppercase">${title}</h3>
+    <div style="font-size:13px;line-height:1.55;color:#cbd2dd">${htmlBody}</div>
+    <div style="margin-top:18px;text-align:right">
+      <button id="infoModalOk" style="background:#1f2738;border:1px solid #3aa6ff;color:#fff;padding:8px 18px;border-radius:5px;cursor:pointer;font-weight:600">OK</button>
+    </div>`;
+  ov.appendChild(card);
+  // anexa dentro do screenArea para manter o efeito de "tela do monitor"
+  const host = document.getElementById('screenArea') || document.body;
+  host.appendChild(ov);
+  const close = ()=>{ ov.remove(); };
+  card.querySelector('#infoModalOk').addEventListener('click', close);
+  ov.addEventListener('click', e=>{ if(e.target===ov) close(); });
+}
+function buildEventsList(){
+  const ev = state.events && state.events.length ? state.events.slice(-10) : null;
+  if(!ev) return '<i style="color:#9aa6b8">Nenhum evento clínico registrado nesta sessão.</i>';
+  return '<ul style="margin:0;padding-left:18px">'+ev.map(e=>`<li>${e}</li>`).join('')+'</ul>';
+}
+function showCalcModal(){
   const v = state.values, b = bsa();
-  const DO2 = v.CO * 1.34 * state.patient.hgb * 0.98 * 10;
+  const DO2  = v.CO * 1.34 * state.patient.hgb * 0.98 * 10;
   const DO2I = DO2 / Math.max(0.01,b);
   const VO2I = v.CO * 1.34 * state.patient.hgb * Math.max(0.01,(0.98 - v.ScvO2/100)) * 10 / Math.max(0.01,b);
   const O2ER = (0.98 - v.ScvO2/100) / 0.98 * 100;
-  const PP = v.SAP - v.DAP;
-  const wrap = el('div',{class:'cfg-page'});
-  wrap.innerHTML = `
-    <h2>Ferramentas Clínicas</h2>
-    <div class="grid">
-      <button class="row" onclick="alert('iCO — Termodiluição manual com bolus salino frio (Swan-Ganz)')"><b>DCi · Termodiluição</b><span>Cardiac output por bolus injection</span></button>
-      <button class="row" onclick="window.openWavePicker && window.openWavePicker('arterial')"><b>Zerar e Forma de Onda</b><span>Calibrar transdutores de pressão</span></button>
-      <button class="row" onclick="alert('Calibração in-vivo do cabo de oximetria — Hb e SaO₂ inseridos pelo usuário')"><b>Calibração Oximetria</b><span>Cabo de oximetria HemoSphere</span></button>
-      <button class="row" onclick="document.getElementById('configOverlay').classList.remove('open');state.screen='hpi';renderBottomNav();renderScreen();"><b>Tela secundária HPI</b><span>Pré-carga / Contratilidade / Pós-carga</span></button>
-      <button class="row" onclick="document.getElementById('configOverlay').classList.remove('open');openPatientPopup();"><b>Dados do Paciente</b><span>Idade, peso, altura, Hb, SpO₂</span></button>
-      <button class="row" onclick="alert('Rever eventos clínicos registrados na sessão atual')"><b>Rever Eventos</b><span>Histórico de intervenções</span></button>
-    </div>
-    <h2 style="margin-top:24px">Calculadora Hemodinâmica</h2>
-    <div class="grid">
-      <div class="row" style="cursor:default"><b>DO₂</b><span>${DO2.toFixed(0)} mL/min · DO₂I ${DO2I.toFixed(0)} mL/min/m²</span></div>
-      <div class="row" style="cursor:default"><b>VO₂I</b><span>${VO2I.toFixed(0)} mL/min/m² · O₂ER ${O2ER.toFixed(0)}%</span></div>
-      <div class="row" style="cursor:default"><b>PP / PPV</b><span>${PP.toFixed(0)} mmHg · ${v.PPV.toFixed(0)}% (variação)</span></div>
-      <div class="row" style="cursor:default"><b>CPO / CPI</b><span>${v.CPO.toFixed(2)} W · ${v.CPI.toFixed(2)} W/m²</span></div>
-      <div class="row" style="cursor:default"><b>RPP (duplo produto)</b><span>${(v.HR*v.SAP/1000).toFixed(1)} ×10³</span></div>
-      <div class="row" style="cursor:default"><b>BSA (DuBois)</b><span>${b.toFixed(2)} m²</span></div>
-    </div>`;
+  const PP   = v.SAP - v.DAP;
+  showInfoModal('Calcular Valores Inseridos',
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 18px">'+
+    `<div><b>DO₂</b><br><span style="color:#9aa6b8">${DO2.toFixed(0)} mL/min · DO₂I ${DO2I.toFixed(0)}</span></div>`+
+    `<div><b>VO₂I</b><br><span style="color:#9aa6b8">${VO2I.toFixed(0)} mL/min/m² · O₂ER ${O2ER.toFixed(0)} %</span></div>`+
+    `<div><b>PP / PPV</b><br><span style="color:#9aa6b8">${PP.toFixed(0)} mmHg · ${v.PPV.toFixed(0)} %</span></div>`+
+    `<div><b>CPO / CPI</b><br><span style="color:#9aa6b8">${v.CPO.toFixed(2)} W · ${v.CPI.toFixed(2)} W/m²</span></div>`+
+    `<div><b>RPP (duplo produto)</b><br><span style="color:#9aa6b8">${(v.HR*v.SAP/1000).toFixed(1)} ×10³</span></div>`+
+    `<div><b>BSA (DuBois)</b><br><span style="color:#9aa6b8">${b.toFixed(2)} m²</span></div>`+
+    '</div>');
+}
+
+function renderCfgTools(panel){
+  const v = state.values, b = bsa();
+  const DO2  = v.CO * 1.34 * state.patient.hgb * 0.98 * 10;
+  const DO2I = DO2 / Math.max(0.01,b);
+  const VO2I = v.CO * 1.34 * state.patient.hgb * Math.max(0.01,(0.98 - v.ScvO2/100)) * 10 / Math.max(0.01,b);
+  const O2ER = (0.98 - v.ScvO2/100) / 0.98 * 100;
+  const PP   = v.SAP - v.DAP;
+  const wrap = el('div',{class:'cfg-page cfg-tools-page'});
+  const head = el('h2',{}, 'Ferramentas Clínicas');
+  wrap.appendChild(head);
+  const grid = el('div',{class:'cfg-tools-grid'});
+  CFG_TOOLS.forEach(tool => {
+    const enabled = isToolEnabled(tool);
+    const tile = el('button',{class:'tool-tile'+(enabled?'':' disabled'),
+      title: tool.label + (tool.sub ? ' — '+tool.sub : '') +
+        (!enabled ? '\nMódulo necessário não acoplado.' : '')});
+    const dir = tool.iconDir || CFG_TOOLS_DIR;
+    const img = el('img',{src: encodeURI(dir + tool.icon), alt: tool.label});
+    img.onerror = function(){ this.style.opacity = '.25'; };
+    tile.appendChild(img);
+    const lbl = el('span',{class:'tlabel'}, tool.label);
+    if(tool.sub){
+      const small = document.createElement('small');
+      small.textContent = tool.sub;
+      lbl.appendChild(small);
+    }
+    tile.appendChild(lbl);
+    tile.addEventListener('click', ()=>{
+      if(!enabled){
+        const need = tool.requires || (tool.requiresAny||[]).join(' / ');
+        showToast('Recurso indisponível — acople: '+need);
+        return;
+      }
+      try { tool.action(); } catch(err){ console.warn('tool action failed',err); }
+    });
+    grid.appendChild(tile);
+  });
+  wrap.appendChild(grid);
+
+  // Snapshot in-line da Calculadora Hemodinâmica (atalho rápido — abre o modal completo via "Calcular Valores Inseridos")
+  wrap.appendChild(el('h3',{class:'calc-title'}, 'Valores Calculados (snapshot)'));
+  const calcGrid = el('div',{class:'calc-grid'});
+  const cells = [
+    ['DO₂',  `${DO2.toFixed(0)} mL/min · DO₂I ${DO2I.toFixed(0)} mL/min/m²`],
+    ['VO₂I', `${VO2I.toFixed(0)} mL/min/m² · O₂ER ${O2ER.toFixed(0)}%`],
+    ['PP / PPV', `${PP.toFixed(0)} mmHg · ${v.PPV.toFixed(0)}% (variação)`],
+    ['CPO / CPI', `${v.CPO.toFixed(2)} W · ${v.CPI.toFixed(2)} W/m²`],
+    ['RPP (duplo produto)', `${(v.HR*v.SAP/1000).toFixed(1)} ×10³`],
+    ['BSA (DuBois)', `${b.toFixed(2)} m²`],
+  ];
+  cells.forEach(([k,val])=>{
+    const cell = el('div',{class:'calc-cell'});
+    cell.appendChild(el('b',{},k));
+    cell.appendChild(el('span',{},val));
+    calcGrid.appendChild(cell);
+  });
+  wrap.appendChild(calcGrid);
+
   panel.appendChild(wrap);
 }
 
@@ -6120,7 +7083,7 @@ function renderCfgHelp(panel){
       <h3 style="color:#3aa6ff;font-size:12px;letter-spacing:1.5px;margin-top:18px">Barra de navegação (esquerda)</h3>
       <ul style="padding-left:18px">
         <li><b style="color:#fff">Selecionar modo:</b> escolha entre invasivo, não-invasivo ou misto</li>
-        <li><b style="color:#fff">Iniciar/Parar DC:</b> pausa ou retoma a monitorização</li>
+        <li><b style="color:#fff">Iniciar/Parar DC:</b> liga/desliga a medição de débito cardíaco. Ao abrir o monitor, nenhum sensor de DC está acoplado e CO/CI/SV/SVI aparecem como <code>--</code>; no primeiro clique o cabo Swan-Ganz CCO é acoplado automaticamente. Em <b>Configurações → Selecionar monitoramento</b> também é possível acoplar FloTrac, Sensor Acumen IQ (linha arterial), Dedeira Acumen IQ ou ClearSight. Os demais parâmetros (PAM, FC, PVC, ScvO₂, curvas) seguem atualizando independentemente.</li>
         <li><b style="color:#fff">Rastreamento TGM:</b> tempo na zona-alvo dos parâmetros-chave</li>
         <li><b style="color:#fff">Zerar:</b> calibração dos transdutores de pressão</li>
         <li><b style="color:#fff">Análise de intervenção:</b> registra ações (fluido, drogas, sangramento)</li>
@@ -6207,9 +7170,27 @@ function loop(now){
     $('#clock').textContent = d.toTimeString().slice(0,8);
     const elapsed = Math.floor((Date.now()-state.startTime)/1000);
     const ct = 30 - (elapsed%30);
-    $('#ctTimer').textContent = `CO próximo: ${ct}s`;
+    // Indicador CCO (Swan-Ganz) — barra de status e badge embaixo do botão lateral
+    const ccoBadge = $('#navStartCOBadge');
+    const hasCoSensor = (typeof CO_SOURCE_MODULES !== 'undefined')
+      ? CO_SOURCE_MODULES.some(id => state.modules[id])
+      : ['FloTrac','AcumenIQ','AcumenIQCuff','SwanGanz','ClearSight'].some(id => state.modules[id]);
+    if(state.ccoActive !== false && hasCoSensor){
+      $('#ctTimer').textContent = `DC próximo: ${ct}s`;
+      if(ccoBadge){
+        const mm = Math.floor(ct/60), ss = ct%60;
+        ccoBadge.textContent = mm + ':' + (ss<10?'0':'') + ss;
+        ccoBadge.style.display = '';
+      }
+    } else if(!hasCoSensor){
+      $('#ctTimer').textContent = 'Sem sensor de DC';
+      if(ccoBadge) ccoBadge.style.display = 'none';
+    } else {
+      $('#ctTimer').textContent = 'DC parado';
+      if(ccoBadge) ccoBadge.style.display = 'none';
+    }
     // hpi badge
-    $('#hpiBadge').style.display = (state.values.HPI>85 && moduleAvailable('AcumenIQ'))?'inline':'none';
+    $('#hpiBadge').style.display = (state.values.HPI>85 && (moduleAvailable('AcumenIQ')||moduleAvailable('AcumenIQCuff')))?'inline':'none';
   }
   // 2Hz: redesenha tendências, gauges, goals, sparklines
   if(now-lastSlowDraw>500){

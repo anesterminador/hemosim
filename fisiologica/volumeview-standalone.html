@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>VolumeView / PiCCO — DexSimulado</title>
+
+<!--
+  =====================================================================
+  VolumeView / PiCCO — versão HTML autocontida
+  Reprodução pedagógica do EV1000 (Edwards). Sem dependências externas.
+
+  ARQUIVOS NECESSÁRIOS (mesma pasta deste HTML):
+    - volumeview-bg.svg   (fundo anatômico — pulmões, vasos, "U" venoso/arterial)
+    - coracao.svg          (coração, pulsa sincronizado com a FC)
+
+  Os 2 SVGs têm o mesmo viewBox (1020.75 × 810). O coração é sobreposto
+  ao fundo cobrindo 100% do wrapper — a posição anatômica já vem certa.
+
+  COMO INTEGRAR COM SEUS DADOS:
+    Localize o objeto `state` no <script> e atualize os valores.
+    Se o seu simulador for orientado a eventos, chame `applyState({...})`
+    sempre que receber novos dados — toda a tela se redesenha.
+  =====================================================================
+-->
+
+<style>
+  :root {
+    --led-ok: #22c55e;
+    --led-warn: #facc15;
+    --led-alert: #ef4444;
+    --text-shadow-strong:
+      -1px -1px 0 #000,
+       1px -1px 0 #000,
+      -1px  1px 0 #000,
+       1px  1px 0 #000,
+       0 0 4px rgba(0,0,0,0.9),
+       0 1px 2px rgba(0,0,0,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    overflow: hidden; color: #fff;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  body {
+    background: radial-gradient(ellipse at top, #1e3a5f 0%, #0f1f33 40%, #0a1422 100%);
+    display: flex; flex-direction: column;
+  }
+
+  .vv-main { flex: 1; display: flex; min-height: 0; }
+
+  /* ─────────────────────────────────────────────────────────
+     Wrapper da vista fisiológica.
+     - Mantém o aspect ratio do SVG (1020.75 × 810 ≈ 1.26:1)
+     - container-type: inline-size faz `cqw` virar % da largura
+       do wrapper (não do viewport). Assim os textos diminuem
+       junto quando a janela é reduzida.
+     ───────────────────────────────────────────────────────── */
+  .vv-stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0; min-height: 0;
+    padding: 8px;
+  }
+  .vv-wrapper {
+    position: relative;
+    width: 100%; height: 100%;
+    aspect-ratio: 1020.75 / 810;
+    max-width: min(100%, calc(100vh * 1020.75 / 810));
+    max-height: min(100%, calc(100vw * 810 / 1020.75));
+    container-type: inline-size;
+  }
+  .vv-bg, .vv-heart {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    user-select: none; pointer-events: none;
+  }
+
+  /* Coração pulsante — animação ligada via classe + duração via inline style */
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    18%      { transform: scale(1.04); }   /* sístole — pico suave */
+    40%      { transform: scale(1); }      /* diástole — repouso */
+  }
+  .heartbeat-anim {
+    animation-name: heartbeat;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    transform-origin: center center;
+    will-change: transform;
+  }
+
+  /* ─── Rótulos com valor sobre a anatomia ───────────────── */
+  .vv-label {
+    position: absolute;
+    display: flex; flex-direction: column; align-items: center;
+    pointer-events: none; user-select: none;
+  }
+  .vv-label .row {
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .vv-label .led {
+    width: clamp(6px, 0.9cqw, 12px);
+    height: clamp(6px, 0.9cqw, 12px);
+    border-radius: 999px;
+    flex-shrink: 0;
+    box-shadow:
+      0 0 7px currentColor,
+      0 0 14px color-mix(in srgb, currentColor 40%, transparent),
+      0 0 0 1px rgba(0,0,0,0.6);
+  }
+  .vv-label .value {
+    font-family: "Courier New", monospace;
+    font-weight: 700; line-height: 1; color: #fff;
+    font-size: clamp(1rem, 3.6cqw, 3rem);
+    text-shadow: var(--text-shadow-strong);
+  }
+  .vv-label .name {
+    margin-top: 2px;
+    font-weight: 600; line-height: 1.15; color: #fff;
+    font-size: clamp(0.75rem, 2cqw, 1.8rem);
+    text-shadow: var(--text-shadow-strong);
+  }
+  .vv-label .unit {
+    color: #fff; opacity: 0.9; line-height: 1;
+    font-size: clamp(0.6rem, 1.5cqw, 1.4rem);
+    text-shadow: var(--text-shadow-strong);
+  }
+
+  /* ─── KPI dial circular (4 mostradores na direita) ─────── */
+  .vv-dial {
+    position: absolute;
+    width: 16%;
+    aspect-ratio: 1;
+  }
+  .vv-dial .ring {
+    position: absolute; inset: 0;
+    border-radius: 999px;
+    background: radial-gradient(circle at 30% 30%, #5a626f, #2a2f37 60%, #14171c 100%);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1);
+  }
+  .vv-dial .disc {
+    position: absolute; inset: 8%;
+    border-radius: 999px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 50% 50%, #0a0d12, #050709);
+  }
+  .vv-dial .led-top {
+    position: absolute; top: 8%;
+    width: 14%; height: 14%;
+    border-radius: 999px;
+  }
+  .vv-dial .value {
+    font-family: "Courier New", monospace;
+    font-weight: 700; line-height: 1;
+    font-size: clamp(0.9rem, 3.4cqw, 3rem);
+    margin-top: 18%;
+  }
+  .vv-dial .unit {
+    color: #a1a1aa; line-height: 1; margin-top: 2px;
+    font-size: clamp(0.55rem, 1.2cqw, 1.1rem);
+  }
+  .vv-dial .label {
+    color: #fff; font-weight: 600; margin-top: 4px;
+    font-size: clamp(0.7rem, 1.7cqw, 1.6rem);
+  }
+  .vv-dial .bars {
+    position: absolute; top: 35%;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .vv-dial .bars.left  { left: 2%; }
+  .vv-dial .bars.right { right: 2%; }
+  .vv-dial .bar {
+    width: 3px; height: 5px;
+  }
+
+  /* ─── Painel SVV (com curvinha de Frank-Starling) ──────── */
+  .vv-svv {
+    position: absolute;
+    display: flex; flex-direction: column; align-items: center;
+    pointer-events: none; user-select: none;
+  }
+  .vv-svv svg.fs-curve {
+    width: clamp(45px, 7cqw, 110px);
+    height: auto;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,1));
+    margin-bottom: 4px;
+  }
+
+  /* ─── Barra inferior ───────────────────────────────────── */
+  .vv-bottom {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 12px;
+    font-size: 12px;
+    background: linear-gradient(180deg, #1a1d23 0%, #0a0d12 100%);
+    border-top: 1px solid #000;
+  }
+  .vv-bottom .left, .vv-bottom .right {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .vv-bottom .pill {
+    padding: 2px 8px; border-radius: 4px;
+    background: rgba(126, 34, 206, 0.6);
+    border: 1px solid rgba(168, 85, 247, 0.5);
+    color: #f3e8ff; font-weight: 600;
+  }
+  .vv-bottom .muted { color: #71717a; }
+  .vv-bottom .text  { color: #d4d4d8; }
+  .vv-bottom .ok    { color: #34d399; }
+  .vv-bottom .err   { color: #f87171; }
+
+  /* ─── Tela "não calibrado" ─────────────────────────────── */
+  .not-calibrated {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 0 32px;
+  }
+  .not-calibrated h1 {
+    color: #67e8f9;
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+  }
+  .not-calibrated p {
+    color: #a1a1aa; max-width: 28rem; line-height: 1.6;
+  }
+  .not-calibrated em {
+    color: #34d399; font-weight: 600; font-style: normal;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================================
+     ÁREA PRINCIPAL — vista anatômica + dials KPI
+     ===================================================================== -->
+<div class="vv-main">
+  <div class="vv-stage">
+    <div class="vv-wrapper" id="vvWrapper">
+
+      <!-- Fundo anatômico -->
+      <img class="vv-bg" src="volumeview-bg.svg" alt="" draggable="false" />
+
+      <!-- Coração (pulsa via classe heartbeat-anim — controlado por JS) -->
+      <img class="vv-heart" id="vvHeart" src="coracao.svg" alt="" draggable="false" />
+
+      <!-- ============================================================
+           VALORES SOBRE A ANATOMIA
+           Coordenadas em % do wrapper. Área útil ~22-90% horiz, 14-92% vert.
+           Cada elemento é populado em runtime pelo `applyState()`.
+           ============================================================ -->
+
+      <!-- SVI — sobre o tronco pulmonar -->
+      <div class="vv-label" data-key="svi" style="top:34%; left:50%; transform:translate(-50%,0);">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="vvSVI"></span>
+        </div>
+        <div class="name">SVI</div>
+        <div class="unit">mL/b/m²</div>
+      </div>
+
+      <!-- PVPI — pulmão direito do paciente (à direita do viewer) -->
+      <div class="vv-label" data-key="pvpi" style="top:40%; left:62%;">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="vvPVPI"></span>
+        </div>
+        <div class="name">PVPI</div>
+      </div>
+
+      <!-- ELWI — interior do pulmão esquerdo -->
+      <div class="vv-label" data-key="elwi" style="top:58%; left:38%;">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="vvELWI"></span>
+        </div>
+        <div class="name">ELWI</div>
+        <div class="unit">mL/kg</div>
+      </div>
+
+      <!-- SVV — lateral esquerda baixa, com curva Frank-Starling -->
+      <div class="vv-svv" data-key="svv" style="top:40%; left:22%;">
+        <svg class="fs-curve" viewBox="0 0 100 72">
+          <line x1="4" y1="2" x2="4" y2="68" stroke="#fff" stroke-width="2.5" stroke-linecap="round" />
+          <line x1="4" y1="68" x2="98" y2="68" stroke="#fff" stroke-width="2.5" stroke-linecap="round" />
+          <path d="M 6 64 Q 10 60, 18 38 Q 28 12, 50 8 Q 72 6, 96 6"
+                fill="none" stroke="#fff" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div class="row" style="display:flex;align-items:baseline;gap:6px;">
+          <span class="led"></span>
+          <span class="value" data-bind="vvSVV"></span>
+        </div>
+        <div class="name">SVV</div>
+        <div class="unit">%</div>
+      </div>
+
+      <!-- GEDI — sobre o coração -->
+      <div class="vv-label" data-key="gedi" style="top:55%; left:48%; transform:translate(-50%,0);">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="vvGEDI"></span>
+        </div>
+        <div class="name">GEDI</div>
+      </div>
+
+      <!-- GEF — sobre o ventrículo (mais à direita) -->
+      <div class="vv-label" data-key="gef" style="top:55%; left:60%;">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="vvGEF"></span>
+        </div>
+        <div class="name">GEF</div>
+        <div class="unit">%</div>
+      </div>
+
+      <!-- SvO₂ — canto inferior esquerdo (caminho venoso) -->
+      <div class="vv-label" data-key="svo2" style="top:68%; left:26%;">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="svo2"></span>
+        </div>
+        <div class="name">SvO₂</div>
+        <div class="unit">%</div>
+      </div>
+
+      <!-- PR (FC) — sobre o coração -->
+      <div class="vv-label" data-key="pr" style="top:63%; left:56%;">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="hr"></span>
+        </div>
+        <div class="name">PR</div>
+        <div class="unit">bpm</div>
+      </div>
+
+      <!-- CVP — esquerda do "U" venoso azul -->
+      <div class="vv-label" data-key="cvp" style="top:76%; left:32%;">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="cvpMean"></span>
+        </div>
+        <div class="name">CVP</div>
+        <div class="unit">mmHg</div>
+      </div>
+
+      <!-- SVRI — centro inferior do "U" -->
+      <div class="vv-label" data-key="svri-overlay" style="top:71%; left:50%; transform:translate(-50%,0);">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="vvSVRI"></span>
+        </div>
+        <div class="name">SVRI</div>
+        <div class="unit">dyne·s·m²/cm⁵</div>
+      </div>
+
+      <!-- CI — lado direito do "U" arterial vermelho -->
+      <div class="vv-label" data-key="ci" style="top:73%; left:63%;">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="vvCI"></span>
+        </div>
+        <div class="name">CI</div>
+        <div class="unit">L/min/m²</div>
+      </div>
+
+      <!-- MAP — canto inferior direito do "U" -->
+      <div class="vv-label" data-key="map" style="top:85%; left:66%;">
+        <div class="row">
+          <span class="led"></span>
+          <span class="value" data-bind="map"></span>
+        </div>
+        <div class="name">MAP</div>
+        <div class="unit">mmHg</div>
+      </div>
+
+      <!-- ============================================================
+           4 KPI DIALS (canto direito)
+           Posicionados sobre os 4 quadrados pretos do SVG de fundo.
+           ============================================================ -->
+      <div class="vv-dial" id="dial-ci"   style="top:13%; right:4%;"></div>
+      <div class="vv-dial" id="dial-svv"  style="top:33%; right:4%;"></div>
+      <div class="vv-dial" id="dial-svri" style="top:53%; right:4%;"></div>
+      <div class="vv-dial" id="dial-svo2" style="top:73%; right:4%;"></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================================
+     BARRA INFERIOR
+     ===================================================================== -->
+<div class="vv-bottom">
+  <div class="left">
+    <span class="text" id="bbTime">--:--:--</span>
+    <span class="muted" id="bbDate">--/--/----</span>
+    <span class="pill">VolumeView</span>
+    <span class="muted">20</span>
+    <span class="text">BT: <span id="bbTemp">--</span>°C</span>
+    <span class="muted">🔒</span>
+  </div>
+  <div class="right">
+    <span class="muted">DexSimulado · AnestReview</span>
+    <span class="ok" id="bbConn">● Conectado</span>
+  </div>
+</div>
+
+
+<script>
+"use strict";
+
+/* ===========================================================================
+   STATE — fonte da verdade. Atualize os valores ou chame applyState({...}).
+   =========================================================================== */
+const state = {
+  // Fluxo
+  vvCI:    2.8,   // L/min/m²
+  vvSV:    70,    // mL
+  vvSVI:   40,    // mL/m²
+  // Responsividade a fluidos
+  vvSVV:   8,     // %
+  vvPPV:   9,     // %
+  // Pré-carga
+  vvGEDI:  720,   // mL/m²
+  // Pulmão
+  vvELWI:  5,     // mL/kg
+  vvPVPI:  1.8,
+  // Função
+  vvGEF:   28,    // %
+  // Resistência
+  vvSVRI:  2000,  // dyne·s·m²/cm⁵
+  // Sinais vitais relacionados
+  hr:      75,    // bpm
+  hasPulse:true,
+  cvpMean: 6,     // mmHg
+  svo2:    70,    // %
+  map:     93,    // mmHg
+  temp:    36.5,  // °C
+  connected: true,
+};
+
+/* ===========================================================================
+   FAIXAS DE NORMALIDADE — usadas pra colorir os LEDs (verde/amarelo/vermelho)
+   =========================================================================== */
+const RANGES = {
+  vvSVI:   [35, 65],
+  vvPVPI:  [1, 3],
+  vvELWI:  [3, 7],
+  vvGEDI:  [680, 800],
+  vvGEF:   [25, 35],
+  hr:      [60, 100],
+  cvpMean: [2, 8],
+  vvSVRI:  [1700, 2400],
+  vvCI:    [2.5, 4.0],
+  map:     [70, 105],
+  // SVV: invertido — só limita no alto (≤ 13 ok, 14-18 warn, > 18 alert)
+  vvSVV:   [0, 13],
+  // SvO₂: faixa simples + alerta abaixo de 50
+  svo2:    [60, 80],
+};
+
+function inRangeStatus(value, min, max, opts = {}) {
+  if (value === undefined || value === null) return "warn";
+  if (opts.invertHigh) {
+    if (value > max * 1.5) return "alert";
+    if (value > max) return "warn";
+    return "ok";
+  }
+  if (value < min * 0.7 || value > max * 1.3) return "alert";
+  if (value < min || value > max) return "warn";
+  return "ok";
+}
+
+function ledColor(status) {
+  if (status === "alert") return "var(--led-alert)";
+  if (status === "warn")  return "var(--led-warn)";
+  return "var(--led-ok)";
+}
+
+function ledColorRaw(status) {
+  if (status === "alert") return "#ef4444";
+  if (status === "warn")  return "#facc15";
+  return "#22c55e";
+}
+
+/* ===========================================================================
+   FORMATAÇÃO DE VALORES (1 casa decimal pra alguns campos)
+   =========================================================================== */
+function fmt(key, val) {
+  if (val === undefined || val === null) return "--";
+  if (key === "vvCI" || key === "vvPVPI") return Number(val).toFixed(1);
+  if (key === "hr" && (!state.hasPulse || val <= 0)) return "--";
+  return String(Math.round(val));
+}
+
+/* ===========================================================================
+   PINTA OS RÓTULOS (valores sobre a anatomia)
+   =========================================================================== */
+function paintLabel(key, value, range, options = {}) {
+  const labels = document.querySelectorAll(`[data-key="${key}"]`);
+  if (!labels.length) return;
+  const status = range
+    ? inRangeStatus(value, range[0], range[1], options)
+    : "ok";
+  const color = ledColorRaw(status);
+  labels.forEach((el) => {
+    el.style.color = color; // currentColor → glow do LED
+    const led = el.querySelector(".led");
+    if (led) led.style.background = color;
+    const v = el.querySelector("[data-bind]");
+    if (v) v.textContent = fmt(v.getAttribute("data-bind"), value);
+  });
+}
+
+/* ===========================================================================
+   KPI DIAL — gerado dinamicamente pra cada um dos 4 mostradores
+   =========================================================================== */
+function renderDial({ mountId, label, unit, value, range, invertHigh = false }) {
+  const status = inRangeStatus(value, range[0], range[1], { invertHigh });
+  const color = ledColorRaw(status);
+  const glow = (
+    status === "alert" ? "rgba(239,68,68,0.45)" :
+    status === "warn"  ? "rgba(250,204,21,0.35)" :
+                         "rgba(34,197,94,0.35)"
+  );
+
+  const mount = document.getElementById(mountId);
+  if (!mount) return;
+  mount.innerHTML = `
+    <div class="ring"></div>
+    <div class="disc" style="box-shadow: inset 0 0 18px ${glow}">
+      <div class="led-top" style="background:${color}; box-shadow: 0 0 8px ${color}, 0 0 14px ${color};"></div>
+      <div class="value" style="color:${color}">${value}</div>
+      <div class="unit">${unit}</div>
+      <div class="label">${label}</div>
+    </div>
+    <div class="bars left">
+      ${[1,2,3,4].map(i => `<div class="bar" style="background:${i<=2?color:'#3a3f47'}; opacity:${i<=2?0.9:0.5}"></div>`).join("")}
+    </div>
+    <div class="bars right">
+      ${[1,2,3,4].map(i => `<div class="bar" style="background:${i<=2?color:'#3a3f47'}; opacity:${i<=2?0.9:0.5}"></div>`).join("")}
+    </div>
+  `;
+}
+
+/* ===========================================================================
+   APLICA O STATE NA TELA — chame essa função sempre que `state` mudar
+   =========================================================================== */
+function applyState(patch) {
+  if (patch) Object.assign(state, patch);
+
+  // Rótulos sobre a anatomia
+  paintLabel("svi",          state.vvSVI,   RANGES.vvSVI);
+  paintLabel("pvpi",         state.vvPVPI,  RANGES.vvPVPI);
+  paintLabel("elwi",         state.vvELWI,  RANGES.vvELWI);
+  paintLabel("svv",          state.vvSVV,   RANGES.vvSVV, { invertHigh: true });
+  paintLabel("gedi",         state.vvGEDI,  RANGES.vvGEDI);
+  paintLabel("gef",          state.vvGEF,   RANGES.vvGEF);
+  paintLabel("svo2",         state.svo2,    RANGES.svo2);
+  paintLabel("pr",           state.hr,      RANGES.hr);
+  paintLabel("cvp",          state.cvpMean, RANGES.cvpMean);
+  paintLabel("svri-overlay", state.vvSVRI,  RANGES.vvSVRI);
+  paintLabel("ci",           state.vvCI,    RANGES.vvCI);
+  paintLabel("map",          state.map,     RANGES.map);
+
+  // 4 KPI dials
+  renderDial({
+    mountId: "dial-ci", label: "CI", unit: "L/min/m²",
+    value: Number(state.vvCI).toFixed(1),
+    range: RANGES.vvCI,
+  });
+  renderDial({
+    mountId: "dial-svv", label: "SVV", unit: "%",
+    value: state.vvSVV,
+    range: RANGES.vvSVV, invertHigh: true,
+  });
+  renderDial({
+    mountId: "dial-svri", label: "SVRI", unit: "dyne·s·m²/cm⁵",
+    value: state.vvSVRI,
+    range: RANGES.vvSVRI,
+  });
+  renderDial({
+    mountId: "dial-svo2", label: "SvO₂", unit: "%",
+    value: state.svo2,
+    range: RANGES.svo2,
+  });
+
+  // Coração pulsante
+  const heart = document.getElementById("vvHeart");
+  const isPulsing = state.hasPulse && state.hr > 0;
+  heart.classList.toggle("heartbeat-anim", isPulsing);
+  heart.style.animationDuration = isPulsing ? `${60 / state.hr}s` : "0s";
+
+  // Barra inferior — tempo, temperatura, conexão
+  const now = new Date();
+  document.getElementById("bbTime").textContent = now.toLocaleTimeString("pt-BR");
+  document.getElementById("bbDate").textContent = now.toLocaleDateString("pt-BR");
+  document.getElementById("bbTemp").textContent = Number(state.temp).toFixed(1);
+  const conn = document.getElementById("bbConn");
+  conn.textContent = state.connected ? "● Conectado" : "● Desconectado";
+  conn.classList.toggle("ok", state.connected);
+  conn.classList.toggle("err", !state.connected);
+}
+
+/* ===========================================================================
+   BOOT — primeira renderização + relógio
+   =========================================================================== */
+applyState();
+setInterval(() => applyState(), 1000); // atualiza relógio + valores caso `state` mude
+</script>
+
+</body>
+</html>
