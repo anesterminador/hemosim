@@ -27,7 +27,13 @@
       "Bash(node /tmp/iam_test.js)",
       "Bash(node /tmp/rv_test.js)",
       "Bash(node /tmp/scen_test.js)",
-      "Bash(node /tmp/clamp_test.js)"
+      "Bash(node /tmp/clamp_test.js)",
+      "Bash(node /tmp/pap_test.js)",
+      "Read(//c/Users/Davi/Downloads/**)",
+      "Bash(pdfinfo \"C:/Users/Davi/Downloads/HEM1 Modelo de Instruções de Uso \\(1\\).PDF\")",
+      "Bash(pdftotext -layout \"C:/Users/Davi/Downloads/HEM1 Modelo de Instruções de Uso \\(1\\).PDF\" /tmp/hem1.txt)",
+      "Bash(awk 'NR>=1488 && NR<=1700' /tmp/hem1.txt)",
+      "Bash(awk 'NR>=1740 && NR<=1900' /tmp/hem1.txt)"
     ]
   }
 }

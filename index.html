@@ -42,7 +42,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-famil
 button{font-family:inherit}
 
 /* ----- SHELL (top bar / left rail / status bar) ----- */
-#app{display:grid;grid-template-rows:48px 1fr 32px;height:100vh;position:relative}
+#app{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:48px 1fr 32px;height:100vh;position:relative}
 
 /* ===== STARTUP SCREEN (Seleção do modo de monitoramento — tela inicial HEM1) ===== */
 #startupScreen{
@@ -71,30 +71,30 @@ button{font-family:inherit}
 #startupScreen .ss-clock>span{display:block}
 #startupScreen .ss-header{
   display:grid;grid-template-columns:auto 1fr;gap:0;align-items:center;
-  padding:18px 50px 6px;flex-shrink:0;
+  padding:clamp(10px,2vh,18px) clamp(16px,5vw,50px) 6px;flex-shrink:0;
 }
 #startupScreen .ss-emark{
-  width:108px;height:108px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:clamp(64px,9vw,108px);aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   color:#9aa6b8;background:transparent;
   border:1px solid #2a3140;border-radius:2px;
   background-image:linear-gradient(180deg,#1c2028 0%,#0a0c10 100%);
 }
 #startupScreen .ss-emark-letter{
-  font-family:'Times New Roman','Garamond',serif;font-size:62px;line-height:.9;color:#9aa6b8;font-weight:400;
+  font-family:'Times New Roman','Garamond',serif;font-size:clamp(36px,5.5vw,62px);line-height:.9;color:#9aa6b8;font-weight:400;
 }
-#startupScreen .ss-emark-name{font-size:14px;color:#9aa6b8;font-style:italic;letter-spacing:.4px;margin-top:2px}
-#startupScreen .ss-titles{text-align:center;padding-right:108px}
-#startupScreen .ss-title{margin:0;font-size:48px;font-weight:300;color:#fff;letter-spacing:-.5px;line-height:1}
-#startupScreen .ss-copy{margin:4px 0 14px;color:#9aa6b8;font-size:13px;font-weight:400}
-#startupScreen .ss-subtitle{margin:0;font-size:22px;font-weight:300;color:#fff;letter-spacing:.2px}
+#startupScreen .ss-emark-name{font-size:clamp(10px,1.2vw,14px);color:#9aa6b8;font-style:italic;letter-spacing:.4px;margin-top:2px}
+#startupScreen .ss-titles{text-align:center;padding-right:clamp(64px,9vw,108px)}
+#startupScreen .ss-title{margin:0;font-size:clamp(28px,4.5vw,48px);font-weight:300;color:#fff;letter-spacing:-.5px;line-height:1}
+#startupScreen .ss-copy{margin:4px 0 14px;color:#9aa6b8;font-size:clamp(11px,1.2vw,13px);font-weight:400}
+#startupScreen .ss-subtitle{margin:0;font-size:clamp(15px,2vw,22px);font-weight:300;color:#fff;letter-spacing:.2px;white-space:nowrap}
 #startupScreen .ss-cards{
-  flex:1;display:flex;justify-content:center;align-items:center;gap:14px;padding:10px 32px 0;min-height:0;
+  flex:1;display:flex;justify-content:center;align-items:center;gap:clamp(8px,1.5vw,14px);padding:clamp(6px,1.5vh,10px) clamp(12px,3vw,32px) 0;min-height:0;
 }
 #startupScreen .ss-card{
   background:#1a1d24;border:2px solid #1a2030;border-radius:6px;
-  height:min(88%,380px);aspect-ratio:3/4;flex:0 1 26%;
+  flex:1 1 0;max-width:min(28%,320px);aspect-ratio:3/4;max-height:100%;
   padding:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
-  cursor:pointer;color:#7a8497;font-size:17px;font-weight:400;
+  cursor:pointer;color:#7a8497;font-size:clamp(13px,1.6vw,17px);font-weight:400;
   overflow:hidden;
   transition:border-color .2s, color .2s, box-shadow .2s, background .2s;
 }
@@ -103,12 +103,12 @@ button{font-family:inherit}
   box-shadow:0 0 0 1px #3aa6ff inset, 0 0 24px rgba(58,166,255,.45);
 }
 #startupScreen .ss-card:hover:not(.selected){border-color:#3a4356;color:#cbd2dd}
-#startupScreen .ss-card-art{flex:1;display:flex;align-items:center;justify-content:center;width:100%;padding:10px;min-height:0}
+#startupScreen .ss-card-art{flex:1;display:flex;align-items:center;justify-content:center;width:100%;padding:clamp(6px,1vw,10px);min-height:0}
 #startupScreen .ss-card-art img,
-#startupScreen .ss-card-art svg{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
-#startupScreen .ss-card-label{padding:14px 0 18px;font-weight:500;font-size:18px;letter-spacing:.4px}
+#startupScreen .ss-card-art svg{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain}
+#startupScreen .ss-card-label{padding:clamp(8px,1.4vh,14px) 0 clamp(10px,1.8vh,18px);font-weight:500;font-size:clamp(13px,1.6vw,18px);letter-spacing:.4px;text-align:center;line-height:1.2;padding-left:6px;padding-right:6px}
 #startupScreen .ss-foot-note{
-  text-align:center;font-size:14px;color:#cbd2dd;font-weight:600;padding:14px 0 16px;flex-shrink:0;
+  text-align:center;font-size:clamp(11px,1.3vw,14px);color:#cbd2dd;font-weight:600;padding:clamp(8px,1.5vh,14px) clamp(10px,2vw,20px) clamp(10px,1.6vh,16px);flex-shrink:0;line-height:1.4;
 }
 #startupScreen .ss-bottom{
   display:flex;align-items:center;justify-content:space-between;
@@ -155,8 +155,8 @@ button{font-family:inherit}
 #topbar .battery{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line2);padding:2px 6px;border-radius:4px}
 #topbar .battery .lvl{display:inline-block;width:18px;height:8px;background:var(--green);border-radius:2px}
 
-#mainArea{position:relative;display:grid;grid-template-columns:9.5vh 1fr 35vh;min-height:0;transition:grid-template-columns .28s ease}
-#mainArea.right-collapsed{grid-template-columns:9.5vh 1fr 0}
+#mainArea{position:relative;display:grid;grid-template-columns:9.5vh minmax(0,1fr) 35vh;min-height:0;min-width:0;overflow:hidden;transition:grid-template-columns .28s ease}
+#mainArea.right-collapsed{grid-template-columns:9.5vh minmax(0,1fr) 0}
 
 /* ===== BARRA DE NAVEGAÇÃO Hemosphere clássico (HEM1) ===== */
 #navBar{
@@ -309,11 +309,12 @@ body.no-blink .tile.red,body.no-blink .bigtile.red,body.no-blink .gauge.alarming
 .trend-row canvas{width:100%;height:100%;display:block}
 
 /* ----- WAVEFORM ----- */
-.waveform-wrap{background:var(--tile-bg);border:1px solid var(--line);border-radius:4px;padding:6px;display:grid;grid-template-columns:1fr 110px;grid-template-rows:1fr;gap:8px;min-height:0;overflow:hidden}
-.waveform-wrap canvas{width:100%;height:100%;min-height:0;display:block;background:#06090c;border-radius:3px}
-.waveform-wrap .info{display:flex;flex-direction:column;justify-content:center;align-items:flex-end}
-.waveform-wrap .info .lbl{font-size:10px;color:var(--text-dim);letter-spacing:1px}
-.waveform-wrap .info .num{font-size:22px;color:#ff5252;font-weight:300;line-height:1.1}
+.waveform-wrap{background:var(--tile-bg);border:1px solid var(--line);border-radius:4px;padding:6px;display:grid;grid-template-columns:1fr clamp(120px, 14vw, 170px);grid-template-rows:1fr;gap:8px;min-height:0;overflow:hidden}
+.waveform-wrap .wave-cv-wrap{width:100%;height:100%;min-width:0;min-height:0;background:#06090c;position:relative;overflow:hidden;border-radius:3px}
+.waveform-wrap canvas{width:100%;height:100%;min-height:0;display:block;background:transparent;border-radius:3px}
+.waveform-wrap .info{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;text-align:right;min-width:0;overflow:hidden}
+.waveform-wrap .info .lbl{font-size:10px;color:var(--text-dim);letter-spacing:1px;white-space:nowrap;text-align:right}
+.waveform-wrap .info .num{font-size:18px;color:#ff5252;font-weight:300;line-height:1.15;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
 .waveform-wrap .info .map{font-size:13px;color:var(--text-dim)}
 
 /* ----- TABLE ----- */
@@ -1072,7 +1073,7 @@ body.locked-classic #configOverlay{position:absolute;inset:0}
 body.locked-classic #rightRail,
 body.locked-classic #rightRailToggle,
 body.locked-classic #bottomNav{display:none !important}
-body.locked-classic #mainArea{grid-template-columns:9.5vh 1fr !important}
+body.locked-classic #mainArea{grid-template-columns:9.5vh minmax(0,1fr) !important}
 body.locked-classic #screenInner{padding-bottom:14px}
 
 /* ===== Tiles da Visualização Principal (HEM1) ===== */
@@ -1299,7 +1300,8 @@ canvas.spark{display:block;width:100%;height:30px}
 .empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-mute);text-align:center;padding:20px;border:2px dashed var(--line2);border-radius:6px;font-size:13px}
 
 @media (max-width:1100px){
-  #mainArea{grid-template-columns:200px 1fr 220px}
+  #mainArea{grid-template-columns:clamp(48px, 7vh, 64px) minmax(0,1fr) 220px}
+  body.locked-classic #mainArea{grid-template-columns:clamp(48px, 7vh, 64px) minmax(0,1fr) !important}
   .bigtile .num{font-size:64px}
 }
 </style>
@@ -1630,9 +1632,13 @@ const PARAMS = {
   DAP:   {lbl:'PAD',en:'DIAART',unit:'mmHg',target:[60,90],alarmLow:50,alarmHigh:100,source:['TruWave','FloTrac','AcumenIQ','ClearSight','VitaWave','VolumeView'],precision:0,base:70,drift:2},
   CVP:   {lbl:'PVC',en:'CVP',unit:'mmHg',target:[2,6],alarmLow:0,alarmHigh:14,source:['TruWave'],precision:0,base:4,drift:1},
   PAP:   {lbl:'PAPm',en:'MPAP',unit:'mmHg',target:[10,20],alarmLow:5,alarmHigh:25,source:['TruWave+SwanGanz','TruWave+SwanGanzClassic'],precision:0,base:14,drift:1},
-  PAOP:  {lbl:'PAOP',en:'PAWP',unit:'mmHg',target:[6,12],alarmLow:0,alarmHigh:25,source:['SwanGanz','TruWave+SwanGanz'],precision:0,base:9,drift:1},
+  PAPs:  {lbl:'PAPs',en:'SPAP',unit:'mmHg',target:[18,30],alarmLow:10,alarmHigh:50,source:['TruWave+SwanGanz','TruWave+SwanGanzClassic'],precision:0,base:25,drift:2},
+  PAPd:  {lbl:'PAPd',en:'DPAP',unit:'mmHg',target:[6,15],alarmLow:3,alarmHigh:25,source:['TruWave+SwanGanz','TruWave+SwanGanzClassic'],precision:0,base:10,drift:1},
+  PAOP:  {lbl:'POAP',en:'PAWP',unit:'mmHg',target:[6,12],alarmLow:0,alarmHigh:25,source:['SwanGanz','TruWave+SwanGanz'],precision:0,base:9,drift:1},
   HR:    {lbl:'FC',en:'HR/PR',unit:'bpm',target:[60,100],alarmLow:50,alarmHigh:130,source:['TruWave','FloTrac','AcumenIQ','ClearSight','SwanGanz','SwanGanzClassic','VitaWave','VolumeView'],precision:0,base:78,drift:3},
   ScvO2: {lbl:'ScvO₂',en:'ScvO2',unit:'%',target:[60,70],alarmLow:50,alarmHigh:90,source:['Oximetry'],precision:0,base:65,drift:2},
+  SvO2:  {lbl:'SvO₂',en:'SvO2',unit:'%',target:[60,80],alarmLow:50,alarmHigh:90,source:['Oximetry+SwanGanz','Oximetry+SwanGanzClassic'],precision:0,base:67,drift:2},
+  TS:    {lbl:'TS',en:'BT',unit:'°C',target:[36,37.5],alarmLow:35,alarmHigh:38.5,source:['SwanGanz','SwanGanzClassic'],precision:1,base:36.5,drift:0.05},
   StO2:  {lbl:'StO₂',en:'StO2',unit:'%',target:[60,90],alarmLow:40,source:['ForeSight'],precision:0,base:75,drift:2,site:'cerebral'},
   StO2_2:{lbl:'StO₂',en:'StO2 som.',unit:'%',target:[60,90],alarmLow:40,source:['ForeSight'],precision:0,base:78,drift:2,site:'somático'},
   HPI:   {lbl:'HPI',en:'HPI',unit:'',target:[0,85],alarmHigh:85,source:['AcumenIQ','AcumenIQCuff'],precision:0,base:15,drift:5,special:'hpi'},
@@ -1641,6 +1647,30 @@ const PARAMS = {
   RVEF:  {lbl:'FEVD',en:'RVEF',unit:'%',target:[40,60],alarmLow:20,alarmHigh:60,source:['SwanGanz'],precision:0,base:48,drift:2},
   EDV:   {lbl:'VDF',en:'EDV',unit:'mL',target:[100,160],source:['SwanGanz'],precision:0,base:130,drift:5},
   EDVI:  {lbl:'IVDF',en:'EDVI',unit:'mL/m²',target:[59,94],alarmLow:40,alarmHigh:200,source:['SwanGanz'],precision:0,base:75,drift:3},
+  // ----- STAT variants (Swan-Ganz CCO atualização rápida ~3-6s vs ~60s contínuo) -----
+  COs:   {lbl:'DCs',en:'CO STAT',unit:'L/min',target:[4,8],alarmLow:2.0,alarmHigh:12,source:['SwanGanz'],precision:1,base:5.5,drift:0.4},
+  CIs:   {lbl:'ICs',en:'CI STAT',unit:'L/min/m²',target:[2.5,4],alarmLow:1.0,alarmHigh:6.0,source:['SwanGanz'],precision:1,base:2.7,drift:0.2},
+  RVEFs: {lbl:'FEVDs',en:'RVEF STAT',unit:'%',target:[40,60],alarmLow:20,alarmHigh:60,source:['SwanGanz'],precision:0,base:48,drift:3},
+  EDVs:  {lbl:'VDFs',en:'EDV STAT',unit:'mL',target:[100,160],source:['SwanGanz'],precision:0,base:130,drift:8},
+  EDVIs: {lbl:'IVDFs',en:'EDVI STAT',unit:'mL/m²',target:[59,94],alarmLow:40,alarmHigh:200,source:['SwanGanz'],precision:0,base:75,drift:5},
+  // ----- Intermitentes (Swan-Ganz Classic — termodiluição em bolus) -----
+  COi:   {lbl:'DCi',en:'iCO',unit:'L/min',target:[4,8],alarmLow:2.0,alarmHigh:12,source:['SwanGanzClassic'],precision:1,base:5.5,drift:0.05},
+  CIi:   {lbl:'ICi',en:'iCI',unit:'L/min/m²',target:[2.5,4],alarmLow:1.0,alarmHigh:6.0,source:['SwanGanzClassic'],precision:1,base:2.7,drift:0.02},
+  // ----- Acumen IQ — variantes 20-segundos -----
+  SV20s: {lbl:'VS20s',en:'SV20s',unit:'mL/b',target:[60,100],alarmLow:30,alarmHigh:140,source:['FloTrac','AcumenIQ','AcumenIQCuff'],precision:0,base:75,drift:4},
+  SVI20s:{lbl:'IVS20s',en:'SVI20s',unit:'mL/b/m²',target:[33,47],alarmLow:20,alarmHigh:70,source:['FloTrac','AcumenIQ','AcumenIQCuff'],precision:0,base:38,drift:3},
+  // ----- Volumes ventriculares finais (CCOmbo V) -----
+  ESV:   {lbl:'VSF',en:'ESV',unit:'mL',target:[40,80],alarmLow:20,alarmHigh:200,source:['SwanGanz'],precision:0,base:55,drift:3},
+  ESVI:  {lbl:'IVSF',en:'ESVI',unit:'mL/m²',target:[25,55],alarmLow:15,alarmHigh:120,source:['SwanGanz'],precision:0,base:37,drift:2},
+  // ----- Pulse Rate (separado de HR/ECG) — sensor arterial -----
+  PR:    {lbl:'FP',en:'PR',unit:'bpm',target:[60,100],alarmLow:50,alarmHigh:130,source:['TruWave','FloTrac','AcumenIQ','ClearSight','VitaWave'],precision:0,base:78,drift:3},
+  // ----- ForeSight: variação relativa de hemoglobina total -----
+  ctHb:  {lbl:'ctHb',en:'ctHb',unit:'µmol/L',target:[-10,10],alarmLow:-30,alarmHigh:30,source:['ForeSight'],precision:1,base:0,drift:0.3},
+  // ----- Gasometria arterial (entrada manual ou monitor multiparamétrico) -----
+  PaO2:  {lbl:'PaO₂',en:'PaO2',unit:'mmHg',target:[80,100],alarmLow:60,alarmHigh:200,source:['Gasometry','derivado'],precision:0,base:95,drift:1.5},
+  SaO2:  {lbl:'SaO₂',en:'SaO2',unit:'%',target:[95,100],alarmLow:88,alarmHigh:100,source:['Gasometry','Pulseoximeter','derivado'],precision:0,base:97,drift:0.3},
+  // ----- Hematócrito (laboratório, derivado de Hb × 3) -----
+  Hct:   {lbl:'Hct',en:'Hct',unit:'%',target:[36,48],alarmLow:21,alarmHigh:55,source:['Lab','derivado'],precision:0,base:42,drift:0.5},
   ELWI:  {lbl:'APEV',en:'ELWI',unit:'mL/kg',target:[3,7],alarmHigh:10,source:['VolumeView'],precision:1,base:5,drift:0.3},
   PVPI:  {lbl:'PVPI',en:'PVPI',unit:'',target:[1,3],alarmHigh:5,source:['VolumeView'],precision:1,base:1.8,drift:0.1},
   GEDI:  {lbl:'IVDFG',en:'GEDI',unit:'mL/m²',target:[680,800],alarmLow:500,alarmHigh:1000,source:['VolumeView'],precision:0,base:720,drift:15},
@@ -1650,6 +1680,12 @@ const PARAMS = {
   CPI:   {lbl:'IPOC',en:'CPI',unit:'W/m²',target:[0.5,0.7],source:['ClearSight','FloTrac','AcumenIQ','AcumenIQCuff'],precision:2,base:0.60,drift:0.03},
   DO2I:  {lbl:'DO₂i',en:'DO2I',unit:'mL/min/m²',target:[500,600],alarmLow:300,alarmHigh:800,source:['derivado'],precision:0,base:560,drift:15},
   VO2I:  {lbl:'VO₂i',en:'VO2I',unit:'mL/min/m²',target:[120,160],alarmLow:80,alarmHigh:250,source:['derivado'],precision:0,base:140,drift:8},
+  DO2:   {lbl:'DO₂',en:'DO2',unit:'mL/min',target:[900,1100],alarmLow:600,alarmHigh:1500,source:['derivado'],precision:0,base:1000,drift:30},
+  VO2:   {lbl:'VO₂',en:'VO2',unit:'mL/min',target:[200,300],alarmLow:150,alarmHigh:400,source:['derivado'],precision:0,base:250,drift:15},
+  PVR:   {lbl:'RVP',en:'PVR',unit:'dyn·s·cm⁻⁵',target:[80,180],alarmHigh:300,source:['TruWave+SwanGanz','TruWave+SwanGanzClassic'],precision:0,base:120,drift:8},
+  PVRI:  {lbl:'IRVP',en:'PVRI',unit:'dyn·s·m²/cm⁵',target:[160,360],alarmHigh:500,source:['TruWave+SwanGanz','TruWave+SwanGanzClassic'],precision:0,base:240,drift:15},
+  RVSWI: {lbl:'ITSVD',en:'RVSWI',unit:'g·m/m²/bat',target:[5,10],alarmLow:2,alarmHigh:15,source:['SwanGanz','SwanGanzClassic'],precision:1,base:8,drift:0.3},
+  LVSWI: {lbl:'ITSVE',en:'LVSWI',unit:'g·m/m²/bat',target:[50,62],alarmLow:30,alarmHigh:80,source:['SwanGanz','SwanGanzClassic'],precision:0,base:55,drift:2},
   // Alta only
   GHI:   {lbl:'GHI',en:'GHI',unit:'',target:[0,30],alarmHigh:50,source:['AcumenIQ','AcumenIQCuff','derivado'],precision:0,base:18,drift:4,altaOnly:true},
   CAI:   {lbl:'CAI',en:'CAI',unit:'',target:[0,30],alarmHigh:50,source:['ForeSight'],precision:0,base:12,drift:3,altaOnly:true},
@@ -1695,14 +1731,14 @@ const SCENARIOS = {
   septico_quente: {
     name:'Choque Séptico (quente / hiperdinâmico)',
     desc:'Vasoplegia + estado hiperdinâmico compensatório + permeabilidade ↑',
-    effects:{afterload:-0.70, chronotropy:+0.55, contractility:+0.20, permeability:+0.50, preload:-0.10},
+    effects:{afterload:-0.40, chronotropy:+0.55, contractility:+0.20, permeability:+0.50, preload:-0.10},
     waves:{arterial:'choque_septico'},
   },
 
   septico_frio: {
     name:'Choque Séptico (frio / cardiomiopatia séptica)',
     desc:'Sepse tardia: vasoplegia mantida + miocardiodepressão',
-    effects:{afterload:-0.55, chronotropy:+0.45, contractility:-0.40, rv_contractility:-0.20, permeability:+0.60},
+    effects:{afterload:-0.35, chronotropy:+0.45, contractility:-0.40, rv_contractility:-0.20, permeability:+0.60},
     waves:{arterial:'choque_septico'},
   },
 
@@ -1715,8 +1751,8 @@ const SCENARIOS = {
 
   obstrutivo: {
     name:'Choque Obstrutivo (TEP maciço)',
-    desc:'Falência VD aguda por sobrecarga PVR — choque com PAOP normal/baixo',
-    effects:{pvr:+2.5, rv_contractility:-0.55, preload:+0.50, lv_filling:-0.30, contractility:-0.05, chronotropy:+0.55, afterload:+0.25},
+    desc:'Falência VD aguda por sobrecarga PVR — choque com PAOP normal/baixo, hipoxemia por V/Q mismatch',
+    effects:{pvr:+2.5, rv_contractility:-0.55, preload:+0.50, lv_filling:-0.30, contractility:-0.05, chronotropy:+0.55, afterload:+0.25, oxygenation:-0.20},
     waves:{arterial:'hipovolemia', pap:'tep_agudo', cvp:'rv_infarct'},
   },
 
@@ -1736,9 +1772,16 @@ const SCENARIOS = {
 
   anafilatico: {
     name:'Choque Anafilático',
-    desc:'Vasodilatação massiva + permeabilidade extrema (mediada por IgE)',
-    effects:{afterload:-0.75, chronotropy:+0.60, contractility:-0.10, permeability:+1.5, preload:-0.30, lv_filling:-0.30, pvr:+0.30},
+    desc:'Vasodilatação massiva + permeabilidade extrema (mediada por IgE) + broncoespasmo',
+    effects:{afterload:-0.75, chronotropy:+0.60, contractility:-0.10, permeability:+1.5, preload:-0.30, lv_filling:-0.30, pvr:+0.30, oxygenation:-0.15},
     waves:{arterial:'choque_septico', pleth:'pobre'},
+  },
+
+  crise_hap: {
+    name:'Crise de Hipertensão Pulmonar aguda',
+    desc:'↑↑PVR súbito (hipóxia, acidose, pós-cirurgia cardíaca/mitral) → falência VD aguda, queda do DC sistêmico, hipotensão.',
+    effects:{pvr:+2.5, rv_contractility:-0.50, preload:+0.40, lv_filling:-0.25, contractility:-0.05, chronotropy:+0.40, afterload:+0.15},
+    waves:{pap:'hap_primaria'},
   },
 
   pre_hpi: {
@@ -1761,6 +1804,62 @@ const SCENARIOS = {
     desc:'IC > 4, SVR baixo — estado hipermetabólico',
     effects:{chronotropy:+0.45, contractility:+0.25, afterload:-0.30},
     waves:{arterial:'normal'},
+  },
+
+  // ==========================================================
+  // EVENTOS CIRÚRGICOS / PERIOPERATÓRIOS
+  // Estados sustentados durante uma fase do procedimento.
+  // (Eventos transitórios — reperfusão flash, induction peak — vão
+  //  precisar do motor de intervenções com onset/decay no futuro.)
+  // ==========================================================
+
+  pneumoperitonio: {
+    name:'Pneumoperitônio (laparoscopia)',
+    desc:'Insuflação CO₂ 12-15 mmHg → ↓retorno venoso, ↑SVR reflexa, ↑PAP. CVP medida ↑ por artefato de Pintratorácica.',
+    effects:{preload:+0.20, lv_filling:+0.05, afterload:+0.30, pvr:+0.30, contractility:-0.10},
+    waves:{},
+  },
+
+  clamp_supra: {
+    name:'Clampeamento aórtico suprarrenal',
+    desc:'Vasoconstrição súbita massiva acima do clamp. CO ↓ abaixo do clamp. PAOP ↑↑ por congestão AE. Risco isquemia visceral/medular.',
+    effects:{afterload:+0.85, lv_filling:+0.55, contractility:-0.20, chronotropy:+0.10},
+    waves:{arterial:'hipertensao'},
+  },
+
+  clamp_infra: {
+    name:'Clampeamento aórtico infrarrenal',
+    desc:'Atenuada vs suprarrenal — atinge só pernas e território renal. Repercussão hemodinâmica menor.',
+    effects:{afterload:+0.40, lv_filling:+0.25, contractility:-0.05},
+    waves:{},
+  },
+
+  reperfusao: {
+    name:'Reperfusão pós-desclampagem aórtica',
+    desc:'Vasodilatação súbita + acidose/lactato + hipovolemia relativa → hipotensão pós-desclampagem.',
+    effects:{afterload:-0.50, contractility:-0.20, chronotropy:+0.30, preload:-0.20, permeability:+0.10},
+    waves:{arterial:'hipovolemia'},
+  },
+
+  inducao: {
+    name:'Indução anestésica',
+    desc:'Vasodilatação por propofol/sevo + depressão miocárdica + supressão simpática. Estado sustentado nos primeiros 5-15 min — depois estabiliza (com motor de intervenções vira transitório).',
+    effects:{afterload:-0.35, contractility:-0.15, chronotropy:-0.10},
+    waves:{},
+  },
+
+  trendelemburg: {
+    name:'Trendelemburg acentuado (>30°)',
+    desc:'Posicionamento → ↑retorno venoso (CVP ↑, PAOP leve ↑). Compressão diafragmática → ↑PVR. Comum em ginecológicas / robóticas pélvicas.',
+    effects:{preload:+0.40, lv_filling:+0.20, pvr:+0.15},
+    waves:{},
+  },
+
+  prono: {
+    name:'Decúbito ventral (proning)',
+    desc:'Melhora V/Q em SDRA. Em hipovolêmico, compressão de cava reduz DC. Combinar com SDRA pra simular paciente UTI prona.',
+    effects:{preload:-0.15, contractility:-0.05, pvr:-0.10},
+    waves:{},
   },
 };
 
@@ -1810,7 +1909,7 @@ function computeComorbDimensions(){
     return state._comorbDimsCache;
   }
   const jitter = getComorbJitter();
-  const dims = {contractility:0, rv_contractility:0, afterload:0, preload:0, lv_filling:0, chronotropy:0, pvr:0, compliance:0, permeability:0};
+  const dims = {contractility:0, rv_contractility:0, afterload:0, preload:0, lv_filling:0, chronotropy:0, pvr:0, compliance:0, permeability:0, oxygenation:0};
   // Comorbidades — estado basal crônico
   const list = (state.patient && state.patient.comorbidities) || [];
   for(const k of list){
@@ -1833,7 +1932,39 @@ function computeComorbDimensions(){
   state._comorbDimsCacheVer = state.comorbVersion;
   state._comorbDimsCacheSeed = state.patientSeed;
   state._comorbDimsCacheScen = state.scenario;
+  // Se CCO está em "DC parado" (snapshot ativo), refresca pra refletir o novo
+  // estado do paciente — senão valores ficam presos a um snapshot antigo, mesmo
+  // após mudar scenario/comorb. Mantém semântica de "frozen" (sem random walk),
+  // mas o valor segue o target atual.
+  refreshCCOSnapshotIfFrozen(dims);
   return dims;
+}
+
+/* Atualiza state.ccoSnapshot pra refletir os targets atuais (CO/SV/RVEF/EDV via
+   comorbBiasMul + dims; CI/SVI/EDVI derivados via BSA). Só faz nada se snapshot
+   não existe (CCO está rodando — engine usa target+random walk normalmente). */
+function refreshCCOSnapshotIfFrozen(dims){
+  if(!state.ccoSnapshot) return;
+  // Reproduz fórmulas de comorbBiasMul localmente pra evitar recursão indireta.
+  const co_mul = Math.max(0.10,
+    (1 + dims.contractility) *
+    (1 + 0.5*dims.rv_contractility) *
+    (1 + 1.5*Math.min(0, dims.lv_filling))
+  );
+  const rvef_mul = Math.max(0.10,
+    1 + 0.7*dims.rv_contractility - 0.15*Math.max(0,dims.pvr) - 0.20*Math.max(0,dims.lv_filling)
+  );
+  const edv_mul = 1 + 0.5*dims.preload + 0.3*Math.max(0,dims.lv_filling) - 0.3*dims.rv_contractility;
+  state.ccoSnapshot.CO   = PARAMS.CO.base   * co_mul;
+  state.ccoSnapshot.SV   = PARAMS.SV.base   * co_mul;
+  state.ccoSnapshot.RVEF = PARAMS.RVEF.base * rvef_mul;
+  state.ccoSnapshot.EDV  = PARAMS.EDV.base  * edv_mul;
+  const b = bsa();
+  if(b > 0){
+    state.ccoSnapshot.CI   = state.ccoSnapshot.CO  / b;
+    state.ccoSnapshot.SVI  = state.ccoSnapshot.SV  / b;
+    state.ccoSnapshot.EDVI = state.ccoSnapshot.EDV / b;
+  }
 }
 
 /* Re-sorteia o paciente: novos jitters por comorbidade.
@@ -1851,8 +1982,14 @@ function reseedPatient(){
    Coeficientes calibrados pra que dimensões em saturação produzam números
    coerentes com as faixas em clinical/SPEC.md. */
 function comorbBiasMul(pid){
-  const list = state.patient && state.patient.comorbidities;
-  if(!list || !list.length) return 1.0;
+  // Pula só se ZERO comorbidades E cenário 'normal' (sem effects).
+  // (Antes da refatoração de cenários→dimensões, este guard só olhava comorbidades —
+  // resultado: cenários como cardiogênico/séptico eram ignorados se o paciente
+  // não tinha comorbidade prévia. Bug corrigido em mai/2026.)
+  const list = (state.patient && state.patient.comorbidities) || [];
+  const sc = SCENARIOS[state.scenario];
+  const scHasEffects = sc && sc.effects && Object.keys(sc.effects).length > 0;
+  if(list.length === 0 && !scHasEffects) return 1.0;
   const d = computeComorbDimensions();
   switch(pid){
     // Débito do VE = contratilidade VE × acoplamento série (VD→VE) × penalidade preload-starved.
@@ -1860,19 +1997,26 @@ function comorbBiasMul(pid){
     //   - lv_filling NEGATIVO (PAOP baixa) também reduz CO direto.
     //   - lv_filling POSITIVO não aumenta CO (Frank-Starling no platô em quadros crônicos).
     //   - Floor 0.10: paciente com cenário+comorbidades extremos não vai a CO=0 (PCR seria scenario à parte).
+    // Variantes (STAT, intermitente, 20s) seguem a MESMA fórmula — diferenciam só no drift.
     case 'SV': case 'SVI': case 'CO': case 'CI':
     case 'CPO': case 'CPI': case 'CO20':
+    case 'COs': case 'CIs': case 'COi': case 'CIi':
+    case 'SV20s': case 'SVI20s':
       return Math.max(0.10, (1 + d.contractility)
                           * (1 + 0.5*d.rv_contractility)
                           * (1 + 1.5*Math.min(0, d.lv_filling)));
     case 'dPdt':
       return Math.max(0.15, 1 + 0.8*d.contractility - 0.2*d.compliance);
     case 'RVEF':
-      // RVEF = função de contratilidade VD; sobrecarga PVR reduz mais.
-      return Math.max(0.10, 1 + 0.7*d.rv_contractility - 0.15*Math.max(0,d.pvr));
+    case 'RVEFs':  // variante STAT segue a mesma fórmula
+      // RVEF = contratilidade VD - sobrecarga PVR - back-pressure pulmonar (lv_filling).
+      // Em IC FEr (lv_filling alto), VD sofre afterload ↑ por congestão pulmonar → RVEF ↓.
+      return Math.max(0.10, 1 + 0.7*d.rv_contractility - 0.15*Math.max(0,d.pvr) - 0.20*Math.max(0,d.lv_filling));
     case 'EDV': case 'EDVI':
-      // EDV do Swan-Ganz mede VD — pré-carga sistêmica + dilatação por disfunção VD
-      return 1 + 0.5*d.preload - 0.3*d.rv_contractility;
+    case 'EDVs': case 'EDVIs':  // variantes STAT seguem a mesma fórmula
+      // EDV do Swan-Ganz mede VD: pré-carga sistêmica + dilatação por disfunção VD.
+      // Também aumenta com lv_filling alto (back-pressure pulmonar = afterload VD ↑ = VD dilata).
+      return 1 + 0.5*d.preload + 0.3*Math.max(0,d.lv_filling) - 0.3*d.rv_contractility;
     case 'GEDV': case 'GEDI':
       // Volume diastólico GLOBAL (PiCCO, todas câmaras) — média preload+lv_filling
       // Dilatação por disfunção bilateral
@@ -1887,8 +2031,14 @@ function comorbBiasMul(pid){
     case 'DAP':
       // Afterload domina DAP; contratilidade pouco; compliance pos → DAP ↑
       return 1 + 0.55*d.afterload + 0.15*d.contractility + 0.20*d.compliance;
-    case 'HR':
+    case 'HR': case 'PR':  // PR (frequência arterial) acompanha HR em ritmo regular
       return 1 + d.chronotropy;
+    case 'PaO2':
+      // Linear com oxygenation. base 95; em SDRA/SHP severo (oxygenation -0.40 sat -0.34): PaO₂ ~63.
+      // Floor 0.20 → PaO₂ não cai abaixo de ~19 (PaO₂ <30 = ameaça à vida, cenário PCR seria à parte).
+      return Math.max(0.20, 1 + d.oxygenation);
+    // SaO2 derivado da curva Hill (PaO2 → SaO2) após o loop principal — sem case aqui.
+    // Hct derivado de Hb após o loop principal.
     case 'CVP':
       // Floor 0.05: CVP não vai negativa (limite físico da pressão venosa central ~0).
       return Math.max(0.05, 1 + 2.5*d.preload);
@@ -1898,17 +2048,29 @@ function comorbBiasMul(pid){
       // EM grave (lv_filling sat ~1.0) chegue em PAOP ~29.
       // Floor 0.10: PAOP não vai negativa.
       return Math.max(0.10, 1 + 2.2*d.lv_filling);
-    case 'PAP':
-      // Floor 0.40: PAP m sempre tem componente passivo (~5 mmHg).
-      return Math.max(0.40, 1 + 1.3*d.pvr);
+    case 'PAPs':
+      // Sistólica pulmonar: sobe principalmente por PVR (pré-capilar);
+      // levemente por lv_filling (efeito secundário em pós-capilar).
+      return Math.max(0.40, 1 + 1.3*Math.max(0,d.pvr) + 0.3*Math.max(0,d.lv_filling));
+    case 'PAPd':
+      // Diastólica pulmonar: reflete mais a PAOP (gradiente PAPd-PAOP <5 em normal).
+      // Em IC esquerda (lv_filling alto), PAPd ≈ PAOP. PVR também afeta.
+      return Math.max(0.40, 1 + 0.7*Math.max(0,d.pvr) + 0.8*Math.max(0,d.lv_filling));
+    // PAP (média) é DERIVADA de (PAPs + 2·PAPd)/3 no engine — sem case próprio aqui.
     case 'SVV': case 'PPV':
       return Math.max(0.3, 1 - 0.6*d.preload);   // alta pré-carga ⇒ Frank-Starling no platô
     case 'Eadyn':
       // Reduzido em IC FEr (depressão miocárdica → resposta vasoconstrição limitada);
       // aumentado em CMHO/HAS (rigidez arterial); afetado por compliance.
       return Math.max(0.3, 1 - 0.4*d.compliance + 0.2*d.afterload + 0.8*d.contractility);
-    case 'ScvO2': case 'StO2': case 'StO2_2':
+    case 'ScvO2': case 'SvO2': case 'StO2': case 'StO2_2':
+      // SvO₂ (mista, PA) responde igual a ScvO₂; em normal SvO₂ ~5% MENOR que ScvO₂
+      // (inclui sangue do seio coronário, mais dessaturado). Diferença codificada na base (67 vs 65).
       return 1 + 0.3*d.contractility - 0.05*Math.max(0,d.chronotropy);
+    case 'TS':
+      // Temperatura sanguínea: febre eleva (sepse, miocardite, hipertireoidismo);
+      // hipotermia em choque cardiogênico tardio. Modelagem mínima via chronotropy.
+      return 1 + 0.005*Math.max(0,d.chronotropy) + 0.005*Math.max(0,d.permeability);
     case 'EVLW': case 'ELWI':
       // Modelo de THRESHOLD (Starling/linfáticos) baseado em LV_FILLING (PAOP),
       // não preload sistêmico — água pulmonar responde à pressão capilar pulmonar
@@ -2149,6 +2311,10 @@ const state = {
   scenario:'normal',
   paused:false,
   speed:1,
+  // Compressão de tempo CLÍNICO (default 10×): afeta warm-up CCO, intervalos
+  // de termodiluição, onset/offset de fármacos. NÃO afeta dinâmica do random
+  // walk nem oscilação fisiológica (que continuam controladas por `speed`).
+  clinicalTimeScale: 10,
   patient:{age:68,wt:82,ht:178,hgb:12,male:true,comorbidities:[]},
   comorbVersion:0,             // bump ao mudar comorbidades — invalida cache de dimensões
   patientSeed:Math.floor(Math.random()*1e9), // ID aleatório do paciente; muda ao "Sortear paciente"
@@ -2169,6 +2335,12 @@ const state = {
   showArrows:true,
   lang:'pt',
   interventions:[], // markers
+  // ── WEDGE / POAP ──
+  // Manobra de insuflação do balonete: oclui a a. pulmonar ramo pequeno e a curva
+  // de PAP transiciona para a curva de pressão atrial esquerda (LAP), com a/c/x/v/y.
+  // Sem auto-release — o usuário libera manualmente clicando em Liberar.
+  papWedging:false,
+  papWedgingStart:0,
 };
 
 // inicializar módulos — nenhum fica acoplado por omissão (usuário acopla manualmente).
@@ -2178,6 +2350,25 @@ Object.keys(PARAMS).forEach(k=> { state.values[k]= PARAMS[k].base; state.history
 
 // WAVE PRESETS — morfologia patológica selecionada para cada onda
 state.wavePresets = {arterial:'normal', cvp:'normal', pap:'normal', ecg:'normal', pleth:'normal'};
+// Ordem das curvas em screenWaves (drag-and-drop). Default = ordem clínica clássica.
+state.waveLaneOrder = ['ecg','arterial','cvp','pap','pleth'];
+try {
+  const o = localStorage.getItem('hemosphere_waveLaneOrder');
+  if(o){
+    const parsed = JSON.parse(o);
+    if(Array.isArray(parsed) && parsed.every(x=>typeof x==='string')){
+      // mantém só os canais conhecidos, na ordem salva
+      const known = new Set(['ecg','arterial','cvp','pap','pleth']);
+      const filtered = parsed.filter(x=>known.has(x));
+      // adiciona faltantes ao final (versão futura com mais canais)
+      ['ecg','arterial','cvp','pap','pleth'].forEach(k=>{ if(!filtered.includes(k)) filtered.push(k); });
+      state.waveLaneOrder = filtered;
+    }
+  }
+} catch(e){}
+function saveWaveLaneOrder(){
+  try { localStorage.setItem('hemosphere_waveLaneOrder', JSON.stringify(state.waveLaneOrder)); } catch(e){}
+}
 // Ganho por onda (multiplica pxPerY) — equivalente ao botão "gain" do monitor real
 state.waveGain = {arterial:1, cvp:1, pap:1, ecg:1, pleth:1};
 try {
@@ -2298,6 +2489,9 @@ const DEFAULT_SLOTS = {
   'classic.main.trends': ['CO','SVR','MAP','SVV'],
   'classic.main.gauges': ['SVI','ScvO2','SVRI','CI'],
   'classic.keyrail': ['CO','CI','MAP','HR','SVR','SVV','ScvO2','HPI','dPdt','StO2','CVP','PAP'],
+  // Tiles laterais da tela fisiológica do Swan-Ganz (4 grandes à direita)
+  'classic.physio_swan_side': ['CI','SVR','MAP','ScvO2'],
+  'classic.physio_vv_side':   ['CI','SVV','SVRI','ScvO2'],
   // Goal Positioning (HEM1 5.3.9): slots 0=Y, 1=X, 2..4=tiles laterais
   'classic.goal':    ['CI','EDVI','CI','EDVI','MAP'],
   'vita.cockpit':    ['StO2','StO2_2','MAP','HR'],
@@ -2357,21 +2551,37 @@ function paramAvailable(pid){
   // Swan-Ganz Clássico ou VolumeView: CO e TODOS os derivados (resistência,
   // potência, DO₂/VO₂) só ficam disponíveis após a primeira termodiluição (DCi/TPTD).
   // Algoritmo por waveform precisa de calibração inicial pelo bolus.
-  const coDeps = ['CO','CI','SV','SVI','SVR','SVRI','CPO','CPI','DO2I','VO2I'];
+  const coDeps = ['CO','CI','SV','SVI','SVR','SVRI','CPO','CPI','DO2I','VO2I',
+                  'DO2','VO2','PVR','PVRI','RVSWI','LVSWI',
+                  'COs','CIs','SV20s','SVI20s','COi','CIi',  // variantes STAT/20s/intermitente
+                  'ESV','ESVI','EDVs','EDVIs','RVEFs'];       // volumes finais e STAT volumétricos
   if(coDeps.includes(pid)){
     const hasUncalibratedDC = moduleAvailable('FloTrac') || moduleAvailable('AcumenIQ')
                            || moduleAvailable('AcumenIQCuff') || moduleAvailable('ClearSight')
                            || moduleAvailable('SwanGanz');
     const hasCalibratedDC  = moduleAvailable('SwanGanzClassic') || moduleAvailable('VolumeView');
-    if(hasUncalibratedDC) return true;
-    if(hasCalibratedDC && state.thermodilutionDone) return true;
-    return false;
+    // Sem nenhum sensor de DC acoplado → indisponível
+    if(!hasUncalibratedDC && !hasCalibratedDC) return false;
+    // Swan-Ganz Classic / VolumeView (intermitente): exige termodiluição prévia
+    if(hasCalibratedDC && !hasUncalibratedDC){
+      return state.thermodilutionDone === true;
+    }
+    // CCO contínuo (FloTrac, AcumenIQ, ClearSight, SwanGanz CCO):
+    //   - Parado sem snapshot (nunca foi iniciado): "--"
+    //   - Em warm-up (5-12 min reais; aqui ~30s educacional): "--"
+    //   - Rodando OU pausado com snapshot: valor disponível
+    if(!state.ccoActive && !state.ccoSnapshot) return false;
+    if(state.ccoActive && state.ccoWarmupUntil && Date.now() < state.ccoWarmupUntil) return false;
+    return true;
   }
   // Parâmetros volumétricos exclusivos do TPTD (VolumeView): só após termodiluição
   if(['ELWI','PVPI','GEDI','GEDV','GEF'].includes(pid)){
     if(moduleAvailable('VolumeView') && state.thermodilutionDone) return true;
     return false;
   }
+  // Gasometria/laboratório: sempre disponíveis (input manual representa coleta de amostra
+  // ou uso de monitor multiparamétrico bedside externo).
+  if(['PaO2','SaO2','Hct'].includes(pid)) return true;
   for(const src of p.source){
     if(src==='derivado') return true;
     if(src.includes('+')){
@@ -2424,14 +2634,19 @@ const OSC_PROFILE = {
   SVRI:{slow:0.020,mayer:0.025,resp:0.005},
   CVP:{slow:0.025,mayer:0.015,resp:0.060},       // CVP varia muito com respiração
   PAP:{slow:0.018,mayer:0.020,resp:0.045},
+  PAPs:{slow:0.020,mayer:0.025,resp:0.050},
+  PAPd:{slow:0.018,mayer:0.018,resp:0.040},
   PAOP:{slow:0.020,mayer:0.018,resp:0.040},
   // Variabilidade
   SVV:{slow:0.06, mayer:0.08, resp:0.05},        // SVV oscila mais (é uma variação)
   PPV:{slow:0.06, mayer:0.08, resp:0.05},
   // Oximetria: muito estável fisiologicamente
   ScvO2:{slow:0.005,mayer:0.003,resp:0.001},
+  SvO2:{slow:0.005,mayer:0.003,resp:0.001},
   StO2:{slow:0.005,mayer:0.003,resp:0.001},
   StO2_2:{slow:0.005,mayer:0.003,resp:0.001},
+  // Temperatura: extremamente estável (±0.1°C)
+  TS:{slow:0.002,mayer:0.001,resp:0.0005},
   // Acumen
   HPI:{slow:0.20, mayer:0.10, resp:0.05},        // varia bastante (probabilidade)
   dPdt:{slow:0.012,mayer:0.025,resp:0.010},
@@ -2440,6 +2655,29 @@ const OSC_PROFILE = {
   RVEF:{slow:0.012,mayer:0.015,resp:0.008},
   EDV:{slow:0.012,mayer:0.010,resp:0.005},
   EDVI:{slow:0.012,mayer:0.010,resp:0.005},
+  // STAT variants (Swan-Ganz CCO atualização rápida — drift visivelmente maior)
+  COs:{slow:0.020,mayer:0.030,resp:0.012},
+  CIs:{slow:0.020,mayer:0.030,resp:0.012},
+  RVEFs:{slow:0.018,mayer:0.025,resp:0.012},
+  EDVs:{slow:0.020,mayer:0.020,resp:0.010},
+  EDVIs:{slow:0.020,mayer:0.020,resp:0.010},
+  // Intermitentes (atualizam só na termodiluição — drift mínimo entre medidas)
+  COi:{slow:0.005,mayer:0.003,resp:0.001},
+  CIi:{slow:0.005,mayer:0.003,resp:0.001},
+  // Acumen IQ 20-segundos
+  SV20s:{slow:0.020,mayer:0.025,resp:0.012},
+  SVI20s:{slow:0.020,mayer:0.025,resp:0.012},
+  // Volumes finais
+  ESV:{slow:0.015,mayer:0.012,resp:0.005},
+  ESVI:{slow:0.015,mayer:0.012,resp:0.005},
+  // Pulse rate (variabilidade respiratória forte como HR)
+  PR:{slow:0.008,mayer:0.012,resp:0.025},
+  // ctHb — drift muito lento (mudanças refletem volemia/sangramento)
+  ctHb:{slow:0.005,mayer:0.001,resp:0.0005},
+  // Gasometria — relativamente estável (mudanças em minutos, não segundos)
+  PaO2:{slow:0.008,mayer:0.005,resp:0.003},
+  SaO2:{slow:0.003,mayer:0.002,resp:0.001},
+  Hct:{slow:0.005,mayer:0.001,resp:0.0005},
   // Default
   __default:{slow:0.010,mayer:0.012,resp:0.005}
 };
@@ -2463,10 +2701,17 @@ function tickEngine(dt){
   const ccoFrozen = (state.ccoActive === false);
   const ccoFrozenSet = ccoFrozen ? new Set(['CO','CI','SV','SVI','RVEF','EDV','EDVI']) : null;
   for(const pid in PARAMS){
-    // MAP é DERIVADA — calculada após o loop como (SAP+2·DAP)/3 pra garantir
-    // que monitor e resumo do paciente sempre batam. Sem random walk próprio.
-    // Override explícito (preset de morfologia ou usuário) vence na derivação abaixo.
-    if(pid === 'MAP') continue;
+    // PRESSÕES SISTÊMICAS são DERIVADAS após o loop em cadeia coerente:
+    //   1. SVR_alvo  = 1100 × (1 + afterload)        (do dim afterload)
+    //   2. MAP       = CO × SVR_alvo / 80 + CVP      (Ohm)
+    //   3. PAS       = MAP + 2·PP/3                  (PP = SV × compliance factor)
+    //   4. PAD       = MAP − PP/3
+    //   5. SVR       = (MAP − CVP) × 80 / CO         (sempre coerente com Ohm)
+    //   6. SVRI      = SVR × BSA
+    //   7. PAP m     = (PAPs + 2·PAPd)/3             (análoga à MAP)
+    // Garante: MAP-PVC = DC×RVS/80 SEMPRE vale (testado p/ todo cenário).
+    if(pid==='MAP'||pid==='PAP'||pid==='SVR'||pid==='SVRI'||pid==='SAP'||pid==='DAP'
+       ||pid==='SvO2'||pid==='ScvO2') continue;  // SvO2/ScvO2 derivados via Fick após o loop
     if(state.overrides[pid]!==undefined){
       state.values[pid] = state.overrides[pid];
     } else if(ccoFrozen && ccoFrozenSet.has(pid)){
@@ -2499,31 +2744,143 @@ function tickEngine(dt){
       state.values[pid] = nv;
     }
   }
-  // MAP — derivada IMEDIATAMENTE após o loop, antes de qualquer outro derivado
-  // que dependa dela (CPO etc.). Override explícito vence (preset de morfologia
-  // como insuf_aortica, ou input do usuário); senão = (SAP + 2·DAP) / 3.
-  // Isto garante que (SAP + 2·DAP)/3 = MAP em TODA tela, sempre.
+  // CADEIA DE DERIVAÇÃO PRESSÕES SISTÊMICAS (Ohm-coerente, igual Hemosphere real)
+  // ----------------------------------------------------------------------------
+  // 1) SVR_alvo: o que afterload "produziria" (multiplicador puro do dim).
+  //    Não é o RVS exibido — é entrada pra cadeia.
+  // 2) MAP via Ohm: CO × SVR_alvo / 80 + CVP. Override (preset/usuário) vence.
+  // 3) SAP/DAP derivam de MAP + PP. PP = PP_base × (SV/SV_base) × (1 - 0.5·compliance).
+  //    SV alto + compliance baixa → PP largo (HAS idoso, IAo, hipertireo).
+  // 4) SVR exibido = (MAP − CVP) × 80 / CO. Coincide com Ohm sempre, mesmo após overrides.
+  // 5) SVRI = SVR × BSA.
+  const _dimsForBP = (typeof computeComorbDimensions === 'function')
+    ? computeComorbDimensions()
+    : {afterload:0, compliance:0};
+  // SVR_target_base 1200 (não 1100 do PARAMS) calibrado pra dar PAM ≈ 86 em
+  // paciente saudável (5.5 L/min × 1200/80 + 4 PVC = 86.5). PARAMS.SVR.base
+  // continua 1100 pra alinhamento com displays já calibrados; aqui é só a
+  // entrada da cadeia Ohm.
+  const SVR_target = 1200 * Math.max(0.15, 1 + (_dimsForBP.afterload || 0));
+
+  // MAP via Ohm
   if(state.overrides.MAP !== undefined){
     state.values.MAP = state.overrides.MAP;
-  } else if(state.values.SAP != null && state.values.DAP != null){
-    state.values.MAP = (state.values.SAP + 2 * state.values.DAP) / 3;
+  } else if(state.values.CO != null && state.values.CVP != null){
+    state.values.MAP = (state.values.CO * SVR_target / 80) + state.values.CVP;
   }
-  // Coerência básica: derivar CI a partir de CO/BSA quando disponível.
-  // SVRI continua derivando porque depende de SVR (não-CCO). Os demais não
-  // recalculam quando o CCO está parado, para manter CI/SVI/EDVI congelados.
+
+  // SAP/DAP via MAP + pulse pressure (PP)
+  // PP_base 50; SV_base 75. Floor 20, ceil 120 (aneurisma de aorta absurdo).
+  const SV_ratio = (state.values.SV || 75) / 75;
+  const PP_factor = Math.max(0.4, 1 - 0.5 * (_dimsForBP.compliance || 0));
+  const PP = Math.max(20, Math.min(120, 50 * SV_ratio * PP_factor));
+  if(state.overrides.SAP === undefined){
+    state.values.SAP = state.values.MAP + (2 * PP / 3);
+  }
+  if(state.overrides.DAP === undefined){
+    state.values.DAP = state.values.MAP - (PP / 3);
+  }
+
+  // SVR exibido (Ohm) — sempre coerente com MAP/CO/CVP atuais
+  if(state.overrides.SVR !== undefined){
+    state.values.SVR = state.overrides.SVR;
+  } else if(state.values.CO > 0.1 && state.values.MAP != null && state.values.CVP != null){
+    state.values.SVR = Math.max(150,
+      (state.values.MAP - state.values.CVP) * 80 / Math.max(0.5, state.values.CO));
+  }
+  // SVRI = SVR × BSA
+  if(state.overrides.SVRI === undefined){
+    const _b = bsa();
+    if(_b > 0) state.values.SVRI = state.values.SVR * _b;
+  } else {
+    state.values.SVRI = state.overrides.SVRI;
+  }
+  // PAP (média) — análoga à MAP: derivada de PAPs e PAPd via (PAPs + 2·PAPd)/3.
+  if(state.overrides.PAP !== undefined){
+    state.values.PAP = state.overrides.PAP;
+  } else if(state.values.PAPs != null && state.values.PAPd != null){
+    state.values.PAP = (state.values.PAPs + 2 * state.values.PAPd) / 3;
+  }
+  // ============================================================
+  // ACOPLAMENTOS FISIOLÓGICOS FUNDAMENTAIS
+  // SV = CO × 1000 / HR  (definição: débito = volume × frequência)
+  // RVEF = SV / EDV × 100 (definição: fração ejetada = ejetado / contido)
+  // Aplicar override quando o usuário define explicitamente cada um.
+  // Garante que mover slider de DC propague pra SV e RVEF (fisiologia respeitada).
+  // ============================================================
+  if(state.overrides.SV===undefined && state.values.HR > 10){
+    state.values.SV = Math.max(5, state.values.CO * 1000 / state.values.HR);
+  }
+  if(state.overrides.RVEF===undefined && state.values.EDV > 10){
+    state.values.RVEF = Math.max(8, Math.min(75, (state.values.SV / state.values.EDV) * 100));
+  }
+  // Coerência básica: derivar índices (IC, IVS, IRVS, IVDF) das fontes (CO, SV, SVR, EDV).
+  // Sempre derivar — `state.values.CO` já reflete o estado correto: snapshot se CCO parado,
+  // override se houver, ou random walk caso contrário. Derivação CI = CO/BSA é válida em
+  // todos os casos. (Removido o gate `!ccoFrozen` em mai/2026 — bloqueava propagação de
+  // overrides do slider quando CCO estava em "DC parado".)
   const b = bsa();
   if(b>0){
-    if(state.overrides.CI===undefined  && !ccoFrozen) state.values.CI  = state.values.CO / b;
-    if(state.overrides.SVI===undefined && !ccoFrozen) state.values.SVI = state.values.SV / b;
+    if(state.overrides.CI===undefined)   state.values.CI   = state.values.CO / b;
+    if(state.overrides.SVI===undefined)  state.values.SVI  = state.values.SV / b;
     if(state.overrides.SVRI===undefined) state.values.SVRI = state.values.SVR * b;
-    if(state.overrides.EDVI===undefined && !ccoFrozen) state.values.EDVI = state.values.EDV / b;
+    if(state.overrides.EDVI===undefined) state.values.EDVI = state.values.EDV / b;
   }
   // CPO ≈ CO * MAP * 0.0022
   if(state.overrides.CPO===undefined) state.values.CPO = state.values.CO * state.values.MAP * 0.0022;
   if(state.overrides.CPI===undefined) state.values.CPI = state.values.CPO / Math.max(0.01,b);
-  // DO2I = CI * 1.34 * Hb * SpO2 * 10
-  if(state.overrides.DO2I===undefined) state.values.DO2I = state.values.CI * 1.34 * state.patient.hgb * 0.98 * 10;
-  if(state.overrides.VO2I===undefined) state.values.VO2I = state.values.CI * 1.34 * state.patient.hgb * (0.98 - state.values.ScvO2/100) * 10;
+  // SaO₂ derivada de PaO₂ via curva de dissociação Hill (n=2.7, P50=26 mmHg). Em SDRA/SHP severos
+  // PaO₂ ~50 → SaO₂ ~85; PaO₂ ~95 → SaO₂ ~98 (normal). Override (Pulseoximeter direto) vence.
+  if(state.overrides.SaO2===undefined && state.values.PaO2 > 0){
+    const p27 = Math.pow(state.values.PaO2, 2.7);
+    state.values.SaO2 = 100 * p27 / (p27 + Math.pow(26, 2.7));
+  }
+  // Hct derivado de Hb (regra ×3); override permite gasometria com Hct medido independente.
+  if(state.overrides.Hct===undefined) state.values.Hct = state.patient.hgb * 3;
+  // SaO₂ atual (fração) usada nos cálculos de oxigênio
+  const sao2_frac = state.values.SaO2 != null ? state.values.SaO2/100 : 0.98;
+  // SvO2 e ScvO2 — DERIVADOS via Fick (gold standard fisiológico, igual ao Hemosphere
+  // que mede direto via fibra óptica). Modelagem:
+  //   SvO2 = SaO2 − VO2_demand / (CO × Hb × 1.34 × 10)
+  //   ScvO2 = SvO2 + 5%  (cava superior NÃO inclui sangue do seio coronário)
+  // VO2_demand baseline 250 mL/min, modulado por chronotropy (febre/taqui ↑VO2) e
+  // permeability (sepse hipermetabólica ↑VO2). Hipotermia/depleção (chronotropy −): ↓VO2.
+  // Floor 15% — abaixo disso seria incompatível com vida.
+  const VO2_demand = 250 * Math.max(0.4,
+    1 + 0.30 * (_dimsForBP.chronotropy || 0)
+      + 0.40 * Math.max(0, _dimsForBP.permeability || 0));
+  if(state.overrides.SvO2 === undefined && state.values.CO > 0.1){
+    const SvO2_decimal = sao2_frac - VO2_demand /
+      (Math.max(0.5, state.values.CO) * Math.max(7, state.patient.hgb) * 1.34 * 10);
+    state.values.SvO2 = Math.max(15, Math.min(95, SvO2_decimal * 100));
+  }
+  if(state.overrides.ScvO2 === undefined){
+    state.values.ScvO2 = Math.max(15, Math.min(95, state.values.SvO2 + 5));
+  }
+  // DO2I = CI * 1.34 * Hb * SaO2 * 10  ;  DO2 (não-indexado) = DO2I * BSA
+  if(state.overrides.DO2I===undefined) state.values.DO2I = state.values.CI * 1.34 * state.patient.hgb * sao2_frac * 10;
+  if(state.overrides.VO2I===undefined) state.values.VO2I = state.values.CI * 1.34 * state.patient.hgb * (sao2_frac - state.values.ScvO2/100) * 10;
+  if(state.overrides.DO2===undefined) state.values.DO2 = state.values.CO * 1.34 * state.patient.hgb * sao2_frac * 10;
+  if(state.overrides.VO2===undefined) state.values.VO2 = state.values.CO * 1.34 * state.patient.hgb * (sao2_frac - state.values.ScvO2/100) * 10;
+  // PVR = (PAPm - PAOP) × 80 / CO  (dyn·s·cm⁻⁵) ; PVRI = PVR × BSA
+  if(state.overrides.PVR===undefined && state.values.CO > 0.1){
+    state.values.PVR = Math.max(20, (state.values.PAP - state.values.PAOP) * 80 / state.values.CO);
+  }
+  if(state.overrides.PVRI===undefined) state.values.PVRI = state.values.PVR * b;
+  // RVSWI = SVI × (PAPm - CVP) × 0.0136  ; LVSWI = SVI × (MAP - PAOP) × 0.0136 (g·m/m²/bat)
+  if(state.overrides.RVSWI===undefined){
+    state.values.RVSWI = Math.max(0.5, state.values.SVI * (state.values.PAP - state.values.CVP) * 0.0136);
+  }
+  if(state.overrides.LVSWI===undefined){
+    state.values.LVSWI = Math.max(5, state.values.SVI * (state.values.MAP - state.values.PAOP) * 0.0136);
+  }
+  // ESV (volume sistólico final VD) = EDV - SV ; ESVI = EDVI - SVI (CCOmbo V)
+  if(state.overrides.ESV===undefined){
+    state.values.ESV = Math.max(10, state.values.EDV - state.values.SV);
+  }
+  if(state.overrides.ESVI===undefined){
+    state.values.ESVI = Math.max(5, state.values.EDVI - state.values.SVI);
+  }
 
   // ============================================================
   // HPI multi-paramétrico — heurística educativa
@@ -3040,6 +3397,79 @@ function tickWave(dt){
     } else {
       papV = papD + 0.38*papPP*Math.exp(-(presetP.spiky?3.5:2.4)*(pap_s-0.40));
     }
+
+    // ─── WEDGE / POAP — balonete insuflado ─────────────────────────────────
+    // Quando o usuário "cunha" o cateter, a curva pulsátil de PAP cede lugar
+    // a uma curva de pressão atrial esquerda (LAP/PCWP), com a/c/x/v/y.
+    // Morfologia: análoga a CVP, mas atrasada (transmissão pulmonar) e com
+    // v frequentemente proeminente em IM/IC. Centra em state.values.PAOP.
+    if(state.papWedging){
+      const tWedgeMs = Date.now() - state.papWedgingStart;
+      // Sem auto-release — usuário libera manualmente.
+      {
+        // Blend de entrada: 800ms na oclusão progressiva. Depois fica em wedge puro.
+        const fadeIn  = Math.min(1, tWedgeMs / 800);
+        const wedgeMix = fadeIn;  // 0=PAP, 1=wedge
+
+        const paopMean = state.values.PAOP || 9;
+        // ── Amplitudes do PAWP — DAMPED comparado ao CVP ──
+        // Em PAWP a c-wave é fundida com a (capilares pulmonares amortecem),
+        // e os descensos x/y são menos profundos. a e v aproximadamente iguais
+        // em normal; gigantes apenas em valvulopatias.
+        const isMR  = (state.patient.comorbidities||[]).some(c => /insuf.*mitral|im_/.test(c));
+        const isMS  = (state.patient.comorbidities||[]).some(c => /estenose.*mitral|em_/.test(c));
+        const A_AMP_W = (isMS ? 6.0 : 2.5);          // EM: a wave gigante
+        const X_NADIR_W = -1.0;                       // descent raso (amortecido)
+        const V_AMP_W = (isMR ? 8.0 : 3.0);          // IM: v wave gigante (≥2× a)
+        const Y_NADIR_W = (isMS ? -0.4 : -0.9);      // EM: y descent rasa (gradient pressórico)
+        const C_BUMP_W = 0;                           // suprimido em PAWP — fusão a-c
+
+        // ── Alinhamento com ECG ──
+        // Eventos mecânicos da AE ocorrem ao mesmo tempo dos da AD, mas a pressão
+        // atravessa capilares pulm + cateter até o transdutor. Calibração:
+        //   • PVC a peak: ~70 ms após INÍCIO da P (textbook 60-80 ms)
+        //   • PAWP a peak: ~240 ms após INÍCIO da P (textbook)
+        //   • Diferença = ~170 ms = delay de transmissão pulmonar.
+        // Mas nossa morfologia tem a peak em phi=0.13 (94 ms após P onset @ HR75)
+        // — 24 ms já além do alvo CVP. Pra hitar 240 ms (PAWP), delay = 150 ms.
+        // Em tempo absoluto (independe de FC), convertido pra fração do ciclo.
+        const wedgeDelaySec = 0.135;
+        const wedgeDelayPhi = wedgeDelaySec / Math.max(0.3, WAVE.beatRR || 0.8);
+        const phiW = (phi - wedgeDelayPhi + 1) % 1;
+        // Marcos morfológicos (mesmos do CVP — a/c/x/v/y do átrio):
+        //   No CVP: a@0.13 (após P em 0.05), c@0.26 (após QRS 0.18), x@0.40 (~T),
+        //           v@0.52 (após T), y@0.66 (descida rápida pós-MV abre).
+        //   No wedge esses números são iguais NA MORFOLOGIA — o que muda é a fase
+        //   real (phiW vs phi), porque a pressão chega atrasada no transdutor.
+        //   Resultado visível: a wave aparece no ST, v wave aparece no T-P interval.
+        const aStart_W = 0.05, aPeakP_W = 0.13, cPeakP_W = 0.26;
+        const xNadirP_W = 0.40, vPeakP_W = 0.52, yNadirP_W = 0.66;
+        const cs2 = t => (1 - Math.cos(Math.PI * Math.max(0, Math.min(1, t)))) * 0.5;
+
+        let wedY = 0;
+        if(phiW < aStart_W){
+          const t = (phiW + (1 - yNadirP_W)) / ((1 - yNadirP_W) + aStart_W);
+          wedY = Y_NADIR_W + (0 - Y_NADIR_W) * Math.pow(t, 1.4);
+        } else if(phiW < aPeakP_W){
+          wedY = A_AMP_W * cs2((phiW - aStart_W) / (aPeakP_W - aStart_W));
+        } else if(phiW < xNadirP_W){
+          const t = (phiW - aPeakP_W) / (xNadirP_W - aPeakP_W);
+          wedY = A_AMP_W + (X_NADIR_W - A_AMP_W) * cs2(t);
+          wedY += C_BUMP_W * gauss(phiW, cPeakP_W, 0.020);
+        } else if(phiW < vPeakP_W){
+          wedY = X_NADIR_W + (V_AMP_W - X_NADIR_W) * cs2((phiW - xNadirP_W) / (vPeakP_W - xNadirP_W));
+        } else if(phiW < yNadirP_W){
+          wedY = V_AMP_W + (Y_NADIR_W - V_AMP_W) * cs2((phiW - vPeakP_W) / (yNadirP_W - vPeakP_W));
+        } else {
+          const t = (phiW - yNadirP_W) / (1.0 - yNadirP_W);
+          wedY = Y_NADIR_W + (0 - Y_NADIR_W) * Math.pow(t, 1.4);
+        }
+        const wedV = paopMean + wedY;
+        // Mistura entre PAP pulsátil (papV) e wedge (wedV) para transição suave
+        papV = papV * (1 - wedgeMix) + wedV * wedgeMix;
+      }
+    }
+
     WAVE.pap.push(papV);
     if(WAVE.pap.length>WAVE.N) WAVE.pap.shift();
 
@@ -4054,58 +4484,35 @@ function screenPhysioVV(host, mode, subMode){
           </div>
   `;
 
-  // Sidebar tiles específicos de cada modo
-  const sideHTML = isVV ? `
-      <div class="main-tile green" data-pid="CI" data-kind="mainTile">
-        <div class="head"><span class="head-inner"><span class="dot green"></span>CI</span></div>
+  // Sidebar tiles — agora data-driven a partir de state.slots pra permitir
+  // que o usuário troque os parâmetros via clique (openParamPicker).
+  const sideSlotKey = isVV ? 'physio_vv_side' : 'physio_swan_side';
+  const sidePids = (typeof getSlots === 'function' ? getSlots(sideSlotKey) : null)
+                   || (isVV ? ['CI','SVV','SVRI','ScvO2'] : ['CI','SVR','MAP','ScvO2']);
+  // Limita a 4 tiles (layout assume 4 linhas no .sg-side via flex)
+  const sideTiles = sidePids.slice(0, 4);
+  function tileLabel(pid){
+    const p = PARAMS[pid] || {};
+    return (p.lbl || pid);
+  }
+  function tileUnit(pid){
+    const p = PARAMS[pid] || {};
+    return (p.unit || '');
+  }
+  // Adiciona ícone de gota só no slot de oximetria (ScvO2/SvO2/StO2 etc.) e barra de sinal
+  function isOxiPid(pid){ return /^(ScvO2|SvO2|StO2|StO2_2)$/.test(pid); }
+  const sideHTML = sideTiles.map((pid, idx) => {
+    const oxi = isOxiPid(pid);
+    return `
+      <div class="main-tile green" data-pid="${pid}" data-side-slot="${idx}" data-kind="mainTile" title="Clique pra trocar parâmetro">
+        ${oxi ? '<div class="extra-icon">💧</div>' : ''}
+        <div class="head"><span class="head-inner"><span class="dot green"></span>${tileLabel(pid)}</span></div>
         <div class="v"><span class="v-inner" data-bind>--</span></div>
-        <div class="u">L/min/m²</div>
+        <div class="u">${tileUnit(pid)}</div>
+        ${oxi ? '<div class="sigbar-bottom"><i></i><i></i><i></i><i></i></div>' : ''}
       </div>
-      <div class="main-tile green" data-pid="SVV" data-kind="mainTile">
-        <div class="head"><span class="head-inner"><span class="dot green"></span>SVV</span></div>
-        <div class="v"><span class="v-inner" data-bind>--</span></div>
-        <div class="u">%</div>
-      </div>
-      <div class="main-tile yellow" data-pid="SVRI" data-kind="mainTile">
-        <div class="head"><span class="head-inner"><span class="dot yellow"></span>SVRI</span></div>
-        <div class="v"><span class="v-inner" data-bind>--</span></div>
-        <div class="u">dyne·s·m²/cm³</div>
-      </div>
-      <div class="main-tile green" data-pid="ScvO2" data-kind="mainTile">
-        <div class="extra-icon">💧</div>
-        <div class="head"><span class="head-inner"><span class="dot green"></span>SvO₂</span></div>
-        <div class="v"><span class="v-inner" data-bind>--</span></div>
-        <div class="u">%</div>
-        <div class="sigbar-bottom"><i></i><i></i><i></i><i></i></div>
-      </div>
-  ` : `
-      <div class="main-tile green" data-pid="CI" data-kind="mainTile">
-        <div class="trend-mini">1 min<br><b>↓1%</b></div>
-        <div class="head"><span class="head-inner"><span class="dot green"></span>IC</span></div>
-        <div class="v"><span class="v-inner" data-bind>--</span></div>
-        <div class="u">L/min/m²</div>
-      </div>
-      <div class="main-tile yellow" data-pid="SVR" data-kind="mainTile">
-        <div class="trend-mini">3 min<br><b>↑33%</b></div>
-        <div class="head"><span class="head-inner"><span class="dot yellow"></span>RVS</span></div>
-        <div class="v"><span class="v-inner" data-bind>--</span></div>
-        <div class="u">dyne·s/cm³</div>
-      </div>
-      <div class="main-tile green" data-pid="MAP" data-kind="mainTile">
-        <div class="trend-mini">1 min<br><b>0%</b></div>
-        <div class="head"><span class="head-inner"><span class="dot green"></span>PAM</span></div>
-        <div class="v"><span class="v-inner" data-bind>--</span></div>
-        <div class="u">mmHg</div>
-      </div>
-      <div class="main-tile yellow" data-pid="ScvO2" data-kind="mainTile">
-        <div class="extra-icon">💧</div>
-        <div class="trend-mini">1 min<br><b>0%</b></div>
-        <div class="head"><span class="head-inner"><span class="dot yellow"></span>SvO₂</span></div>
-        <div class="v"><span class="v-inner" data-bind>--</span></div>
-        <div class="u">%</div>
-        <div class="sigbar-bottom"><i></i><i></i><i></i><i></i></div>
-      </div>
-  `;
+    `;
+  }).join('');
 
   // Topbar — VV adiciona ícones de relógio + seringa à esquerda
   const subModeLabel = isInt ? 'DCi · Intermitente' : 'DC · Contínuo';
@@ -4168,6 +4575,18 @@ function screenPhysioVV(host, mode, subMode){
   }
 
   const heartEl = wrap.querySelector('.sg-heart');
+  // Wire de clique nos tiles laterais — abre o param picker. Ao confirmar a
+  // troca, openParamPicker chama setSlot + renderScreen → re-render automático
+  // da tela inteira (que reconstrói sideHTML via getSlots(sideSlotKey)).
+  wrap.querySelectorAll('.sg-side .main-tile[data-side-slot]').forEach(tile => {
+    tile.style.cursor = 'pointer';
+    tile.addEventListener('click', () => {
+      const idx = parseInt(tile.getAttribute('data-side-slot'), 10);
+      if(!isNaN(idx) && typeof openParamPicker === 'function'){
+        openParamPicker(sideSlotKey, idx);
+      }
+    });
+  });
   const labels = {};
   wrap.querySelectorAll('.sg-label[data-key], .sg-svv[data-key]').forEach(e=>labels[e.dataset.key]=e);
   const tiles = {};
@@ -4243,17 +4662,20 @@ function screenPhysioVV(host, mode, subMode){
           dot.setAttribute('fill', sgColor(st));
         }
       }
-      paintTile(tiles.CI,    'CI',    paramAvailable('CI') ? v.CI : null);
-      paintTile(tiles.SVV,   'SVV',   v.SVV);
-      paintTile(tiles.SVRI,  'SVRI',  v.SVRI);
-      paintTile(tiles.ScvO2, 'ScvO2', v.SvO2 != null ? v.SvO2 : v.ScvO2);
+      // Tiles laterais — iteração dinâmica pelos data-pids presentes (configurável
+      // via openParamPicker). ScvO2 mostra SvO2 quando disponível (Swan + Oximetria).
+      Object.keys(tiles).forEach(pid => {
+        const val = (pid === 'ScvO2' && v.SvO2 != null) ? v.SvO2 : v[pid];
+        paintTile(tiles[pid], pid, paramAvailable(pid) ? val : null);
+      });
     } else {
       paintLbl(labels.RVEF, 'RVEF', paramAvailable('RVEF') ? v.RVEF : null);
       paintLbl(labels.EDVI, 'EDVI', paramAvailable('EDVI') ? v.EDVI : null);
-      paintTile(tiles.CI,    'CI',    paramAvailable('CI') ? v.CI : null);
-      paintTile(tiles.SVR,   'SVR',   v.SVR);
-      paintTile(tiles.MAP,   'MAP',   v.MAP);
-      paintTile(tiles.ScvO2, 'ScvO2', v.SvO2 != null ? v.SvO2 : v.ScvO2);
+      // Tiles laterais — iteração dinâmica (mesma lógica do modo VV)
+      Object.keys(tiles).forEach(pid => {
+        const val = (pid === 'ScvO2' && v.SvO2 != null) ? v.SvO2 : v[pid];
+        paintTile(tiles[pid], pid, paramAvailable(pid) ? val : null);
+      });
     }
 
     if(hrTopEl) hrTopEl.textContent = sgFmt('HR', v.HR);
@@ -5556,31 +5978,25 @@ SCREEN_FNS.screenAltaTrend = function(host){
 
 // ---------- screenWaves (curvas empilhadas: ECG, ART, PVC, PAP, Pleth) ----------
 SCREEN_FNS.screenWaves = function(host){
-  const lanes = [];
-  // ECG sempre disponível (qualquer módulo de PA tem detecção de FC)
-  if(paramAvailable('HR')){
-    lanes.push({name:'ECG II', wave:'ecg', color:'#1bc964',
-      info:()=>`FC ${fmtVal('HR',state.values.HR)} bpm`,
-      pid:'HR'});
-  }
-  if(paramAvailable('SAP')){
-    lanes.push({name:'ART', wave:'arterial', color:'#ff5252',
+  // Catálogo de canais disponíveis. A ordem visível é controlada por state.waveLaneOrder.
+  const catalog = {
+    ecg: paramAvailable('HR') ? {name:'ECG II', wave:'ecg', color:'#1bc964',
+      info:()=>`FC ${fmtVal('HR',state.values.HR)} bpm`, pid:'HR'} : null,
+    arterial: paramAvailable('SAP') ? {name:'ART', wave:'arterial', color:'#ff5252',
       info:()=>`${fmtVal('SAP',state.values.SAP)}/${fmtVal('DAP',state.values.DAP)} (${fmtVal('MAP',state.values.MAP)}) mmHg`,
-      pid:'SAP'});
-  }
-  if(paramAvailable('CVP')){
-    lanes.push({name:'PVC', wave:'cvp', color:'#3aa6ff',
-      info:()=>`${fmtVal('CVP',state.values.CVP)} mmHg`,
-      pid:'CVP'});
-  }
-  if(paramAvailable('PAP')){
-    lanes.push({name:'PAP', wave:'pap', color:'#ffc445',
-      info:()=>`${fmtVal('PAP',state.values.PAP)} mmHg`,
-      pid:'PAP'});
-  }
-  // Pleth sempre disponível como referência
-  lanes.push({name:'Pleth', wave:'pleth', color:'#36e0e0',
-    info:()=>`SpO₂ ${state.patient.hgb<7?89:98}%`, pid:null});
+      pid:'SAP'} : null,
+    cvp: paramAvailable('CVP') ? {name:'PVC', wave:'cvp', color:'#3aa6ff',
+      info:()=>`${fmtVal('CVP',state.values.CVP)} mmHg`, pid:'CVP'} : null,
+    pap: paramAvailable('PAP') ? {name:'PAP', wave:'pap', color:'#ffc445',
+      info:()=>{
+        if(state.papWedging) return `POAP ${fmtVal('PAOP',state.values.PAOP)} mmHg`;
+        return `${fmtVal('PAP',state.values.PAP)} mmHg`;
+      }, pid:'PAP'} : null,
+    pleth: {name:'Pleth', wave:'pleth', color:'#36e0e0',
+      info:()=>`SpO₂ ${state.patient.hgb<7?89:98}%`, pid:null}
+  };
+  const lanes = (state.waveLaneOrder||['ecg','arterial','cvp','pap','pleth'])
+    .map(k => catalog[k]).filter(Boolean);
 
   if(!lanes.length){
     host.appendChild(el('div',{class:'empty'},'Nenhum módulo acoplado para gerar curvas'));
@@ -5588,21 +6004,111 @@ SCREEN_FNS.screenWaves = function(host){
   }
   const wrap = el('div',{style:'display:grid;gap:6px;height:100%;min-height:0;grid-template-rows:repeat('+lanes.length+',1fr)'});
   lanes.forEach(lane=>{
-    const row = el('div',{class:'waveform-wrap',style:'min-height:0'});
+    const row = el('div',{class:'waveform-wrap',style:'min-height:0;position:relative'});
+    row.dataset.wave = lane.wave;
+    row.draggable = true;
+    // Wrapper relativo pra posicionar overlays HTML (yMax, yMin, varredura)
+    // sobre a canvas. Texto HTML é sempre crisp em qualquer DPR.
+    const cvWrap = el('div',{class:'wave-cv-wrap',style:'position:relative;min-width:0;min-height:0;overflow:hidden;border-radius:3px'});
     const cv = el('canvas');
-    row.appendChild(cv);
+    cvWrap.appendChild(cv);
+    const yMax = el('div',{class:'wave-label wave-ymax',
+      style:'position:absolute;top:3px;left:5px;font:500 11px/1 "Segoe UI",system-ui,sans-serif;color:#dde4ee;pointer-events:none;text-shadow:0 0 2px rgba(0,0,0,0.7);user-select:none'},'');
+    const yMin = el('div',{class:'wave-label wave-ymin',
+      style:'position:absolute;bottom:3px;left:5px;font:500 11px/1 "Segoe UI",system-ui,sans-serif;color:#dde4ee;pointer-events:none;text-shadow:0 0 2px rgba(0,0,0,0.7);user-select:none'},'');
+    const sweep = el('div',{class:'wave-label wave-sweep',
+      style:'position:absolute;bottom:3px;left:48px;font:500 10px/1 "Segoe UI",system-ui,sans-serif;color:#9aa6b8;pointer-events:none;text-shadow:0 0 2px rgba(0,0,0,0.7);user-select:none'},'25 mm/segundo');
+    cvWrap.appendChild(yMax); cvWrap.appendChild(yMin); cvWrap.appendChild(sweep);
+    cv._waveLabels = {yMax, yMin, sweep};
+    row.appendChild(cvWrap);
     const infoText = document.createTextNode(lane.info());
     const info = el('div',{class:'info'},[
       el('div',{class:'lbl',style:'color:'+lane.color},lane.name),
       el('div',{class:'num',style:'color:'+lane.color+';font-size:14px;font-weight:500'},[infoText])
     ]);
+    // Caixinha do lado direito também abre o picker de morfologia/ganho/varredura
+    if(WAVE_PRESETS[lane.wave]){
+      info.style.cursor = 'pointer';
+      info.title = 'Clique para ajustes (morfologia, ganho, varredura' + (lane.wave==='pap'?', cunha':'') + ')';
+      info.addEventListener('click', e=>{
+        e.stopPropagation();
+        if(typeof openWavePicker==='function') openWavePicker(lane.wave);
+      });
+    }
     row.appendChild(info);
+    // Alça de arrastar pra reordenar — escondida por padrão; aparece no hover.
+    const handle = el('div',{
+      class:'wave-drag-handle',
+      title:'Arraste para reordenar',
+      style:'position:absolute;top:50%;right:6px;transform:translateY(-50%);z-index:5;width:18px;height:24px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0);font-size:14px;cursor:grab;line-height:1;user-select:none;background:transparent;border-radius:3px;transition:color .15s,background .15s'
+    }, '⋮⋮');
+    row.addEventListener('mouseenter', ()=>{ handle.style.color='rgba(255,255,255,0.55)'; });
+    row.addEventListener('mouseleave', ()=>{ handle.style.color='rgba(255,255,255,0)'; handle.style.background='transparent'; });
+    handle.addEventListener('mouseenter', ()=>{ handle.style.color='rgba(255,255,255,0.95)'; handle.style.background='rgba(58,166,255,0.22)'; });
+    handle.addEventListener('mouseleave', ()=>{ handle.style.color='rgba(255,255,255,0.55)'; handle.style.background='transparent'; });
+    row.appendChild(handle);
+
+    // Drag-and-drop pra reordenar lanes
+    row.addEventListener('dragstart', (e)=>{
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', lane.wave);
+      row.style.opacity = '0.45';
+      handle.style.cursor = 'grabbing';
+    });
+    row.addEventListener('dragend', ()=>{
+      row.style.opacity = '';
+      handle.style.cursor = 'grab';
+      // Limpa qualquer destaque restante
+      wrap.querySelectorAll('.waveform-wrap').forEach(r=>{ r.style.outline=''; });
+    });
+    row.addEventListener('dragover', (e)=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      row.style.outline = '2px dashed var(--accent)';
+    });
+    row.addEventListener('dragleave', ()=>{ row.style.outline = ''; });
+    row.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      const fromKey = e.dataTransfer.getData('text/plain');
+      const toKey = lane.wave;
+      row.style.outline = '';
+      if(!fromKey || fromKey === toKey) return;
+      const order = state.waveLaneOrder.slice();
+      const fromIdx = order.indexOf(fromKey);
+      const toIdx = order.indexOf(toKey);
+      if(fromIdx < 0 || toIdx < 0) return;
+      order.splice(fromIdx, 1);
+      order.splice(toIdx, 0, fromKey);
+      state.waveLaneOrder = order;
+      saveWaveLaneOrder();
+      // Re-render para aplicar nova ordem
+      if(typeof renderScreen==='function') renderScreen();
+    });
+
     wrap.appendChild(row);
     queueWaveform(cv, lane.wave, lane.color);
     liveTiles.push({el:info, pid:'__laneinfo__', infoText, infoFn:lane.info, opts:{laneinfo:true}});
   });
   host.appendChild(wrap);
 };
+
+// Insufla o balonete do Swan-Ganz para medir POAP.
+// Wall-clock (8s default) — NÃO escala com clinicalTimeScale (manobra diagnóstica
+// breve, deve dar tempo do residente ler curva e número).
+function triggerWedge(){
+  if(!paramAvailable('PAP')){
+    showToast('Cateter Swan-Ganz não acoplado');
+    return;
+  }
+  if(state.papWedging){
+    state.papWedging = false;
+    showToast('Balonete liberado');
+    return;
+  }
+  state.papWedging = true;
+  state.papWedgingStart = Date.now();
+  showToast('Balonete insuflado — POAP ' + fmtVal('PAOP', state.values.PAOP) + ' mmHg');
+}
 
 /* ============================================================
    8. WAVEFORMS DRAW
@@ -5864,23 +6370,18 @@ function drawWaveform(cv,which,color){
   if(pxPerY_eff > 0.01){
     const valTop = refValEff + (refY_eff - 6) / pxPerY_eff;
     const valBot = refValEff + (refY_eff - (H - 6)) / pxPerY_eff;
-    // precisão por tipo de onda
     const isFloat = (which==='ecg' || which==='pleth' || which==='eadyn');
     const fmt = v => isFloat ? v.toFixed(1) : Math.round(v).toString();
-    // Topo (valor maior) — só o texto, sem fundo
-    ctx.fillStyle = '#dde4ee';
-    ctx.font = '11px "Segoe UI", sans-serif';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.fillText(fmt(valTop), 4, 3);
-    // Base (valor menor) — só o texto
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(fmt(valBot), 4, H - 3);
-    // Marcação de velocidade de varredura (canto inferior esquerdo)
-    ctx.fillStyle = '#9aa6b8';
-    ctx.font = '10px "Segoe UI", sans-serif';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText((WAVE.mmPerSec || 25) + ' mm/segundo', 44, H - 3);
+    // Atualiza overlay HTML (texto sempre crisp, qualquer DPR).
+    // Os labels foram criados pelo screenWaves e linkados via cv.dataset/lookups.
+    const labels = cv._waveLabels;
+    if(labels){
+      const tTop = fmt(valTop), tBot = fmt(valBot);
+      const tSweep = (WAVE.mmPerSec || 25) + ' mm/segundo';
+      if(labels.yMax.textContent !== tTop) labels.yMax.textContent = tTop;
+      if(labels.yMin.textContent !== tBot) labels.yMin.textContent = tBot;
+      if(labels.sweep.textContent !== tSweep) labels.sweep.textContent = tSweep;
+    }
   }
 }
 
@@ -6370,13 +6871,20 @@ function runTpdMeasurement(){
   }
 
   (async function flow(){
+    // Timings reais escalados por state.clinicalTimeScale (default 10×).
+    // Real: cada bolus injeta em ~10s; intervalo entre bolus ~60s.
+    // No default 10×: inject ~3-10s exibidos (mín 3 pra dar pra ler);
+    // intervalo entre bolus ~6s exibidos.
+    const TS = Math.max(1, state.clinicalTimeScale || 10);
+    const INJECT_S = Math.max(3, Math.round(10 / TS));
+    const WAIT_S   = Math.max(3, Math.round(60 / TS));
     for(let i=0;i<TOTAL_BOLUS;i++){
-      for(let t=3;t>0;t--){ renderStep(i,'inject',t); await new Promise(r=>setTimeout(r,800)); }
+      for(let t=INJECT_S;t>0;t--){ renderStep(i,'inject',t); await new Promise(r=>setTimeout(r,1000)); }
       const base = state.values?.CO || 5.4;
       const m = +(base + (Math.random()-0.5)*0.5).toFixed(1);
       measurements.push(m);
       if(i < TOTAL_BOLUS-1){
-        for(let t=2;t>0;t--){ renderStep(i,'wait',t); await new Promise(r=>setTimeout(r,700)); }
+        for(let t=WAIT_S;t>0;t--){ renderStep(i,'wait',t); await new Promise(r=>setTimeout(r,1000)); }
       }
     }
     // Conjunto concluído — guarda e abre nova aba de resultado
@@ -6698,6 +7206,39 @@ function openWavePicker(which){
   ctrlBox.appendChild(sweepCol);
 
   body.appendChild(ctrlBox);
+
+  // ===== Manobra de cunha (POAP) — apenas para PAP =====
+  if(which === 'pap'){
+    const wedgeBox = el('div',{style:'background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:12px;margin-bottom:14px'});
+    wedgeBox.appendChild(el('div',{style:'font-size:11px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px'},'Manobra de cunha (POAP)'));
+    const wedgeBtn = el('button',{
+      class:'param-pick-btn',
+      style:'width:100%;padding:10px;font-size:13px;font-weight:600;letter-spacing:0.5px;'+
+        (state.papWedging ? 'background:#5a2a0a;border-color:#ff7a3a;color:#ff9f4a' : 'background:#1c2532;border-color:#ffc445;color:#ffc445')
+    });
+    const updateWedgeBtnLabel = ()=>{
+      if(state.papWedging){
+        wedgeBtn.textContent = '🎈 LIBERAR BALONETE';
+        wedgeBtn.style.background = '#5a2a0a';
+        wedgeBtn.style.borderColor = '#ff7a3a';
+        wedgeBtn.style.color = '#ff9f4a';
+      } else {
+        wedgeBtn.textContent = '🎈 INSUFLAR BALONETE — medir POAP';
+        wedgeBtn.style.background = '#1c2532';
+        wedgeBtn.style.borderColor = '#ffc445';
+        wedgeBtn.style.color = '#ffc445';
+      }
+    };
+    updateWedgeBtnLabel();
+    wedgeBtn.onclick = ()=>{
+      triggerWedge();
+      updateWedgeBtnLabel();
+    };
+    wedgeBox.appendChild(wedgeBtn);
+    wedgeBox.appendChild(el('div',{style:'font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.4'},
+      'Oclui ramo da a. pulmonar e exibe pressão atrial esquerda (a/c/x/v/y). Permanece insuflado até clicar em Liberar.'));
+    body.appendChild(wedgeBox);
+  }
 
   // Título da seção de patologias
   body.appendChild(el('h3',{class:'group',style:'margin-top:0'},'Morfologia / Patologia'));
@@ -7100,6 +7641,10 @@ if(state.monitoringActive == null) state.monitoringActive = true;
 state.ccoStartTime = state.ccoStartTime || Date.now();
 // Compat: ccoActive segue o monitoringActive para manter o congelamento dos params CO
 state.ccoActive = state.monitoringActive;
+// Sincroniza ícone/tooltip do botão com estado inicial — sem isso, HTML default
+// mostra "Iniciar" mas estado é monitoringActive=true → click cai no branch "Parar".
+// Bug visível: usuário clica em botão rotulado "Iniciar" e recebe confirmação de parada.
+if(typeof applyStartIcon === 'function') applyStartIcon();
 
 function detectMonitoringMode(){
   const m = state.modules;
@@ -7121,56 +7666,73 @@ function applyStartIcon(){
   const btn   = document.getElementById('navStartCO');
   const badge = document.getElementById('navStartCOBadge');
   if(!img||!btn) return;
-  if(state.monitoringActive){
+  // Botão é especificamente do DC contínuo (CCO) — usa ccoActive, NÃO monitoringActive.
+  // monitoringActive é o "engine on" (waveforms, FC, PA continuam mesmo com CCO parado).
+  if(state.ccoActive){
     img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.2%20Parar%20monitoramento%20do%20DC.png';
     btn.classList.add('on');
-    btn.setAttribute('data-tip','Parar monitoramento');
+    btn.setAttribute('data-tip','Parar monitoramento de DC');
     if(badge) badge.style.display = '';
   } else {
     img.src = 'Barra%20de%20navega%C3%A7%C3%A3o/2.1%20Iniciar%20monitoramento%20do%20DC.png';
     btn.classList.remove('on');
-    btn.setAttribute('data-tip','Iniciar monitoramento');
+    btn.setAttribute('data-tip','Iniciar monitoramento de DC');
     if(badge) badge.style.display = 'none';
   }
 }
 
 $('#navStartCO').addEventListener('click', ()=>{
-  if(!state.monitoringActive){
-    // INICIAR — exige pelo menos um sensor acoplado, sem auto-acoplagem
+  if(!state.ccoActive){
+    // INICIAR DC contínuo — exige pelo menos um sensor de DC acoplado
     const mode = detectMonitoringMode();
-    if(!mode){
-      showToast('Acople um sensor antes de iniciar o monitoramento');
+    const hasCoSensor = ['FloTrac','AcumenIQ','AcumenIQCuff','SwanGanz','ClearSight'].some(id => state.modules[id]);
+    if(!mode || !hasCoSensor){
+      showToast('Acople um sensor de DC (Swan-Ganz, FloTrac, ClearSight) antes de iniciar');
       return;
     }
+    // monitoringActive permanece true (engine global rodando: waveforms, FC, PA);
+    // ccoActive=true ativa as medidas DC/IC/VS/etc. com warm-up.
     state.monitoringActive = true;
     state.ccoActive = true;
     state.ccoStartTime = Date.now();
+    // Warm-up CCO: real demora 5-12 min pra primeira leitura.
+    // O `clinicalTimeScale` (default 10×) comprime tempos clínicos pro simulador.
+    // 5 min (300000ms) ÷ 10 = 30s no default; usuário ajusta no popup.
+    const scale = Math.max(1, state.clinicalTimeScale || 10);
+    state.ccoWarmupUntil = Date.now() + (300000 / scale);
     state.ccoSnapshot = null;
     applyStartIcon();
+    // Re-renderiza pra trocar tiles de "sem sensor" pra estrutura com valor/--.
+    // Sem isso, updateLive() atualiza só o número mas não a estrutura DOM (subtext).
+    if(typeof renderScreen === 'function') renderScreen();
+    if(typeof renderKeyTiles === 'function') renderKeyTiles();
     $('#statusMsg').textContent = modeStartMessage(mode);
-    showToast('Monitoramento iniciado');
+    const ws = Math.round(300/scale);
+    showToast('DC iniciado — aquecimento ~' + ws + 's');
   } else {
-    // PARAR — exige confirmação para evitar interrupção acidental
+    // PARAR DC contínuo — exige confirmação. Engine global continua rodando
+    // (waveforms, FC, PA atualizando); só os params CO/IC/VS/etc. congelam.
     const wrap = el('div');
     wrap.appendChild(el('p',{style:'color:var(--text-dim);font-size:13px;line-height:1.5;margin:0 0 14px'},
-      'Confirme a interrupção. O sistema irá congelar todos os parâmetros e formas de onda na tela até que o monitoramento seja reiniciado.'));
+      'Confirme a parada do monitoramento de DC contínuo. Os valores de DC, IC, VS, IVS, RVS, FEVD, VDF e derivados ficarão congelados no último valor medido. Demais parâmetros (FC, PA, formas de onda) continuam atualizando normalmente.'));
     const btnRow = el('div',{style:'display:flex;gap:8px;justify-content:flex-end;margin-top:14px'});
     const cancelBtn = el('button',{class:'btn btn-secondary',style:'padding:8px 16px',
       onclick: ()=>{ const m=document.getElementById('__infoModal'); if(m) m.style.display='none'; }
     }, 'Cancelar');
     const okBtn = el('button',{class:'btn btn-primary',style:'padding:8px 16px;background:#c83a3a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600',
       onclick: ()=>{
-        state.monitoringActive = false;
+        // Pausa só CCO; engine global continua. monitoringActive permanece true.
         state.ccoActive = false;
+        state.ccoWarmupUntil = 0;
         // Snapshot dos params CO para manter os valores exibidos congelados
         state.ccoSnapshot = {};
         ['CO','CI','SV','SVI','RVEF','EDV','EDVI'].forEach(pid => { state.ccoSnapshot[pid] = state.values[pid]; });
         applyStartIcon();
-        $('#statusMsg').textContent = '⏸ Monitoramento interrompido — todos os parâmetros congelados';
-        showToast('Monitoramento parado');
+        $('#statusMsg').textContent = '⏸ DC contínuo parado — valores congelados (engine continua rodando)';
+        showToast('DC parado');
         const m=document.getElementById('__infoModal'); if(m) m.style.display='none';
       }
-    }, 'Parar Monitoramento');
+    }, 'Parar DC');
     btnRow.appendChild(cancelBtn);
     btnRow.appendChild(okBtn);
     wrap.appendChild(btnRow);
@@ -7840,6 +8402,8 @@ function openControlsPopup(){
   <h2>Animação</h2>
   <div class="opt"><span>Pausar simulação</span><input type="checkbox" id="optPause"></div>
   <div class="field"><label>Velocidade do tempo</label><input type="range" id="optSpeed" min="0.2" max="3" step="0.1"><span class="v" id="vSpeed">1.0×</span></div>
+  <div class="field"><label>Aceleração tempo clínico</label><input type="range" id="optClinScale" min="1" max="60" step="1"><span class="v" id="vClinScale">10×</span></div>
+  <p style="margin:4px 0 0;font-size:10px;color:#6b7689;line-height:1.4">Comprime tempos clínicos (warm-up CCO, intervalos de termodiluição, onset de fármacos). Não afeta oscilação/random walk. Default 10× — warm-up CCO real de 5 min vira 30s.</p>
 
   <h2>Velocidade de varredura (papel ECG)</h2>
   <div class="speed-modes">
@@ -8029,11 +8593,15 @@ function openControlsPopup(){
       {pid:'CO',    lbl:'DC',    unit:'L/min',        decimals:1},
       {pid:'SVR',   lbl:'RVS',   unit:'dyn·s·cm⁻⁵',   decimals:0},
       {pid:'CVP',   lbl:'PVC',   unit:'mmHg',         decimals:0},
-      {pid:'PAP',   lbl:'PAP',   unit:'mmHg',         decimals:0},
+      {pid:'PAPs',  lbl:'PAPs',  unit:'mmHg',         decimals:0},
+      {pid:'PAPd',  lbl:'PAPd',  unit:'mmHg',         decimals:0},
+      {pid:'PAP',   lbl:'PAPm',  unit:'mmHg',         decimals:0, derived:true},
       {pid:'PAOP',  lbl:'PAOP',  unit:'mmHg',         decimals:0},
+      {pid:'PVR',   lbl:'PVR',   unit:'dyn·s·cm⁻⁵',   decimals:0, derived:true},
       {pid:'dPdt',  lbl:'dP/dt', unit:'mmHg/s',       decimals:0},
       {pid:'SVV',   lbl:'SVV',   unit:'%',            decimals:0},
       {pid:'ScvO2', lbl:'ScvO₂', unit:'%',            decimals:0},
+      {pid:'SvO2',  lbl:'SvO₂',  unit:'%',            decimals:0},
     ];
     const WAVE_CHANNEL_LABELS = {arterial:'Arterial', cvp:'PVC', pap:'PAP', ecg:'ECG', pleth:'Pleth'};
     function presetLabel(channel, presetKey){
@@ -8043,12 +8611,63 @@ function openControlsPopup(){
     }
     function computeSuggested(pid){
       const p = PARAMS[pid]; if(!p) return null;
+      // Cadeia derivacional Ohm-coerente — espelha a engine (tickEngine).
+      // Order: SVR_target → MAP → SAP/DAP → SVR (displayed). Resumo bate com tela.
       if(pid === 'MAP'){
-        const sap = computeSuggested('SAP');
-        const dap = computeSuggested('DAP');
-        if(sap != null && dap != null) return (sap + 2*dap)/3;
+        const co = computeSuggested('CO');
+        const cvp = computeSuggested('CVP');
+        if(co != null && cvp != null){
+          const dims = (typeof computeComorbDimensions === 'function') ? computeComorbDimensions() : {afterload:0};
+          // SVR_target_base 1200 — ver explicação no engine. Mantém resumo coerente.
+          const svr_target = 1200 * Math.max(0.15, 1 + (dims.afterload || 0));
+          return (co * svr_target / 80) + cvp;
+        }
       }
-      // Cenário e comorbidades agora ambos passam por comorbBiasMul (via computeComorbDimensions).
+      if(pid === 'SAP' || pid === 'DAP'){
+        const map = computeSuggested('MAP');
+        const sv  = computeSuggested('SV');
+        if(map != null && sv != null){
+          const dims = (typeof computeComorbDimensions === 'function') ? computeComorbDimensions() : {compliance:0};
+          const PP = Math.max(20, Math.min(120, 50 * (sv/75) * Math.max(0.4, 1 - 0.5*(dims.compliance||0))));
+          return pid === 'SAP' ? (map + 2*PP/3) : (map - PP/3);
+        }
+      }
+      if(pid === 'PAP'){
+        const ps = computeSuggested('PAPs');
+        const pd = computeSuggested('PAPd');
+        if(ps != null && pd != null) return (ps + 2*pd)/3;
+      }
+      if(pid === 'SVR'){
+        const co = computeSuggested('CO');
+        const map = computeSuggested('MAP');
+        const cvp = computeSuggested('CVP');
+        if(co != null && map != null && cvp != null && co > 0.1){
+          return Math.max(150, (map - cvp) * 80 / Math.max(0.5, co));
+        }
+      }
+      if(pid === 'SVRI'){
+        const svr = computeSuggested('SVR');
+        const _b = (typeof bsa === 'function') ? bsa() : 1.8;
+        if(svr != null && _b > 0) return svr * _b;
+      }
+      // SvO2 derivada via Fick: SaO2 − VO2/(CO×Hb×1.34×10)
+      if(pid === 'SvO2'){
+        const co = computeSuggested('CO');
+        if(co != null && co > 0.1){
+          const dims = (typeof computeComorbDimensions === 'function') ? computeComorbDimensions() : {chronotropy:0,permeability:0};
+          const VO2_d = 250 * Math.max(0.4, 1 + 0.30*(dims.chronotropy||0) + 0.40*Math.max(0,dims.permeability||0));
+          const sao2_f = 0.98;
+          const Hb_v = state.patient.hgb || 12;
+          const SvO2d = sao2_f - VO2_d / (Math.max(0.5,co) * Math.max(7,Hb_v) * 1.34 * 10);
+          return Math.max(15, Math.min(95, SvO2d * 100));
+        }
+      }
+      // ScvO2 = SvO2 + 5
+      if(pid === 'ScvO2'){
+        const svo2 = computeSuggested('SvO2');
+        if(svo2 != null) return Math.max(15, Math.min(95, svo2 + 5));
+      }
+      // Cenário e comorbidades passam por comorbBiasMul (computeComorbDimensions).
       return p.base * comorbBiasMul(pid);
     }
     function effectiveValue(pid){
@@ -8173,9 +8792,32 @@ function openControlsPopup(){
     }
     renderResume();
 
+    // ---------- Refresh contínuo do resumo a 4Hz ----------
+    // Sem isso, os campos ficam congelados nos valores do momento de abertura do popup
+    // enquanto o engine continua evoluindo — causando desync visível com o monitor principal.
+    // Limpa intervalo anterior se houver (popup re-aberto).
+    if(window.__resumeRefreshInterval) clearInterval(window.__resumeRefreshInterval);
+    window.__resumeRefreshInterval = setInterval(() => {
+      // Para se popup foi fechado
+      if(w.closed){ clearInterval(window.__resumeRefreshInterval); window.__resumeRefreshInterval = null; return; }
+      try { refreshResume(); } catch(e){ clearInterval(window.__resumeRefreshInterval); }
+    }, 250);  // 4Hz, mesma cadência do updateLive do monitor
+
     // Pausar
     $p('optPause').checked = state.paused;
     $p('optPause').addEventListener('change', e => { state.paused = e.target.checked; });
+
+    // Aceleração do tempo clínico (warm-up CCO, termodiluição, onset de fármacos)
+    const _clinSlider = $p('optClinScale');
+    const _clinLbl    = $p('vClinScale');
+    if(_clinSlider && _clinLbl){
+      _clinSlider.value = state.clinicalTimeScale || 10;
+      _clinLbl.textContent = (state.clinicalTimeScale || 10) + '×';
+      _clinSlider.addEventListener('input', e => {
+        state.clinicalTimeScale = parseFloat(e.target.value) || 1;
+        _clinLbl.textContent = state.clinicalTimeScale + '×';
+      });
+    }
 
     // Velocidade do tempo
     $p('optSpeed').value = state.speed;
@@ -9046,12 +9688,32 @@ function loop(now){
       ? CO_SOURCE_MODULES.some(id => state.modules[id])
       : ['FloTrac','AcumenIQ','AcumenIQCuff','SwanGanz','ClearSight'].some(id => state.modules[id]);
     if(state.ccoActive !== false && hasCoSensor){
-      $('#ctTimer').textContent = `DC próximo: ${ct}s`;
-      if(ccoBadge){
-        const mm = Math.floor(ct/60), ss = ct%60;
-        ccoBadge.textContent = mm + ':' + (ss<10?'0':'') + ss;
-        ccoBadge.style.display = '';
+      // Em warm-up: mostra contagem regressiva pra primeira leitura disponível.
+      const inWarmup = state.ccoWarmupUntil && Date.now() < state.ccoWarmupUntil;
+      if(inWarmup){
+        const left = Math.ceil((state.ccoWarmupUntil - Date.now()) / 1000);
+        $('#ctTimer').textContent = `Aquecendo: ${left}s`;
+        if(ccoBadge){
+          const mm = Math.floor(left/60), ss = left%60;
+          ccoBadge.textContent = mm + ':' + (ss<10?'0':'') + ss;
+          ccoBadge.style.display = '';
+        }
+      } else {
+        $('#ctTimer').textContent = `DC próximo: ${ct}s`;
+        if(ccoBadge){
+          const mm = Math.floor(ct/60), ss = ct%60;
+          ccoBadge.textContent = mm + ':' + (ss<10?'0':'') + ss;
+          ccoBadge.style.display = '';
+        }
       }
+      // Detecta TRANSIÇÃO warmup→pronto e força re-render — sem isso os tiles ficam
+      // travados na estrutura DOM "--" porque updateLive só atualiza o número, não
+      // a estrutura (com/sem subtext "sem sensor").
+      if(state._wasInWarmup && !inWarmup){
+        if(typeof renderScreen === 'function') renderScreen();
+        if(typeof renderKeyTiles === 'function') renderKeyTiles();
+      }
+      state._wasInWarmup = inWarmup;
     } else if(!hasCoSensor){
       $('#ctTimer').textContent = 'Sem sensor de DC';
       if(ccoBadge) ccoBadge.style.display = 'none';
