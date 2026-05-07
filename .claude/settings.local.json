@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:pmc.ncbi.nlm.nih.gov)",
+      "WebFetch(domain:www.ncbi.nlm.nih.gov)",
+      "WebFetch(domain:www.aasld.org)",
+      "Bash(node -c \"C:/Users/Davi/OneDrive/Anest-Review/Simulador Hemosphere 2/clinical/comorbidities.js\")",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(xxd)",
+      "Bash(git -C \"C:/Users/Davi/OneDrive/Anest-Review/Simulador Hemosphere 2\" log --oneline -5)",
+      "Bash(git -C \"C:/Users/Davi/OneDrive/Anest-Review/Simulador Hemosphere 2\" diff --stat HEAD index.html)",
+      "mcp__Claude_Preview__preview_start",
+      "Read(//c/Users/Davi/OneDrive/Anest-Review/**)",
+      "Bash(unzip -l \"C:/Users/Davi/OneDrive/Anest-Review/Simulador Hemosphere 4.zip\")",
+      "Bash(mkdir -p /tmp/hemo_backup)",
+      "Bash(unzip -p \"C:/Users/Davi/OneDrive/Anest-Review/Simulador Hemosphere 4.zip\" \"Simulador Hemosphere 2/index.html\")",
+      "Read(//tmp/hemo_backup/**)",
+      "Bash(awk '/^<script>/{exit} {print}' /tmp/hemo_backup/index.html)",
+      "Bash(awk '/^<script>/{exit} {print}' \"C:/Users/Davi/OneDrive/Anest-Review/Simulador Hemosphere 2/index.html\")",
+      "Bash(cat)",
+      "Bash(node /tmp/perm_test.js)",
+      "Bash(node /tmp/perm_test2.js)",
+      "Bash(node /tmp/lv_test.js)",
+      "Bash(sed -i 's/3\\\\.0\\\\*d\\\\.lv_filling/2.2*d.lv_filling/' /tmp/lv_test.js)",
+      "Bash(sed -i 's/function paop\\(d\\){ return BASES.PAOP \\\\* \\(1+3.0\\\\*d.lv_filling\\); }/function paop\\(d\\){ return BASES.PAOP * \\(1+2.2*d.lv_filling\\); }/' /tmp/lv_test.js)",
+      "Bash(node /tmp/iam_test.js)",
+      "Bash(node /tmp/rv_test.js)",
+      "Bash(node /tmp/scen_test.js)",
+      "Bash(node /tmp/clamp_test.js)"
+    ]
+  }
+}

@@ -1591,6 +1591,10 @@ canvas.spark{display:block;width:100%;height:30px}
   </div>
 </div>
 
+<!-- Base de conhecimento clínica das comorbidades (catálogo + efeitos + ondas + caps).
+     Carregado antes do inline para popular as globais COMORBIDITIES, COMORB_EFFECTS,
+     COMORB_WAVES, COMORB_DIM_CAPS que o engine consome. Edite em clinical/comorbidities.js. -->
+<script src="clinical/comorbidities.js"></script>
 <script>
 /* ============================================================
    1. MODELO DE DADOS — Definição de parâmetros, módulos, telas
@@ -1626,6 +1630,7 @@ const PARAMS = {
   DAP:   {lbl:'PAD',en:'DIAART',unit:'mmHg',target:[60,90],alarmLow:50,alarmHigh:100,source:['TruWave','FloTrac','AcumenIQ','ClearSight','VitaWave','VolumeView'],precision:0,base:70,drift:2},
   CVP:   {lbl:'PVC',en:'CVP',unit:'mmHg',target:[2,6],alarmLow:0,alarmHigh:14,source:['TruWave'],precision:0,base:4,drift:1},
   PAP:   {lbl:'PAPm',en:'MPAP',unit:'mmHg',target:[10,20],alarmLow:5,alarmHigh:25,source:['TruWave+SwanGanz','TruWave+SwanGanzClassic'],precision:0,base:14,drift:1},
+  PAOP:  {lbl:'PAOP',en:'PAWP',unit:'mmHg',target:[6,12],alarmLow:0,alarmHigh:25,source:['SwanGanz','TruWave+SwanGanz'],precision:0,base:9,drift:1},
   HR:    {lbl:'FC',en:'HR/PR',unit:'bpm',target:[60,100],alarmLow:50,alarmHigh:130,source:['TruWave','FloTrac','AcumenIQ','ClearSight','SwanGanz','SwanGanzClassic','VitaWave','VolumeView'],precision:0,base:78,drift:3},
   ScvO2: {lbl:'ScvO₂',en:'ScvO2',unit:'%',target:[60,70],alarmLow:50,alarmHigh:90,source:['Oximetry'],precision:0,base:65,drift:2},
   StO2:  {lbl:'StO₂',en:'StO2',unit:'%',target:[60,90],alarmLow:40,source:['ForeSight'],precision:0,base:75,drift:2,site:'cerebral'},
@@ -1667,42 +1672,322 @@ const MODULES = [
   {id:'Stream',      name:'HemoSphere Stream Module',      desc:'Saída de dados HL7/HIS',         defaultOn:false, versions:['alta'],                   provides:[]},
 ];
 
-/* SCENARIOS — perfis hemodinâmicos clássicos */
+/* SCENARIOS — descompensações HEMODINÂMICAS AGUDAS sobrepostas ao baseline.
+   Refatorados pra usar o mesmo modelo de DIMENSÕES das comorbidades — agora `effects`
+   (deltas por dimensão) ao invés de `bias` (multiplicador por param). Cenário e
+   comorbidades empilham na mesma soma de dimensões e saturam juntos via tanh.
+   Estados crônicos basais (IAo, EAo, FA, BAVT, IC FEr) NÃO entram aqui — usar
+   no catálogo de comorbidades em clinical/comorbidities.js. */
 const SCENARIOS = {
-  normal:        {name:'Estável / Normal',   desc:'Paciente estável',                 bias:{},
-                  waves:{arterial:'normal', cvp:'normal', pap:'normal', ecg:'normal'}},
-  hipovolemia:   {name:'Hipovolemia',        desc:'↓pré-carga, ↑SVR compensatório',   bias:{CO:0.65,CI:0.65,SV:0.55,SVI:0.55,SVV:2.5,PPV:2.5,SVR:1.45,SVRI:1.45,MAP:0.78,SAP:0.85,DAP:0.85,CVP:0.4,HR:1.3,HPI:5.0,dPdt:0.85,EDV:0.65,EDVI:0.65},
-                  waves:{arterial:'hipovolemia'}},
-  septico_quente:{name:'Choque Séptico (quente)',desc:'↓SVR, ↑CO, ↑HR',              bias:{CO:1.45,CI:1.45,SV:1.1,SVI:1.1,SVV:1.6,PPV:1.6,SVR:0.45,SVRI:0.45,MAP:0.7,SAP:0.8,DAP:0.6,CVP:1.4,HR:1.45,ScvO2:0.95,StO2:0.85,HPI:5.5,dPdt:1.1},
-                  waves:{arterial:'hipovolemia'}},  /* PP estreito + ↑PPV */
-  septico_frio:  {name:'Choque Séptico (frio)',  desc:'↓SVR, ↓CO tardio',             bias:{CO:0.6,CI:0.6,SV:0.55,SVI:0.55,SVR:0.7,SVRI:0.7,MAP:0.7,SAP:0.78,DAP:0.7,CVP:1.3,HR:1.4,ScvO2:0.7,StO2:0.7,HPI:5.5,dPdt:0.75},
-                  waves:{arterial:'hipovolemia'}},
-  cardiogenico:  {name:'Choque Cardiogênico', desc:'↓CO, ↑SVR, ↑PVC',                  bias:{CO:0.45,CI:0.45,SV:0.55,SVI:0.55,SVR:1.7,SVRI:1.7,MAP:0.8,SAP:0.85,DAP:0.95,CVP:2.5,PAP:1.8,HR:1.25,ScvO2:0.6,StO2:0.6,HPI:5.5,dPdt:0.45,RVEF:0.6,Eadyn:1.4,SVV:1.3},
-                  waves:{arterial:'alternans', cvp:'constritiva'}},  /* alternans em ICC + onda v alta de TR funcional */
-  obstrutivo:    {name:'Choque Obstrutivo (TEP)',desc:'↑PAP, ↓CO, ↑PVC',                bias:{CO:0.55,CI:0.55,SV:0.6,SVR:1.4,MAP:0.8,CVP:2.2,PAP:2.5,HR:1.4,ScvO2:0.7,RVEF:0.4,EDV:1.4,EDVI:1.4,SVV:1.5},
-                  waves:{arterial:'hipovolemia', pap:'tep_agudo', cvp:'rv_infarct'}},
-  hipertensivo:  {name:'Crise Hipertensiva', desc:'↑↑PA, SVR alto',                    bias:{MAP:1.55,SAP:1.5,DAP:1.4,SVR:1.7,SVRI:1.7,HR:1.05,SVV:0.6,PPV:0.6,HPI:0.5,dPdt:1.3,Eadyn:1.3},
-                  waves:{arterial:'hipertensao'}},
-  pre_hpi:       {name:'Hipotensão iminente (HPI alto)',desc:'HPI > 85, MAP ainda OK', bias:{MAP:0.9,SAP:0.92,DAP:0.9,HPI:6.5,SVV:1.6,PPV:1.6,dPdt:0.8,SVR:0.85,Eadyn:1.2},
-                  waves:{arterial:'hipovolemia'}},
-  hipoxia_tec:   {name:'Hipóxia tecidual',   desc:'↓StO₂ cerebral',                    bias:{StO2:0.65,StO2_2:0.7,ScvO2:0.7,CAI:3.5},
-                  waves:{}},
-  ic_baixo:      {name:'IC Baixo / Disfunção VE',desc:'IC<2, SVR alto',                bias:{CO:0.55,CI:0.55,SV:0.7,SVR:1.5,MAP:0.95,HR:1.15,dPdt:0.55,RVEF:0.85,CPO:0.55,CPI:0.55},
-                  waves:{arterial:'alternans'}},
-  hiperdinamico: {name:'Hiperdinâmico',      desc:'IC>4, SVR baixo',                   bias:{CO:1.5,CI:1.5,SV:1.2,SVR:0.7,HR:1.2,dPdt:1.2},
-                  waves:{arterial:'normal'}},  /* PP largo natural */
-  /* Cenários valvulares — onde a fisiopatologia é definida pela morfologia */
-  insuf_aortica: {name:'Insuf. aórtica grave', desc:'PP enorme (water-hammer)',         bias:{SAP:1.4,DAP:0.65,HR:1.1,SVR:0.9,SV:1.3,SVV:0.8},
-                  waves:{arterial:'insuf_aortica'}},
-  estenose_aortica:{name:'Estenose aórtica',   desc:'Parvus et tardus, PP estreito',   bias:{SAP:0.92,DAP:1.0,SV:0.85,CO:0.85,SVR:1.15},
-                  waves:{arterial:'estenose_aortica'}},
-  fibrilacao:    {name:'Fibrilação atrial',    desc:'RR irregular, ondas f',            bias:{HR:1.2,SVV:1.4},
-                  waves:{arterial:'fa', ecg:'fa', cvp:'fa'}},
-  tamponamento:  {name:'Tamponamento cardíaco',desc:'Pulso paradoxal, CVP↑↑, x dominante', bias:{CO:0.6,SV:0.55,SVR:1.3,MAP:0.85,CVP:2.8,HR:1.35},
-                  waves:{arterial:'paradox', cvp:'tamponamento'}},
-  bav3:          {name:'BAV 3º grau',          desc:'Dissociação AV, escape ventricular',bias:{HR:0.5,CO:0.7,SVR:1.2},
-                  waves:{ecg:'bav3', cvp:'cannon_a'}},
+  normal: {
+    name:'Estável / Normal', desc:'Paciente estável',
+    effects:{},
+    waves:{arterial:'normal', cvp:'normal', pap:'normal', ecg:'normal'},
+  },
+
+  hipovolemia: {
+    name:'Hipovolemia / Hemorragia aguda',
+    desc:'Perda volêmica → ↓pré-carga, vasoconstrição compensatória, taqui',
+    effects:{preload:-0.85, lv_filling:-0.50, afterload:+0.45, chronotropy:+0.45, contractility:-0.05},
+    waves:{arterial:'hipovolemia'},
+  },
+
+  septico_quente: {
+    name:'Choque Séptico (quente / hiperdinâmico)',
+    desc:'Vasoplegia + estado hiperdinâmico compensatório + permeabilidade ↑',
+    effects:{afterload:-0.70, chronotropy:+0.55, contractility:+0.20, permeability:+0.50, preload:-0.10},
+    waves:{arterial:'choque_septico'},
+  },
+
+  septico_frio: {
+    name:'Choque Séptico (frio / cardiomiopatia séptica)',
+    desc:'Sepse tardia: vasoplegia mantida + miocardiodepressão',
+    effects:{afterload:-0.55, chronotropy:+0.45, contractility:-0.40, rv_contractility:-0.20, permeability:+0.60},
+    waves:{arterial:'choque_septico'},
+  },
+
+  cardiogenico: {
+    name:'Choque Cardiogênico',
+    desc:'Falência VE aguda → ↓CO, ↑PAOP/EVLW, vasoconstrição compensatória',
+    effects:{contractility:-0.55, lv_filling:+1.0, afterload:+0.40, chronotropy:+0.30, preload:+0.30},
+    waves:{arterial:'alternans', cvp:'constritiva'},
+  },
+
+  obstrutivo: {
+    name:'Choque Obstrutivo (TEP maciço)',
+    desc:'Falência VD aguda por sobrecarga PVR — choque com PAOP normal/baixo',
+    effects:{pvr:+2.5, rv_contractility:-0.55, preload:+0.50, lv_filling:-0.30, contractility:-0.05, chronotropy:+0.55, afterload:+0.25},
+    waves:{arterial:'hipovolemia', pap:'tep_agudo', cvp:'rv_infarct'},
+  },
+
+  tamponamento: {
+    name:'Tamponamento Cardíaco',
+    desc:'Equalização das pressões diastólicas; pulso paradoxal',
+    effects:{preload:+0.85, lv_filling:+0.80, contractility:-0.30, chronotropy:+0.45, afterload:+0.30},
+    waves:{arterial:'paradox', cvp:'tamponamento'},
+  },
+
+  hipertensivo: {
+    name:'Crise Hipertensiva',
+    desc:'PA ↑↑ por aumento súbito de afterload',
+    effects:{afterload:+0.85, contractility:+0.10, compliance:-0.30, chronotropy:+0.10, lv_filling:+0.20},
+    waves:{arterial:'hipertensao'},
+  },
+
+  anafilatico: {
+    name:'Choque Anafilático',
+    desc:'Vasodilatação massiva + permeabilidade extrema (mediada por IgE)',
+    effects:{afterload:-0.75, chronotropy:+0.60, contractility:-0.10, permeability:+1.5, preload:-0.30, lv_filling:-0.30, pvr:+0.30},
+    waves:{arterial:'choque_septico', pleth:'pobre'},
+  },
+
+  pre_hpi: {
+    name:'Hipotensão iminente (HPI ↑)',
+    desc:'Estado pré-hipotensivo: HPI > 85, MAP ainda no limite',
+    effects:{afterload:-0.10, contractility:-0.15, preload:-0.20, chronotropy:+0.15},
+    waves:{arterial:'hipovolemia'},
+  },
+
+  hipoxia_tec: {
+    name:'Hipóxia tecidual',
+    desc:'↓StO₂ cerebral / extração tecidual aumentada',
+    effects:{contractility:-0.10, chronotropy:+0.20},
+    waves:{},
+    // Limitação: oxigenação ainda não é dimensão modelada explicitamente.
+  },
+
+  hiperdinamico: {
+    name:'Hiperdinâmico (febre / tireotoxicose / anemia aguda)',
+    desc:'IC > 4, SVR baixo — estado hipermetabólico',
+    effects:{chronotropy:+0.45, contractility:+0.25, afterload:-0.30},
+    waves:{arterial:'normal'},
+  },
 };
+
+
+function comorbInfo(key){
+  for(const catKey in COMORBIDITIES){
+    const cat = COMORBIDITIES[catKey];
+    for(const grp of cat.groups){
+      const found = grp.items.find(i => i.key === key);
+      if(found) return {...found, categoryKey: catKey, categoryLabel: cat.label, group: grp.name};
+    }
+  }
+  return null;
+}
+
+
+
+/* ----- Jitter por (paciente × comorbidade × dimensão) -----
+   Cada paciente sorteia uma variação aleatória (uniforme em [-sd, +sd]) por
+   comorbidade-dimensão, estável durante a sessão. SD default = 15% do |effect|.
+   Faz com que dois pacientes "IC FEr" não sejam idênticos. Re-sorteia ao
+   bater no botão "Sortear paciente" (state.patientSeed muda). */
+function getComorbJitter(){
+  if(state._jitterCache && state._jitterCacheSeed === state.patientSeed){
+    return state._jitterCache;
+  }
+  const out = {};
+  for(const k in COMORB_EFFECTS){
+    const eff = COMORB_EFFECTS[k] || {};
+    out[k] = {};
+    for(const d in eff){
+      const sd = Math.abs(eff[d]) * 0.15;
+      out[k][d] = (Math.random() - 0.5) * 2 * sd;
+    }
+  }
+  state._jitterCache = out;
+  state._jitterCacheSeed = state.patientSeed;
+  return out;
+}
+
+/* ----- Cálculo de dimensões com saturação + cache versionado ----- */
+function computeComorbDimensions(){
+  if(state._comorbDimsCache
+     && state._comorbDimsCacheVer === state.comorbVersion
+     && state._comorbDimsCacheSeed === state.patientSeed
+     && state._comorbDimsCacheScen === state.scenario){
+    return state._comorbDimsCache;
+  }
+  const jitter = getComorbJitter();
+  const dims = {contractility:0, rv_contractility:0, afterload:0, preload:0, lv_filling:0, chronotropy:0, pvr:0, compliance:0, permeability:0};
+  // Comorbidades — estado basal crônico
+  const list = (state.patient && state.patient.comorbidities) || [];
+  for(const k of list){
+    const eff = COMORB_EFFECTS[k]; if(!eff) continue;
+    const j = jitter[k] || {};
+    for(const d in eff){ dims[d] = (dims[d]||0) + eff[d] + (j[d]||0); }
+  }
+  // Cenário — descompensação aguda sobreposta. Empilha NA MESMA soma de dimensões
+  // (em vez de aplicar bias direto por param), depois saturação tanh limita o total.
+  const sc = SCENARIOS[state.scenario];
+  if(sc && sc.effects){
+    for(const d in sc.effects){ dims[d] = (dims[d]||0) + sc.effects[d]; }
+  }
+  // Saturação tanh por dimensão — empilhar várias nunca passa do cap.
+  for(const d in dims){
+    const cap = COMORB_DIM_CAPS[d] || 0.5;
+    dims[d] = cap * Math.tanh(dims[d] / cap);
+  }
+  state._comorbDimsCache = dims;
+  state._comorbDimsCacheVer = state.comorbVersion;
+  state._comorbDimsCacheSeed = state.patientSeed;
+  state._comorbDimsCacheScen = state.scenario;
+  return dims;
+}
+
+/* Re-sorteia o paciente: novos jitters por comorbidade.
+   Mantém comorbidades, cenário e overrides. */
+function reseedPatient(){
+  state.patientSeed = (state.patientSeed||0) + 1;
+  state._jitterCache = null;
+  state._comorbDimsCache = null;
+  state.comorbVersion = (state.comorbVersion||0) + 1;
+  applyMergedWavePresets();
+}
+
+/* Multiplicador a aplicar no target de cada parâmetro.
+   1.0 = sem efeito; <1.0 = depressão; >1.0 = aumento.
+   Coeficientes calibrados pra que dimensões em saturação produzam números
+   coerentes com as faixas em clinical/SPEC.md. */
+function comorbBiasMul(pid){
+  const list = state.patient && state.patient.comorbidities;
+  if(!list || !list.length) return 1.0;
+  const d = computeComorbDimensions();
+  switch(pid){
+    // Débito do VE = contratilidade VE × acoplamento série (VD→VE) × penalidade preload-starved.
+    //   - VD falido reduz CO mesmo com VE perfeito (não entrega volume pro VE).
+    //   - lv_filling NEGATIVO (PAOP baixa) também reduz CO direto.
+    //   - lv_filling POSITIVO não aumenta CO (Frank-Starling no platô em quadros crônicos).
+    //   - Floor 0.10: paciente com cenário+comorbidades extremos não vai a CO=0 (PCR seria scenario à parte).
+    case 'SV': case 'SVI': case 'CO': case 'CI':
+    case 'CPO': case 'CPI': case 'CO20':
+      return Math.max(0.10, (1 + d.contractility)
+                          * (1 + 0.5*d.rv_contractility)
+                          * (1 + 1.5*Math.min(0, d.lv_filling)));
+    case 'dPdt':
+      return Math.max(0.15, 1 + 0.8*d.contractility - 0.2*d.compliance);
+    case 'RVEF':
+      // RVEF = função de contratilidade VD; sobrecarga PVR reduz mais.
+      return Math.max(0.10, 1 + 0.7*d.rv_contractility - 0.15*Math.max(0,d.pvr));
+    case 'EDV': case 'EDVI':
+      // EDV do Swan-Ganz mede VD — pré-carga sistêmica + dilatação por disfunção VD
+      return 1 + 0.5*d.preload - 0.3*d.rv_contractility;
+    case 'GEDV': case 'GEDI':
+      // Volume diastólico GLOBAL (PiCCO, todas câmaras) — média preload+lv_filling
+      // Dilatação por disfunção bilateral
+      return 1 + 0.25*d.preload + 0.25*d.lv_filling
+               - 0.15*d.contractility - 0.15*d.rv_contractility;
+    case 'SVR': case 'SVRI':
+      // Floor 0.15: SVR não vai abaixo de ~165 dyn·s·cm⁻⁵ (vasoplegia extrema).
+      return Math.max(0.15, 1 + d.afterload);
+    case 'SAP':
+      // Contratilidade puxa SAP forte; afterload menos; compliance neg → PP ↑
+      return 1 + 0.3*d.afterload + 0.5*d.contractility - 0.25*d.compliance;
+    case 'DAP':
+      // Afterload domina DAP; contratilidade pouco; compliance pos → DAP ↑
+      return 1 + 0.55*d.afterload + 0.15*d.contractility + 0.20*d.compliance;
+    case 'HR':
+      return 1 + d.chronotropy;
+    case 'CVP':
+      // Floor 0.05: CVP não vai negativa (limite físico da pressão venosa central ~0).
+      return Math.max(0.05, 1 + 2.5*d.preload);
+    case 'PAOP':
+      // Linear com pressão de enchimento VE — sobe proporcionalmente.
+      // Coef 2.2 pra que IC FEr (lv_filling sat ~0.88) chegue em PAOP ~26,
+      // EM grave (lv_filling sat ~1.0) chegue em PAOP ~29.
+      // Floor 0.10: PAOP não vai negativa.
+      return Math.max(0.10, 1 + 2.2*d.lv_filling);
+    case 'PAP':
+      // Floor 0.40: PAP m sempre tem componente passivo (~5 mmHg).
+      return Math.max(0.40, 1 + 1.3*d.pvr);
+    case 'SVV': case 'PPV':
+      return Math.max(0.3, 1 - 0.6*d.preload);   // alta pré-carga ⇒ Frank-Starling no platô
+    case 'Eadyn':
+      // Reduzido em IC FEr (depressão miocárdica → resposta vasoconstrição limitada);
+      // aumentado em CMHO/HAS (rigidez arterial); afetado por compliance.
+      return Math.max(0.3, 1 - 0.4*d.compliance + 0.2*d.afterload + 0.8*d.contractility);
+    case 'ScvO2': case 'StO2': case 'StO2_2':
+      return 1 + 0.3*d.contractility - 0.05*Math.max(0,d.chronotropy);
+    case 'EVLW': case 'ELWI':
+      // Modelo de THRESHOLD (Starling/linfáticos) baseado em LV_FILLING (PAOP),
+      // não preload sistêmico — água pulmonar responde à pressão capilar pulmonar
+      // (= AE/VE diastólica), não à pressão venosa central.
+      //   - Permeabilidade adiciona EVLW direto (SDRA, sepse) — vence a barreira capilar.
+      //   - lv_filling sub-threshold: linear pequena (linfáticos absorvem; paciente
+      //     compensado fica no alto-normal).
+      //   - lv_filling acima de 0.85 (≈ PAOP 18, limite da compensação): EDEMA DISPARA
+      //     (perde clearance linfática → escape pra interstício/alvéolo).
+      // Resultado: IC FEr crônica compensada ~5.9; HAP isolada fica normal (lv_filling=0);
+      // EM grave fica alto (lv_filling ↑↑); SDRA fica alto via permeability.
+      return 1 + 1.5*Math.max(0, d.permeability)
+               + 0.15*Math.max(0, d.lv_filling)
+               + 1.5*Math.max(0, d.lv_filling - 0.85);
+    case 'PVPI':
+      // PVPI = EVLW/PBV — discrimina edema cardiogênico (PVPI 1-3) de permeabilidade (PVPI >3).
+      // Não responde a preload — esse é o ponto: permite distinguir IC de SDRA.
+      return 1 + 0.6*d.permeability + 0.05*Math.max(0,d.pvr);
+    case 'CFI': case 'GEF':
+      return 1 + 0.8*d.contractility;
+    case 'HPI':
+      return 1 + Math.max(0,-d.contractility)*3 + Math.max(0,-d.afterload)*2;
+    default:
+      return 1.0;
+  }
+}
+
+/* Merge de wave presets entre cenário e comorbidades.
+   Regras: cenário sempre vence no canal que controla; entre comorbidades
+   o de maior `prio` vence. Os perdedores ficam em `masked` (UI exibe). */
+function computeMergedWaves(){
+  const channels = ['arterial','cvp','pap','ecg','pleth'];
+  const result = {};
+  channels.forEach(ch => result[ch] = {preset:'normal', source:null, masked:[]});
+
+  const sc = SCENARIOS[state.scenario];
+  if(sc && sc.waves){
+    for(const ch of channels){
+      if(sc.waves[ch]) result[ch] = {preset: sc.waves[ch], source:{kind:'scenario', name: sc.name}, masked: []};
+    }
+  }
+  const candidates = {arterial:[], cvp:[], pap:[], ecg:[], pleth:[]};
+  const list = (state.patient && state.patient.comorbidities) || [];
+  for(const k of list){
+    const w = COMORB_WAVES[k]; if(!w) continue;
+    for(const ch in w){
+      candidates[ch].push({key:k, preset:w[ch].p, prio:w[ch].prio});
+    }
+  }
+  for(const ch of channels){
+    const cands = candidates[ch];
+    if(!cands.length) continue;
+    cands.sort((a,b) => b.prio - a.prio);
+    const scenarioControls = result[ch].source && result[ch].source.kind==='scenario' && result[ch].preset !== 'normal';
+    if(scenarioControls){
+      // Cenário vence — todas comorbidades viram masked
+      result[ch].masked = cands.map(c => c.key);
+    } else {
+      const winner = cands[0];
+      const info = comorbInfo(winner.key);
+      result[ch] = {
+        preset: winner.preset,
+        source: {kind:'comorb', name: (info && info.lbl) || winner.key, key: winner.key},
+        masked: cands.slice(1).map(c => c.key),
+      };
+    }
+  }
+  return result;
+}
+
+/* Conjunto de chaves de comorbidade mascaradas em qualquer canal — usado pelos chips. */
+function computeMaskedComorbSet(){
+  const merged = state.wavePresetSources || computeMergedWaves();
+  const masked = new Set();
+  for(const ch in merged){
+    (merged[ch].masked || []).forEach(k => masked.add(k));
+  }
+  return masked;
+}
 
 /* ============================================================
    WAVE_PRESETS — biblioteca de morfologias patológicas
@@ -1864,7 +2149,15 @@ const state = {
   scenario:'normal',
   paused:false,
   speed:1,
-  patient:{age:68,wt:82,ht:178,hgb:12,male:true},
+  patient:{age:68,wt:82,ht:178,hgb:12,male:true,comorbidities:[]},
+  comorbVersion:0,             // bump ao mudar comorbidades — invalida cache de dimensões
+  patientSeed:Math.floor(Math.random()*1e9), // ID aleatório do paciente; muda ao "Sortear paciente"
+  _comorbDimsCache:null,
+  _comorbDimsCacheVer:-1,
+  _comorbDimsCacheSeed:-1,
+  _jitterCache:null,
+  _jitterCacheSeed:-1,
+  wavePresetSources:null,      // {channel: {preset, source, masked[]}} — alimenta resumo + badges
   modules:{}, // id -> bool
   values:{},  // id -> current value
   overrides:{}, // id -> manual value
@@ -1911,16 +2204,21 @@ function setWavePreset(which, preset){
 }
 
 function applyScenarioWavePresets(scenarioKey){
-  // Quando o cenário muda, aplica as morfologias de onda associadas
-  // pra que a curva visual reflita a fisiopatologia do cenário.
-  const sc = SCENARIOS[scenarioKey]; if(!sc) return;
-  const waves = sc.waves || {};
-  // Em cenários sem waves: volta TUDO pra normal
+  // Mantida pra compatibilidade com callsites existentes (select de cenário).
+  // Atualiza o cenário no estado e delega pra applyMergedWavePresets.
+  if(scenarioKey && scenarioKey !== state.scenario) state.scenario = scenarioKey;
+  applyMergedWavePresets();
+}
+
+function applyMergedWavePresets(){
+  // Calcula merge entre waves do cenário + waves das comorbidades (cenário vence;
+  // entre comorbidades, maior `prio` vence; demais ficam em `masked`).
+  const merged = computeMergedWaves();
+  state.wavePresetSources = merged;
   ['arterial','cvp','pap','ecg','pleth'].forEach(which => {
-    const targetPreset = waves[which] || 'normal';
-    if(state.wavePresets[which] !== targetPreset){
-      // Usa setWavePreset que ja reseta buffer/canvas e aplica efeitos clinicos
-      setWavePreset(which, targetPreset);
+    const target = (merged[which] && merged[which].preset) || 'normal';
+    if(state.wavePresets[which] !== target){
+      setWavePreset(which, target);
     }
   });
 }
@@ -1945,13 +2243,15 @@ function applyPresetClinicalEffects(which, presetKey){
       const newDAP = baseDAP * dapMul;
       state.overrides.SAP = newSAP;
       state.overrides.DAP = newDAP;
-      state.overrides.MAP = (newSAP + 2 * newDAP) / 3;
+      // MAP agora é derivada pelo engine como (SAP+2·DAP)/3; limpamos o
+      // override pra evitar valor stale de execuções anteriores.
+      delete state.overrides.MAP;
     }
     // Casos especiais
     if(presetKey === 'cpb'){
       // CPB não-pulsátil: SAP ≈ DAP ≈ MAP (~70 mmHg)
       state.overrides.SAP = 75; state.overrides.DAP = 70;
-      state.overrides.MAP = (75 + 2*70) / 3;
+      delete state.overrides.MAP;
     }
     if(presetKey === 'paradox'){
       // Pulso paradoxal: SAP varia muito com respiração — médias normais
@@ -2124,6 +2424,7 @@ const OSC_PROFILE = {
   SVRI:{slow:0.020,mayer:0.025,resp:0.005},
   CVP:{slow:0.025,mayer:0.015,resp:0.060},       // CVP varia muito com respiração
   PAP:{slow:0.018,mayer:0.020,resp:0.045},
+  PAOP:{slow:0.020,mayer:0.018,resp:0.040},
   // Variabilidade
   SVV:{slow:0.06, mayer:0.08, resp:0.05},        // SVV oscila mais (é uma variação)
   PPV:{slow:0.06, mayer:0.08, resp:0.05},
@@ -2151,7 +2452,8 @@ state.oscPhase = state.oscPhase || (() => {
 state.engineTime = state.engineTime || 0;
 
 function tickEngine(dt){
-  const sc = SCENARIOS[state.scenario].bias;
+  // Cenário não usa mais bias direto; suas effects entram em computeComorbDimensions
+  // (somam com comorbidades, saturam juntos). bias removido em mai/2026.
   state.engineTime += dt;
   // Master ON/OFF: quando o monitoramento está parado, todos os parâmetros congelam.
   if(state.monitoringActive === false) return;
@@ -2161,6 +2463,10 @@ function tickEngine(dt){
   const ccoFrozen = (state.ccoActive === false);
   const ccoFrozenSet = ccoFrozen ? new Set(['CO','CI','SV','SVI','RVEF','EDV','EDVI']) : null;
   for(const pid in PARAMS){
+    // MAP é DERIVADA — calculada após o loop como (SAP+2·DAP)/3 pra garantir
+    // que monitor e resumo do paciente sempre batam. Sem random walk próprio.
+    // Override explícito (preset de morfologia ou usuário) vence na derivação abaixo.
+    if(pid === 'MAP') continue;
     if(state.overrides[pid]!==undefined){
       state.values[pid] = state.overrides[pid];
     } else if(ccoFrozen && ccoFrozenSet.has(pid)){
@@ -2170,7 +2476,7 @@ function tickEngine(dt){
       }
     } else {
       const p = PARAMS[pid];
-      const baseTarget = (sc[pid]!==undefined) ? p.base * sc[pid] : p.base;
+      const baseTarget = p.base * comorbBiasMul(pid);
       // Oscilação fisiológica multi-escala
       const osc = OSC_PROFILE[pid] || OSC_PROFILE.__default;
       const ph = state.oscPhase[pid] || 0;
@@ -2192,6 +2498,15 @@ function tickEngine(dt){
       if(pid==='Eadyn') nv = Math.max(0.1,Math.min(2.5,nv));
       state.values[pid] = nv;
     }
+  }
+  // MAP — derivada IMEDIATAMENTE após o loop, antes de qualquer outro derivado
+  // que dependa dela (CPO etc.). Override explícito vence (preset de morfologia
+  // como insuf_aortica, ou input do usuário); senão = (SAP + 2·DAP) / 3.
+  // Isto garante que (SAP + 2·DAP)/3 = MAP em TODA tela, sempre.
+  if(state.overrides.MAP !== undefined){
+    state.values.MAP = state.overrides.MAP;
+  } else if(state.values.SAP != null && state.values.DAP != null){
+    state.values.MAP = (state.values.SAP + 2 * state.values.DAP) / 3;
   }
   // Coerência básica: derivar CI a partir de CO/BSA quando disponível.
   // SVRI continua derivando porque depende de SVR (não-CCO). Os demais não
@@ -7406,6 +7721,65 @@ function openControlsPopup(){
   .speed-modes{display:flex;gap:6px;margin-top:6px}
   .speed-modes button{flex:1;background:#161b24;border:1px solid #2a3140;color:#9aa6b8;padding:6px;border-radius:4px;font-size:11px;cursor:pointer}
   .speed-modes button.on{border-color:#3aa6ff;color:#3aa6ff;background:#13202c}
+  /* ----- Comorbidades (collapsible com checkbox panels) ----- */
+  details.comorb{margin:8px 0 14px;border:1px solid #2a3140;border-radius:4px;background:#0e131b;overflow:hidden}
+  details.comorb>summary{cursor:pointer;padding:8px 12px;font-size:11px;letter-spacing:1.5px;color:#9aa6b8;text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+  details.comorb>summary::-webkit-details-marker{display:none}
+  details.comorb>summary::before{content:'▸';font-size:11px;color:#3aa6ff;display:inline-block;transition:transform .15s;width:10px}
+  details.comorb[open]>summary::before{transform:rotate(90deg)}
+  details.comorb>summary:hover{background:#11171f}
+  details.comorb>summary .count{margin-left:auto;background:#13202c;color:#3aa6ff;padding:1px 8px;border-radius:10px;font-size:10px;letter-spacing:.5px;border:1px solid #1d3f5e;font-weight:500;text-transform:none;min-width:22px;text-align:center}
+  details.comorb>summary .count.zero{color:#5a6271;background:transparent;border-color:#2a3140}
+  .comorb-body{padding:4px 12px 12px;border-top:1px solid #1c2330}
+  .comorb-cat-wrap{margin-top:10px}
+  .comorb-cat-wrap:first-child{margin-top:4px}
+  details.comorb-cat{border:1px solid #2a3140;border-radius:4px;background:#10141c;overflow:hidden}
+  details.comorb-cat[open]{border-color:#3a4b62}
+  details.comorb-cat>summary.comorb-add-btn{cursor:pointer;padding:7px 10px;font-size:12px;color:#cfe5ff;list-style:none;display:flex;align-items:center;gap:8px;user-select:none}
+  details.comorb-cat>summary.comorb-add-btn::-webkit-details-marker{display:none}
+  details.comorb-cat>summary.comorb-add-btn::before{content:'▸';font-size:10px;color:#5a6271;display:inline-block;width:10px;transition:transform .15s;flex-shrink:0}
+  details.comorb-cat[open]>summary.comorb-add-btn::before{transform:rotate(90deg);color:#3aa6ff}
+  details.comorb-cat>summary.comorb-add-btn:hover{background:#161c26}
+  details.comorb-cat[open]>summary.comorb-add-btn{border-bottom:1px solid #1c2330}
+  .comorb-cnt{margin-left:auto;background:#13202c;color:#3aa6ff;padding:1px 7px;border-radius:9px;font-size:10px;border:1px solid #1d3f5e;font-weight:500;min-width:20px;text-align:center}
+  .comorb-cnt.zero{color:#5a6271;background:transparent;border-color:#2a3140}
+  .comorb-panel{max-height:240px;overflow-y:auto;padding:8px 10px;background:#0a0e14}
+  .comorb-grp{margin-bottom:10px}
+  .comorb-grp:last-child{margin-bottom:0}
+  .comorb-grp-title{font-size:9px;letter-spacing:1px;color:#6b7689;text-transform:uppercase;margin:0 0 4px;font-weight:600;padding-bottom:2px;border-bottom:1px solid #1c2330}
+  .comorb-opt{display:flex;align-items:center;gap:8px;padding:3px 4px;font-size:12px;color:#cfe5ff;cursor:pointer;border-radius:3px;line-height:1.3}
+  .comorb-opt:hover{background:#13202c}
+  .comorb-opt input{accent-color:#3aa6ff;cursor:pointer;margin:0;flex-shrink:0}
+  .comorb-chips{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 0}
+  .comorb-chip{display:inline-flex;align-items:center;gap:4px;background:#13202c;color:#cfe5ff;border:1px solid #1d3f5e;border-radius:11px;padding:2px 4px 2px 9px;font-size:11px;line-height:1.4}
+  .comorb-chip button{background:transparent;border:0;color:#7ab3e0;cursor:pointer;font-size:14px;line-height:1;padding:0 5px;border-radius:50%;font-family:inherit}
+  .comorb-chip button:hover{background:#244a6e;color:#ff9090}
+  .comorb-empty{font-size:10px;color:#5a6271;font-style:italic;padding:2px 0}
+  .comorb-chip.masked{opacity:0.92;border-style:dashed;background:#1a1610;border-color:#4a3a1f}
+  .comorb-chip-dot{color:#ffb74d;margin-right:3px;font-size:11px;cursor:help}
+  /* ----- Resumo do paciente ----- */
+  .resume-hint{margin:0 0 8px;font-size:10px;color:#6b7689;font-style:italic}
+  .resume-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px 8px;margin:0 0 10px}
+  .resume-row{display:flex;align-items:center;gap:6px;font-size:12px;background:#10141c;border:1px solid #1c2330;border-radius:4px;padding:5px 8px;min-height:30px}
+  .resume-row .lbl{color:#9aa6b8;flex-shrink:0;width:48px;font-weight:500}
+  .resume-row input{width:62px;background:#0a0e14;border:1px solid #2a3140;color:#e8edf3;border-radius:3px;padding:3px 6px;font-size:12px;text-align:right;font-variant-numeric:tabular-nums;font-family:inherit}
+  .resume-row input:focus{border-color:#3aa6ff;outline:none;background:#0d1219}
+  .resume-row input.overridden{border-color:#ffc445;color:#ffc445}
+  .resume-row input.out-of-range{border-color:#ffc445;color:#ffc445;box-shadow:0 0 0 1px rgba(255,196,69,0.18) inset}
+  .resume-row.out-of-range .lbl{color:#ffc445}
+  .resume-row.out-of-range .sug{color:#ffc445;opacity:0.85}
+  .resume-row .unit{color:#5a6271;font-size:10px;flex-shrink:0;min-width:30px}
+  .resume-row .sug{margin-left:auto;color:#5a6271;font-size:9px;letter-spacing:.3px;white-space:nowrap;flex-shrink:0}
+  .resume-row.derived input{background:transparent;border-color:#1c2330;color:#cfe5ff;cursor:default}
+  .resume-waves{margin:0 0 10px;background:#10141c;border:1px solid #1c2330;border-radius:4px;padding:8px 10px}
+  .resume-waves-title{font-size:9px;letter-spacing:1px;color:#6b7689;text-transform:uppercase;margin-bottom:6px;font-weight:600}
+  .resume-wave-row{display:grid;grid-template-columns:60px 1fr;gap:8px;font-size:11px;padding:3px 0;align-items:start}
+  .resume-wave-row .ch{color:#9aa6b8;font-weight:500;padding-top:1px}
+  .resume-wave-row .preset{color:#cfe5ff;line-height:1.3}
+  .resume-wave-row .src{color:#6b7689;font-size:10px;margin-left:4px}
+  .resume-wave-row .masked-list{color:#ffb74d;font-size:10px;font-style:italic;margin-top:2px}
+  .resume-revert{width:100%;background:#161b24;border:1px solid #2a3140;color:#9aa6b8;padding:7px;border-radius:4px;font-size:11px;cursor:pointer;letter-spacing:.5px;font-family:inherit}
+  .resume-revert:hover{border-color:#3aa6ff;color:#3aa6ff;background:#13202c}
 </style>
 </head>
 <body>
@@ -7415,8 +7789,53 @@ function openControlsPopup(){
   <span class="sub">Hemosphere</span>
 </div>
 <div class="body">
+  <details class="comorb" id="comorbBlock">
+    <summary>Comorbidades <span class="count zero" id="comorbCount">0</span></summary>
+    <div class="comorb-body">
+      <div class="comorb-cat-wrap">
+        <details class="comorb-cat" name="comorb-acc">
+          <summary class="comorb-add-btn">
+            <span>Doenças crônicas comuns</span>
+            <span class="comorb-cnt zero" id="comorbCronicasCnt">0</span>
+          </summary>
+          <div class="comorb-panel" id="comorbCronicasPanel"></div>
+        </details>
+        <div class="comorb-chips" id="comorbCronicasChips"></div>
+      </div>
+      <div class="comorb-cat-wrap">
+        <details class="comorb-cat" name="comorb-acc">
+          <summary class="comorb-add-btn">
+            <span>Cardiopatias</span>
+            <span class="comorb-cnt zero" id="comorbCardioCnt">0</span>
+          </summary>
+          <div class="comorb-panel" id="comorbCardioPanel"></div>
+        </details>
+        <div class="comorb-chips" id="comorbCardioChips"></div>
+      </div>
+      <div class="comorb-cat-wrap">
+        <details class="comorb-cat" name="comorb-acc">
+          <summary class="comorb-add-btn">
+            <span>Doenças respiratórias</span>
+            <span class="comorb-cnt zero" id="comorbRespCnt">0</span>
+          </summary>
+          <div class="comorb-panel" id="comorbRespPanel"></div>
+        </details>
+        <div class="comorb-chips" id="comorbRespChips"></div>
+      </div>
+    </div>
+  </details>
+
   <h2>Cenário Clínico</h2>
   <select id="scen"></select>
+
+  <h2>Resumo do paciente</h2>
+  <p class="resume-hint">Sugerido pelo cenário + comorbidades. Cada paciente sorteia variações aleatórias (jitter ±15%) dentro da faixa típica de cada comorbidade — clique em "Sortear paciente" pra um novo perfil. Edite qualquer campo pra sobrepor.</p>
+  <div class="resume-grid" id="resumeGrid"></div>
+  <div class="resume-waves" id="resumeWaves"></div>
+  <div style="display:flex;gap:6px">
+    <button class="resume-revert" id="btnReseedPatient" style="flex:1">🎲 Sortear paciente</button>
+    <button class="resume-revert" id="btnResumeRevert" style="flex:1">↻ Reverter para sugeridos</button>
+  </div>
 
   <h2>Animação</h2>
   <div class="opt"><span>Pausar simulação</span><input type="checkbox" id="optPause"></div>
@@ -7472,7 +7891,287 @@ function openControlsPopup(){
       applyScenarioWavePresets(e.target.value);
       const m = document.getElementById('statusMsg');
       if(m) m.textContent = 'Cenário: ' + SCENARIOS[e.target.value].name;
+      // Re-render do resumo + chips (algumas comorbidades podem virar/sair de masked)
+      if(typeof renderResume === 'function') renderResume();
+      if(typeof refreshComorbDisplay === 'function') refreshComorbDisplay();
     });
+
+    // Comorbidades — checkbox panels com chips
+    state.patient.comorbidities = state.patient.comorbidities || [];
+    const COMORB_CATS = [
+      {key:'cronicas', cntId:'comorbCronicasCnt', panelId:'comorbCronicasPanel', chipsId:'comorbCronicasChips'},
+      {key:'cardio',   cntId:'comorbCardioCnt',   panelId:'comorbCardioPanel',   chipsId:'comorbCardioChips'},
+      {key:'resp',     cntId:'comorbRespCnt',     panelId:'comorbRespPanel',     chipsId:'comorbRespChips'},
+    ];
+    function comorbCatKeys(catKey){
+      const cat = COMORBIDITIES[catKey]; if(!cat) return new Set();
+      const s = new Set();
+      cat.groups.forEach(g => g.items.forEach(i => s.add(i.key)));
+      return s;
+    }
+    function renderComorbPanel(catKey, panelEl){
+      const cat = COMORBIDITIES[catKey]; if(!cat) return;
+      const selected = new Set(state.patient.comorbidities||[]);
+      panelEl.innerHTML = '';
+      cat.groups.forEach(grp => {
+        const wrap = w.document.createElement('div');
+        wrap.className = 'comorb-grp';
+        const title = w.document.createElement('div');
+        title.className = 'comorb-grp-title';
+        title.textContent = grp.name;
+        wrap.appendChild(title);
+        grp.items.forEach(it => {
+          const lbl = w.document.createElement('label');
+          lbl.className = 'comorb-opt';
+          const cb = w.document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = it.key;
+          cb.id = 'comorbCb_' + it.key;
+          cb.checked = selected.has(it.key);
+          cb.addEventListener('change', () => {
+            const list = state.patient.comorbidities = state.patient.comorbidities || [];
+            if(cb.checked){
+              if(!list.includes(it.key)) list.push(it.key);
+            } else {
+              state.patient.comorbidities = list.filter(c => c !== it.key);
+            }
+            onComorbChange();
+          });
+          lbl.appendChild(cb);
+          lbl.appendChild(w.document.createTextNode(' ' + it.lbl));
+          wrap.appendChild(lbl);
+        });
+        panelEl.appendChild(wrap);
+      });
+    }
+    function renderComorbChips(catKey, chipsEl){
+      const validKeys = comorbCatKeys(catKey);
+      const selected = (state.patient.comorbidities||[]).filter(k => validKeys.has(k));
+      const masked = computeMaskedComorbSet();
+      chipsEl.innerHTML = '';
+      if(!selected.length){
+        const empty = w.document.createElement('div');
+        empty.className = 'comorb-empty';
+        empty.textContent = 'Nenhuma selecionada';
+        chipsEl.appendChild(empty);
+        return;
+      }
+      selected.forEach(k => {
+        const info = comorbInfo(k); if(!info) return;
+        const chip = w.document.createElement('span');
+        chip.className = 'comorb-chip';
+        if(masked.has(k)){
+          chip.classList.add('masked');
+          chip.title = 'Morfologia desta comorbidade está mascarada por outra comorbidade ou pelo cenário (números continuam aplicados)';
+          const dot = w.document.createElement('span');
+          dot.className = 'comorb-chip-dot';
+          dot.textContent = '◐';
+          chip.appendChild(dot);
+        }
+        chip.appendChild(w.document.createTextNode(info.lbl));
+        const x = w.document.createElement('button');
+        x.type = 'button'; x.textContent = '×'; x.title = 'Remover';
+        x.addEventListener('click', (e) => {
+          e.preventDefault();
+          state.patient.comorbidities = (state.patient.comorbidities||[]).filter(c => c !== k);
+          // Desmarca o checkbox correspondente no painel (sem re-renderizar)
+          const cb = $p('comorbCb_' + k);
+          if(cb) cb.checked = false;
+          onComorbChange();
+        });
+        chip.appendChild(x);
+        chipsEl.appendChild(chip);
+      });
+    }
+    function refreshComorbDisplay(){
+      const list = state.patient.comorbidities || [];
+      COMORB_CATS.forEach(c => {
+        const validKeys = comorbCatKeys(c.key);
+        const n = list.filter(k => validKeys.has(k)).length;
+        const cnt = $p(c.cntId);
+        if(cnt){
+          cnt.textContent = String(n);
+          cnt.classList.toggle('zero', n === 0);
+        }
+        const chips = $p(c.chipsId);
+        if(chips) renderComorbChips(c.key, chips);
+      });
+      const totalCnt = $p('comorbCount');
+      if(totalCnt){
+        totalCnt.textContent = String(list.length);
+        totalCnt.classList.toggle('zero', list.length === 0);
+      }
+    }
+    // Quando o usuário muda comorbidades: bump versão (invalida cache de dimensões),
+    // re-aplica wave presets (com merge cenário+comorbidades), atualiza chips e resumo.
+    function onComorbChange(){
+      state.comorbVersion = (state.comorbVersion||0) + 1;
+      applyMergedWavePresets();
+      refreshComorbDisplay();
+      if(typeof renderResume === 'function') renderResume();
+    }
+    // Renderiza painéis de checkbox UMA vez (não re-renderiza ao marcar — preserva scroll/foco).
+    COMORB_CATS.forEach(c => {
+      const panel = $p(c.panelId);
+      if(panel) renderComorbPanel(c.key, panel);
+    });
+    refreshComorbDisplay();
+    if((state.patient.comorbidities||[]).length){
+      const blk = $p('comorbBlock'); if(blk) blk.open = true;
+    }
+
+    // ============ Resumo do paciente ============
+    const RESUME_PIDS = [
+      {pid:'HR',    lbl:'FC',    unit:'bpm',          decimals:0},
+      {pid:'SAP',   lbl:'PAS',   unit:'mmHg',         decimals:0},
+      {pid:'DAP',   lbl:'PAD',   unit:'mmHg',         decimals:0},
+      {pid:'MAP',   lbl:'PAM',   unit:'mmHg',         decimals:0, derived:true},
+      {pid:'CO',    lbl:'DC',    unit:'L/min',        decimals:1},
+      {pid:'SVR',   lbl:'RVS',   unit:'dyn·s·cm⁻⁵',   decimals:0},
+      {pid:'CVP',   lbl:'PVC',   unit:'mmHg',         decimals:0},
+      {pid:'PAP',   lbl:'PAP',   unit:'mmHg',         decimals:0},
+      {pid:'PAOP',  lbl:'PAOP',  unit:'mmHg',         decimals:0},
+      {pid:'dPdt',  lbl:'dP/dt', unit:'mmHg/s',       decimals:0},
+      {pid:'SVV',   lbl:'SVV',   unit:'%',            decimals:0},
+      {pid:'ScvO2', lbl:'ScvO₂', unit:'%',            decimals:0},
+    ];
+    const WAVE_CHANNEL_LABELS = {arterial:'Arterial', cvp:'PVC', pap:'PAP', ecg:'ECG', pleth:'Pleth'};
+    function presetLabel(channel, presetKey){
+      const grp = WAVE_PRESETS[channel] || {};
+      const p = grp[presetKey];
+      return p ? p.name : presetKey;
+    }
+    function computeSuggested(pid){
+      const p = PARAMS[pid]; if(!p) return null;
+      if(pid === 'MAP'){
+        const sap = computeSuggested('SAP');
+        const dap = computeSuggested('DAP');
+        if(sap != null && dap != null) return (sap + 2*dap)/3;
+      }
+      // Cenário e comorbidades agora ambos passam por comorbBiasMul (via computeComorbDimensions).
+      return p.base * comorbBiasMul(pid);
+    }
+    function effectiveValue(pid){
+      // Se há override (manual ou imposto pela morfologia de onda), o input mostra o override.
+      if(state.overrides[pid] !== undefined) return state.overrides[pid];
+      return computeSuggested(pid);
+    }
+    function refreshResume(){
+      RESUME_PIDS.forEach(it => {
+        const inp = $p('resumeInp_' + it.pid);
+        const sug = $p('resumeSug_' + it.pid);
+        const suggested = computeSuggested(it.pid);
+        const effective = effectiveValue(it.pid);
+        // Faixa fisiológica vem de PARAMS[pid].target. PAM derivada usa target da MAP.
+        const targetRange = (PARAMS[it.pid] && PARAMS[it.pid].target) || null;
+        const outOfRange = targetRange && effective != null
+          && (effective < targetRange[0] || effective > targetRange[1]);
+        if(inp){
+          const overridden = state.overrides[it.pid] !== undefined;
+          // Se o input não está em foco, atualiza o valor exibido
+          if(w.document.activeElement !== inp){
+            inp.value = (effective != null) ? effective.toFixed(it.decimals) : '';
+          }
+          inp.classList.toggle('overridden', overridden);
+          inp.classList.toggle('out-of-range', !!outOfRange);
+          // A row inteira ganha a classe pra rótulo e "sug." também ficarem âmbar
+          const row = inp.closest('.resume-row');
+          if(row) row.classList.toggle('out-of-range', !!outOfRange);
+        }
+        if(sug && suggested != null){
+          sug.textContent = 'sug. ' + suggested.toFixed(it.decimals);
+        }
+      });
+    }
+    function renderResume(){
+      const grid = $p('resumeGrid');
+      const wavesEl = $p('resumeWaves');
+      if(!grid || !wavesEl) return;
+      grid.innerHTML = '';
+      RESUME_PIDS.forEach(it => {
+        const row = w.document.createElement('div');
+        row.className = 'resume-row' + (it.derived ? ' derived' : '');
+        const lbl = w.document.createElement('span'); lbl.className='lbl'; lbl.textContent = it.lbl;
+        row.appendChild(lbl);
+        const inp = w.document.createElement('input');
+        inp.type = 'number'; inp.id = 'resumeInp_' + it.pid;
+        if(it.derived) inp.readOnly = true;
+        row.appendChild(inp);
+        const unit = w.document.createElement('span'); unit.className='unit'; unit.textContent = it.unit;
+        row.appendChild(unit);
+        const sug = w.document.createElement('span'); sug.className='sug'; sug.id = 'resumeSug_' + it.pid;
+        row.appendChild(sug);
+        grid.appendChild(row);
+        if(!it.derived){
+          inp.addEventListener('input', e => {
+            const v = e.target.value.trim();
+            if(v === ''){ delete state.overrides[it.pid]; }
+            else {
+              const num = parseFloat(v);
+              if(!isNaN(num)) state.overrides[it.pid] = num;
+            }
+            // PAM agora é derivada pelo engine como (SAP+2·DAP)/3 — limpamos
+            // qualquer override prévio pra que a derivação ocorra com SAP/DAP atualizados.
+            if(it.pid === 'SAP' || it.pid === 'DAP') delete state.overrides.MAP;
+            refreshResume();
+          });
+        }
+      });
+      // Bloco de morfologia
+      wavesEl.innerHTML = '';
+      const title = w.document.createElement('div'); title.className='resume-waves-title';
+      title.textContent = 'Morfologia das ondas';
+      wavesEl.appendChild(title);
+      const merged = state.wavePresetSources || computeMergedWaves();
+      ['ecg','arterial','cvp','pap','pleth'].forEach(ch => {
+        const m = merged[ch] || {preset:'normal'};
+        const row = w.document.createElement('div'); row.className = 'resume-wave-row';
+        const lblCh = w.document.createElement('span'); lblCh.className='ch';
+        lblCh.textContent = WAVE_CHANNEL_LABELS[ch] || ch;
+        row.appendChild(lblCh);
+        const presetWrap = w.document.createElement('div');
+        const presetSpan = w.document.createElement('span'); presetSpan.className='preset';
+        presetSpan.textContent = presetLabel(ch, m.preset);
+        if(m.source){
+          const src = w.document.createElement('span'); src.className='src';
+          src.textContent = m.source.kind === 'scenario'
+            ? '· cenário: ' + m.source.name
+            : '· ' + m.source.name;
+          presetSpan.appendChild(src);
+        }
+        presetWrap.appendChild(presetSpan);
+        if(m.masked && m.masked.length){
+          const list = m.masked.map(k => (comorbInfo(k)||{}).lbl || k).join(', ');
+          const masked = w.document.createElement('div'); masked.className='masked-list';
+          masked.textContent = '◐ mascarada: ' + list;
+          presetWrap.appendChild(masked);
+        }
+        row.appendChild(presetWrap);
+        wavesEl.appendChild(row);
+      });
+      refreshResume();
+    }
+    // Reverter — limpa overrides dos parâmetros do resumo e re-aplica morfologia
+    // (faz com que overrides impostos por wave preset voltem)
+    const btnRevert = $p('btnResumeRevert');
+    if(btnRevert){
+      btnRevert.addEventListener('click', () => {
+        RESUME_PIDS.forEach(it => { delete state.overrides[it.pid]; });
+        applyMergedWavePresets();
+        renderResume();
+      });
+    }
+    // Sortear paciente — re-rola os jitters aleatórios das comorbidades
+    // (cada paciente vira um perfil único dentro da faixa típica).
+    const btnReseed = $p('btnReseedPatient');
+    if(btnReseed){
+      btnReseed.addEventListener('click', () => {
+        reseedPatient();
+        renderResume();
+        if(typeof refreshComorbDisplay === 'function') refreshComorbDisplay();
+      });
+    }
+    renderResume();
 
     // Pausar
     $p('optPause').checked = state.paused;
@@ -7502,17 +8201,10 @@ function openControlsPopup(){
     const slHost = $p('manualSliders');
     const sliderParams = ['CO','SAP','DAP','HR','SVR','SVV','CVP','ScvO2','StO2','HPI','dPdt'];
 
-    // Função pra recomputar PAM a partir de SAP/DAP atuais (override ou valor real)
-    function syncMAP(){
-      const sap = state.overrides.SAP !== undefined ? state.overrides.SAP : state.values.SAP;
-      const dap = state.overrides.DAP !== undefined ? state.overrides.DAP : state.values.DAP;
-      if(sap != null && dap != null){
-        const map = (sap + 2*dap) / 3;
-        state.overrides.MAP = map;
-      } else {
-        delete state.overrides.MAP;
-      }
-    }
+    // PAM é derivada pelo engine como (SAP+2·DAP)/3 a cada tick. Esta função
+    // só garante que não exista um override stale de MAP — a derivação então
+    // acontece com os valores atuais (override de SAP/DAP ou random walk).
+    function syncMAP(){ delete state.overrides.MAP; }
 
     sliderParams.forEach(pid => {
       const p = PARAMS[pid]; if(!p) return;
