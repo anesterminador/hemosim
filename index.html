@@ -1304,6 +1304,29 @@ canvas.spark{display:block;width:100%;height:30px}
   body.locked-classic #mainArea{grid-template-columns:clamp(48px, 7vh, 64px) minmax(0,1fr) !important}
   .bigtile .num{font-size:64px}
 }
+
+/* ===== Mobile portrait: rotaciona pra paisagem 4:3 =====
+   Quando o dispositivo está em portrait E é estreito (mobile/tablet pequeno),
+   rotaciona o body 90° pra forçar visualização horizontal. O usuário vê o
+   simulador "deitado" em qualquer rotação física. Quando o aparelho gira
+   pra paisagem nativa, o @media solta e tudo volta ao normal.
+   Touch events continuam funcionando — o navegador mapeia coords pelo transform. */
+@media (orientation:portrait) and (max-width:900px){
+  html,body{overflow:hidden;height:100vh}
+  body{
+    width:100vh; height:100vw;
+    transform:rotate(90deg);
+    transform-origin:top left;
+    position:absolute;
+    top:0; left:100vw;
+  }
+  /* No frame rotacionado, dims úteis = 100vh × 100vw (swapped).
+     Recalcula o 4:3 do #app pra usar as dimensões corretas pós-rotação. */
+  body.locked-classic #app{
+    width:min(100vh, calc(100vw * 4 / 3));
+    height:min(100vw, calc(100vh * 3 / 4));
+  }
+}
 </style>
 </head>
 <body>

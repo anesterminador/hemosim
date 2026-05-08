@@ -33,7 +33,13 @@
       "Bash(pdfinfo \"C:/Users/Davi/Downloads/HEM1 Modelo de Instruções de Uso \\(1\\).PDF\")",
       "Bash(pdftotext -layout \"C:/Users/Davi/Downloads/HEM1 Modelo de Instruções de Uso \\(1\\).PDF\" /tmp/hem1.txt)",
       "Bash(awk 'NR>=1488 && NR<=1700' /tmp/hem1.txt)",
-      "Bash(awk 'NR>=1740 && NR<=1900' /tmp/hem1.txt)"
+      "Bash(awk 'NR>=1740 && NR<=1900' /tmp/hem1.txt)",
+      "Bash(python -m py_compile \"C:/Users/Davi/OneDrive/Anest-Review/Extensivo OneDrive/Scripts/PDF/renomear_pdfs_doi_e_livros.pyw\")",
+      "Bash(python -c \"import fitz; print\\('pymupdf', fitz.__version__\\)\")",
+      "Bash(python -c \"import pypdfium2; print\\('pypdfium2', pypdfium2.__version__\\)\")",
+      "Bash(python -c \"from PIL import Image, ImageTk; print\\('Pillow OK'\\)\")",
+      "Bash(python -c \"from PIL import Image, __version__ as v; print\\('Pillow', v\\); print\\('has Resampling:', hasattr\\(Image, 'Resampling'\\)\\); print\\('has LANCZOS:', hasattr\\(Image, 'LANCZOS'\\)\\)\")",
+      "Bash(python -c ' *)"
     ]
   }
 }
